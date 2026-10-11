@@ -35,7 +35,12 @@ const markIntroSeen = () => {
  * springt derselbe Link per Anker zum Abschnitt.
  */
 const hashId = (ids: ObjectId[]): ObjectId | null => {
-  const h = decodeURIComponent(location.hash.slice(1)).toLowerCase();
+  let h: string;
+  try {
+    h = decodeURIComponent(location.hash.slice(1)).toLowerCase();
+  } catch {
+    return null; // kaputte %-Folge (z. B. `#%`) = unbekannter Link
+  }
   return (ids as string[]).includes(h) ? (h as ObjectId) : null;
 };
 const writeHash = (id: ObjectId | null) => {
@@ -274,23 +279,28 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     document.getElementById(id)?.scrollIntoView({ block: "start" });
   }, [tourOrder]);
 
-  // Hash von Hand geändert (oder Link auf derselben Seite): dorthin fliegen bzw. zurück
-  useEffect(() => {
-    const onHash = () => {
-      if (getView().view !== "sky" || !api.current) return;
-      const id = hashId(tourOrder);
-      if (id && id !== focusedRef.current) focus(id);
-      else if (!id && focusedRef.current) home();
-    };
-    addEventListener("hashchange", onHash);
-    return () => removeEventListener("hashchange", onHash);
+  // Himmel an den Hash angleichen: dorthin fliegen bzw. zurück
+  const syncHash = useCallback(() => {
+    if (getView().view !== "sky" || !api.current) return;
+    const id = hashId(tourOrder);
+    if (id && id !== focusedRef.current) focus(id);
+    else if (!id && focusedRef.current) home();
   }, [focus, home, tourOrder]);
 
+  // Hash von Hand geändert (oder Link auf derselben Seite)
+  useEffect(() => {
+    addEventListener("hashchange", syncHash);
+    return () => removeEventListener("hashchange", syncHash);
+  }, [syncHash]);
+
   // Listenansicht: Szene anhalten (GPU schonen), beim Zurückkehren weiterlaufen lassen.
+  // Zurück im Himmel: Hat man in der Liste einen anderen Abschnitt angesprungen,
+  // fliegt die Szene dorthin, damit Fokus und Link wieder übereinstimmen.
   useEffect(() => {
     api.current?.setPaused(!active);
     sound.current?.suspend(!active);
-  }, [active]);
+    if (active) syncHash();
+  }, [active, syncHash]);
 
   // Bedienelemente während der Titelkarte ausblenden, danach gestaffelt einblenden.
   useEffect(() => {
