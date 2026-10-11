@@ -712,6 +712,13 @@ html[data-intro="title"] .legend :is(.legend-btn, .legend-list),
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
 }
+/* Erklärung der Commit-Sterne: leise, unter den Tags */
+.p-commits {
+  margin: 12px 0 0;
+  font: 400 9.5px/1.6 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--fg-3);
+}
 .p-body {
   margin-top: 28px;
   padding-top: 28px;

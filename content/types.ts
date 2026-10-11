@@ -150,6 +150,8 @@ export type SiteContent = {
     /** Einblick vergrößern bzw. Vergrößerung schließen. */
     enlarge: string;
     shrink: string;
+    /** Erklärt die Commit-Sterne im Panel der Projekte, die welche haben. */
+    commitNote: string;
   };
   tourOrder: ObjectId[];
   objects: Record<ObjectId, CelestialContent>;

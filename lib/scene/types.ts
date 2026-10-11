@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+import type { CommitHost } from "./commits";
 import type { Rng } from "./util";
 
 export type Uniform<T> = { value: T };
@@ -82,6 +83,8 @@ export type Celestial = {
    * Knoten + verbundene Projekte zu zeigen.
    */
   framing?: { spheres: { pos: THREE.Vector3; r: number }[]; view: THREE.Vector3 };
+  /** Wo die Commit-Sterne sitzen; ohne Angabe als Hülle um `root` (Radius `visR`). */
+  commitHost?: CommitHost;
   /** Untergrenze fürs Abdimmen (Alper strahlt immer ein wenig). */
   minDim?: number;
   update?: (s: FrameState) => void;

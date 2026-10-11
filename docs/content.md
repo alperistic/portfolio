@@ -71,6 +71,15 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 
 ---
 
+## Commit-Sterne
+
+Um offerre, insertcoin.lol und die Evidence-First Pipeline sitzt je Commit ein kleiner Stern, innen die ältesten, außen die neuesten (freigegeben von Alper am 11.10.2026). Daten: nur Datum und Anzahl je Tag aus dem Hauptzweig, erzeugt mit `scripts/commit-stars.mjs` nach `content/commits.ts`. Keine Commit-Nachrichten, keine Autoren. Im Panel steht nur der Erklärsatz, keine Zahl.
+
+- **DE:** Jeder kleine Lichtpunkt am Rand ist ein Commit: innen die ältesten, außen die neuesten.
+- **EN:** Every small point of light around it is a commit: oldest inside, newest outside.
+
+---
+
 ## Werdegang — Sternbild
 
 Jede Station ein Stern. Neue Stationen = neuer Eintrag in der Datenstruktur, das Sternbild wächst automatisch.

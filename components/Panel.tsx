@@ -3,6 +3,7 @@
 import { useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type Ref } from "react";
 import type { CelestialContent, ObjectId, PublicContent } from "@/content";
 import { coordsOf } from "@/lib/scene/layout";
+import { COMMITS } from "@/content/commits";
 import { ObjectBody, Tags } from "./ObjectContent";
 
 type Props = {
@@ -139,6 +140,7 @@ export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onG
               {o.title}
             </h2>
             <Tags o={o} coord={coordsOf(o.id)} />
+            {COMMITS.days[o.id] && <p className="p-commits">{ui.commitNote}</p>}
           </header>
 
           <div className="p-body">

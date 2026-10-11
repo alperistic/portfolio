@@ -224,6 +224,7 @@ export function makeGalaxy(ctx: SceneCtx, pos: THREE.Vector3, R: number): Celest
     visR: R * 0.85,
     labelR: R * 0.72,
     hitR: R * 0.75,
+    commitHost: { obj: rot, shape: "disk", r: R * 0.95, armPhase },
     update: ({ dt, rs }) => {
       rot.rotation.y += dt * 0.012 * rs;
     },

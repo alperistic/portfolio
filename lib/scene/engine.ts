@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { ObjectId } from "@/content/types";
+import { COMMITS } from "@/content/commits";
 import { ACCENT, LATE_LINKS, LATE_VIEW, LAYOUT } from "./layout";
 import { createCompass, type CompassMarker } from "./compass";
 import { makeBinary } from "./objects/binary";
@@ -11,6 +12,7 @@ import { makePulsar } from "./objects/pulsar";
 import { makeSun } from "./objects/sun";
 import { makeWeb } from "./objects/web";
 import { createBaker } from "./bake";
+import { makeCommitStars } from "./commits";
 import { makeBlackHole } from "./blackhole";
 import { makeComet, makeMeteors } from "./deco";
 import { applyDim } from "./dim";
@@ -199,6 +201,12 @@ export function createUniverse(opts: UniverseOptions): Universe {
     hit.userData.id = id;
     scene.add(hit);
     hitMeshes.push(hit);
+    // Commit-Sterne vor dem Abdimmen anhängen, damit sie mit dem Objekt dimmen
+    const days = COMMITS.days[id];
+    if (days) {
+      const host = c.commitHost ?? { obj: c.root, shape: "halo" as const, r: c.visR };
+      makeCommitStars(ctx, host, days, COMMITS.asOf, new THREE.Color(ACCENT[id]), c.hover);
+    }
     const dim = { value: 1 };
     applyDim(c.root, dim);
     OBJ.set(id, { ...c, id, pos, hoverT: 0, labelOp: -1, dim });
