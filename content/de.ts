@@ -51,6 +51,7 @@ export const de: SiteContent = {
     autoPause: "Tour anhalten",
     enlarge: "Einblick vergrößern",
     shrink: "Vergrößerung schließen",
+    commitNote: "Jeder kleine Lichtpunkt am Rand ist ein Commit: innen die ältesten, außen die neuesten.",
   },
   tourOrder: [
     "alper",

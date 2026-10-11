@@ -51,6 +51,7 @@ export const en: SiteContent = {
     autoPause: "Pause tour",
     enlarge: "Enlarge preview",
     shrink: "Close preview",
+    commitNote: "Every small point of light around it is a commit: oldest inside, newest outside.",
   },
   tourOrder: [
     "alper",
