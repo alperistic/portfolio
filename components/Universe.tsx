@@ -301,7 +301,7 @@ export default function Universe({ content, langs }: { content: PublicContent; l
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (getView().view !== "sky" || e.altKey || e.ctrlKey || e.metaKey || !api.current) return;
-      if ((e.target as HTMLElement | null)?.closest?.("input, textarea, select, [contenteditable]")) return;
+      if ((e.target as HTMLElement | null)?.closest?.("input, textarea, select, [contenteditable], dialog")) return;
       if (e.key === "Escape") {
         if (focusedRef.current || panelOpenRef.current) home(true);
       } else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {

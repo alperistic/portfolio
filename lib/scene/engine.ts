@@ -320,15 +320,25 @@ export function createUniverse(opts: UniverseOptions): Universe {
      der Blick zurück, sobald die Maus über ein Label oder das Panel fährt. */
   const mqFine = matchMedia("(pointer: fine)");
   const par = { x: 0, y: 0, tx: 0, ty: 0, seen: false };
+  /* Gravitationslinse am Zeiger (post.ts): nur über dem offenen Himmel, nicht
+     über Labels/Panel, nicht über einem Objekt (dort zielt man) und nicht beim
+     Ziehen, Reisen, in der Eröffnung oder bei reduzierter Bewegung. */
+  const lens = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5, k: 0, overSky: false };
   const onWinMove = (e: PointerEvent) => {
     if (e.pointerType !== "mouse") return;
     par.tx = (e.clientX / innerWidth) * 2 - 1;
     par.ty = (-e.clientY / innerHeight) * 2 + 1;
     par.seen = true;
+    lens.tx = e.clientX / innerWidth;
+    lens.ty = 1 - e.clientY / innerHeight;
+    lens.overSky = e.target === canvas;
   };
   const onWinOut = (e: PointerEvent) => {
     // Maus verlässt das Fenster: sanft zurück zur Mitte
-    if (!e.relatedTarget) par.tx = par.ty = 0;
+    if (!e.relatedTarget) {
+      par.tx = par.ty = 0;
+      lens.overSky = false;
+    }
   };
   addEventListener("pointermove", onWinMove, { passive: true });
   document.addEventListener("pointerout", onWinOut);
@@ -732,6 +742,15 @@ export function createUniverse(opts: UniverseOptions): Universe {
     const kPar = 1 - Math.exp(-dt * 1.8);
     par.x = lerp(par.x, par.tx * parAmp, kPar);
     par.y = lerp(par.y, par.ty * parAmp, kPar);
+    // Linse: Position folgt dem Zeiger mit etwas Trägheit (wirkt wie Masse),
+    // Stärke blendet weich ein und aus
+    const lensOn = parOn && lens.overSky && !hovered && !labelHover;
+    const kLens = 1 - Math.exp(-dt * 9);
+    lens.x = lerp(lens.x, lens.tx, kLens);
+    lens.y = lerp(lens.y, lens.ty, kLens);
+    lens.k = lerp(lens.k, lensOn ? (focused ? 0.5 : 1) : 0, 1 - Math.exp(-dt * 3.5));
+    post.cine.uniforms.uLens.value.set(lens.x, lens.y);
+    post.cine.uniforms.uLensK.value = lens.k * 0.0016;
     camera.rotation.set(
       clamp(pitch + dp + par.y * 0.006, -PITCH_MAX, PITCH_MAX),
       -(yaw + dy + par.x * 0.009),

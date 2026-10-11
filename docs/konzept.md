@@ -91,6 +91,14 @@ Ziel: Die Seite soll sich wie der Anfang eines Films anfühlen, ohne ins Kitschi
 - **Parallaxe:** Nur mit feinem Zeiger (Maus), sehr leicht, im Fokus gedämpft, aus bei reduced-motion und beim Ziehen/Reisen.
 - **Bewusst nicht:** Hyperraum-Streifen, Kamera-Wackeln, Partikel-Explosionen, Ton per Default an, Intro bei jedem Besuch.
 
+## Etappe 7: Arbeit zeigen, Sternenstaub, Gravitation (11.10.2026)
+
+Anstoß: Vergleich mit hancore.dev — weniger neue Technik, mehr die eigene Metapher konsequent ausspielen.
+
+- **Einblicke:** Jedes Projekt-Panel zeigt direkt unter dem Lead einen echten Einblick (`media` im Content): offerre einen Angebotsentwurf, insertcoin einen stummen Trailer-Ausschnitt in Schleife, die Pipeline ihre Ergebnisansicht. Rahmen mit vier Eckmarken wie die Zielerfassung, Klick vergrößert (natives `<dialog>`). Nur Demo-/Beispieldaten. Clips laufen nur sichtbar und bei offenem Panel, bei reduced-motion gar nicht von selbst.
+- **Sternenstaub:** In der Eröffnung lösen sich Funken aus der Sonne und formen auf Bögen den Namen; dann blendet die Schrift scharf ein, beim Ausblenden zerstreut sich der Staub (`lib/opening-dust.ts`, Canvas 2D). Klappt das Abtasten nicht, bleibt die alte Buchstaben-Animation.
+- **Gravitation am Zeiger:** Eine weiche Punktmassen-Linse im Kino-Pass biegt Sterne und Staub um den Mauszeiger. Nur feiner Zeiger, nur über offenem Himmel (nicht über Objekten, Labels, Panel), im Fokus halb, aus beim Ziehen/Reisen/Eröffnung/reduced-motion.
+
 ## Launch-Stand (Etappe 5, Teil 1)
 
 - **Hosting:** Vercel, Projekt `portfolio`. Jeder Merge auf `main` geht automatisch live (Produktion), jeder PR bekommt eine Vorschau-URL. Aktuell nur `portfolio-mauve-nu-64.vercel.app`, eigene Domain fehlt.

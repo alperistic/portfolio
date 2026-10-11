@@ -142,7 +142,7 @@ export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onG
           </header>
 
           <div className="p-body">
-            <ObjectBody o={o} locale={content.locale} onGroupHover={onGroupHover} animate={open} />
+            <ObjectBody o={o} locale={content.locale} onGroupHover={onGroupHover} animate={open} shotLabels={ui} />
           </div>
 
           <nav className="p-nav">

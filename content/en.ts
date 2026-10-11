@@ -49,6 +49,8 @@ export const en: SiteContent = {
     sound: "Sound",
     autoPlay: "Play tour automatically",
     autoPause: "Pause tour",
+    enlarge: "Enlarge preview",
+    shrink: "Close preview",
   },
   tourOrder: [
     "alper",
@@ -127,6 +129,13 @@ export const en: SiteContent = {
       title: "offerre",
       tags: [{ text: "Live since April 2026", color: "#6fe3c1" }],
       lead: "AI-assisted quote creation for German SMEs.",
+      media: {
+        src: "/work/offerre-entwurf.webp",
+        width: 505,
+        height: 300,
+        alt: "Quote draft in offerre: four line items with prices, each citing its source in the price list. One item is missing a quantity and is flagged instead of estimated.",
+        caption: "A draft from an inquiry. Every line item names its source in the price list; anything missing is flagged, not guessed. Sample data.",
+      },
       body: [
         "A customer request in free text plus the company's own price list automatically becomes a calculated draft quote. The AI reads, the code calculates, the business decides and sends.",
       ],
@@ -174,6 +183,15 @@ export const en: SiteContent = {
       title: "insertcoin.lol",
       tags: [{ text: "Live", color: "#ff7ad9" }],
       lead: "An arcade where startups compete against each other.",
+      media: {
+        src: "/work/insertcoin-kampf.webp",
+        video: ["/work/insertcoin-kampf.webm", "/work/insertcoin-kampf.mp4"],
+        width: 720,
+        height: 536,
+        alt: "Excerpt from the insertcoin.lol trailer: pixel-art fighters face off in the arena, offerre among them.",
+        caption: "Trailer excerpt: products enter the arena as fighters.",
+        pixelated: true,
+      },
       body: [
         "Founders put their products up against each other in 1:1 AI-judged matches; every win builds a public win/loss record. The scoring is deterministic, in code — not based on gut feeling.",
       ],
@@ -201,6 +219,13 @@ export const en: SiteContent = {
       title: "Evidence-First Pipeline",
       tags: [{ text: "Open source", color: "#8fb0ff" }],
       lead: "AI document analysis where every claim brings its evidence.",
+      media: {
+        src: "/work/pipeline-belege.webp",
+        width: 1100,
+        height: 850,
+        alt: "Result view of the Evidence-First Pipeline for a sample lease: citation metrics, then the contract parties, each with page number and verbatim quote.",
+        caption: "Result for a sample contract: every value comes with page number and verbatim quote.",
+      },
       body: [
         "The language model finds where something is written in a long contract. Every extracted value comes with a page number and a verbatim quote and is checked against the source text before it is shown. Whatever a rule can decide is decided in code. The result is a proposal for review, never a decision.",
       ],

@@ -60,6 +60,24 @@ export type SkillGroup = {
   skills: string[];
 };
 
+/**
+ * Ein Einblick in die Arbeit: Screenshot oder kurzer stummer Clip im Panel.
+ * Dateien liegen unter `public/work/`. Nur Material ohne echte Kunden- oder
+ * Personendaten (Demo- und Beispieldaten).
+ */
+export type Media = {
+  /** Bild bzw. Standbild des Clips, z. B. „/work/offerre-entwurf.webp“. */
+  src: string;
+  /** Clip-Quellen in Wunschreihenfolge (webm vor mp4); ohne = nur Bild. */
+  video?: string[];
+  width: number;
+  height: number;
+  alt: string;
+  caption: string;
+  /** Pixel-Art: beim Skalieren scharf lassen statt weichzeichnen. */
+  pixelated?: boolean;
+};
+
 export type CelestialContent = {
   id: ObjectId;
   visible: Visibility;
@@ -72,6 +90,8 @@ export type CelestialContent = {
   title: string;
   tags: Tag[];
   lead: string;
+  /** Einblick direkt unter dem Lead. */
+  media?: Media;
   body?: string[];
   quote?: string;
   facts?: Fact[];
@@ -127,6 +147,9 @@ export type SiteContent = {
     /** Tour-Autopilot starten bzw. anhalten. */
     autoPlay: string;
     autoPause: string;
+    /** Einblick vergrößern bzw. Vergrößerung schließen. */
+    enlarge: string;
+    shrink: string;
   };
   tourOrder: ObjectId[];
   objects: Record<ObjectId, CelestialContent>;
