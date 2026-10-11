@@ -29,6 +29,24 @@ const markIntroSeen = () => {
 };
 
 /**
+ * Direktlinks: `#offerre` usw. fliegt nach dem Laden direkt zum Objekt und
+ * öffnet sein Panel (ohne Eröffnung). Der Hash folgt dem Fokus, damit man den
+ * aktuellen Stand einfach kopieren und weitergeben kann. In der Listenansicht
+ * springt derselbe Link per Anker zum Abschnitt.
+ */
+const hashId = (ids: ObjectId[]): ObjectId | null => {
+  const h = decodeURIComponent(location.hash.slice(1)).toLowerCase();
+  return (ids as string[]).includes(h) ? (h as ObjectId) : null;
+};
+const writeHash = (id: ObjectId | null) => {
+  const url = new URL(location.href);
+  if ((url.hash.slice(1) || null) === id) return;
+  url.hash = id ?? "";
+  // replaceState: kein Eintrag pro Klick im Verlauf, und kein Sprung wie bei location.hash
+  history.replaceState(history.state, "", url);
+};
+
+/**
  * Die Seite: Canvas mit der three.js-Szene + React-UI darüber.
  * Die Szene wird erst im Browser geladen (dynamischer Import) — three.js
  * landet so nicht im initialen Bundle und der statische Export bleibt schlank.
@@ -107,6 +125,7 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     });
     if (panelRef.current) panelRef.current.scrollTop = 0;
     api.current?.focus(id);
+    writeHash(id);
   }, [showPanel]);
 
   /** Zurück zur Übersicht. Per Tastatur blickt die Kamera danach auf das Objekt, von dem man kam. */
@@ -117,6 +136,7 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     showPanel(false);
     api.current?.setSubHover(null);
     api.current?.home(kbd && from ? from : undefined);
+    writeHash(null);
     // Fokus zurück aufs Label des Objekts (nicht im Nirgendwo des geschlossenen Panels lassen)
     if (from) labelEls.current.get(from)?.focus({ preventScroll: true });
   }, [showPanel, setAuto]);
@@ -152,8 +172,11 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     import("@/lib/scene/engine").then(({ createUniverse }) => {
       if (disposed || !canvasRef.current || !cutRef.current) return;
       try {
+        const deep = hashId(tourOrder);
         instance = createUniverse({
           canvas: canvasRef.current,
+          // Direktlink: keine Eröffnungsfahrt, gleich hinfliegen
+          intro: !deep,
           ids: tourOrder,
           counts: {
             stations: objects.werdegang?.stations?.length ?? 0,
@@ -222,9 +245,11 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         document.documentElement.dataset.sky = "ready";
         setReady(true);
         const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const skip = reduced || introSeen() || new URLSearchParams(location.search).has("nointro");
+        const target = hashId(tourOrder);
+        const skip = !!target || reduced || introSeen() || new URLSearchParams(location.search).has("nointro");
         markIntroSeen();
         setPhase(skip ? "done" : "title");
+        if (target) focus(target);
       });
     }).catch((err) => {
       // Szene-Chunk nicht geladen (z. B. Netzwerkfehler): nicht ewig „Kalibriere Himmel“ zeigen.
@@ -240,6 +265,26 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     };
     // focus/home/showPanel/fail sind stabil (useCallback) — der Effekt läuft einmal je Start.
   }, [live, tourOrder, objects, ui.center, focus, home, showPanel, fail]);
+
+  // Direktlink in der Listenansicht: Der Browser springt beim Laden zu früh (vor dem
+  // Umschalten auf die Liste) — einmal selbst zum Abschnitt springen.
+  useEffect(() => {
+    const id = hashId(tourOrder);
+    if (!id || getView().view !== "list") return;
+    document.getElementById(id)?.scrollIntoView({ block: "start" });
+  }, [tourOrder]);
+
+  // Hash von Hand geändert (oder Link auf derselben Seite): dorthin fliegen bzw. zurück
+  useEffect(() => {
+    const onHash = () => {
+      if (getView().view !== "sky" || !api.current) return;
+      const id = hashId(tourOrder);
+      if (id && id !== focusedRef.current) focus(id);
+      else if (!id && focusedRef.current) home();
+    };
+    addEventListener("hashchange", onHash);
+    return () => removeEventListener("hashchange", onHash);
+  }, [focus, home, tourOrder]);
 
   // Listenansicht: Szene anhalten (GPU schonen), beim Zurückkehren weiterlaufen lassen.
   useEffect(() => {
