@@ -86,7 +86,14 @@ export function Shot({ m, labels, active }: Props) {
 
   return (
     <figure className={`p-shot${m.pixelated ? " px" : ""}`}>
-      <div className="p-shot-frame" onClick={open}>
+      <div
+        className="p-shot-frame"
+        onClick={(e) => {
+          // Mit eigenen Bedienelementen (reduzierte Bewegung) gehört der Klick aufs Video ihnen
+          if (still && e.target instanceof HTMLVideoElement) return;
+          open();
+        }}
+      >
         {media(false)}
         <button type="button" className="p-shot-zoom" aria-label={labels.enlarge}>
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
