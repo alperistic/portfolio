@@ -89,14 +89,29 @@ export function createPost(
       uCA: { value: 1 },
       uExposure: { value: 1 },
       uKeep: { value: 0.85 },
+      uLens: { value: new THREE.Vector2(0.5, 0.5) },
+      uLensK: { value: 0 },
     },
     vertexShader: UV_VERT,
     fragmentShader:
       TONEMAP +
       /* glsl */ `
-      uniform sampler2D tDiffuse; uniform float uWarp, uAspect, uCA; varying vec2 vUv;
+      uniform sampler2D tDiffuse; uniform float uWarp, uAspect, uCA, uLensK; uniform vec2 uLens; varying vec2 vUv;
       void main(){
-        vec2 d = vUv - 0.5;
+        // Gravitationslinse am Mauszeiger: Punktmasse mit weichem Kern
+        // (β = θ − θE²·θ/(|θ|² + s²)). Licht hinter dem Zeiger wird zu ihm hin
+        // gebogen, ferne Sterne strecken sich zu kleinen Bögen. Außen läuft der
+        // Effekt weich aus, damit er nur in der Nähe des Zeigers wirkt.
+        vec2 uv = vUv;
+        if (uLensK > 0.0005) {
+          vec2 th = uv - uLens; th.x *= uAspect;
+          float r2 = dot(th, th);
+          float s2 = uLensK*2.0;
+          vec2 b = th*(uLensK/(r2 + s2))*(1.0 - smoothstep(0.04, 0.12, r2));
+          b.x /= uAspect;
+          uv -= b;
+        }
+        vec2 d = uv - 0.5;
         vec3 col;
         if (uWarp > 0.002) {
           vec3 acc = vec3(0.0); float tot = 0.0;
@@ -107,7 +122,7 @@ export function createPost(
           col = acc/tot;
         } else {
           vec2 off = d * dot(d,d) * 0.012 * uCA;
-          col = vec3(texture2D(tDiffuse, vUv + off).r, texture2D(tDiffuse, vUv).g, texture2D(tDiffuse, vUv - off).b);
+          col = vec3(texture2D(tDiffuse, uv + off).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - off).b);
         }
         vec2 dv = d; dv.x *= uAspect;
         float vig = (1.0-smoothstep(0.2, 1.05, length(dv)*1.15));
