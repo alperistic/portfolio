@@ -1,0 +1,1986 @@
+/* Look aus Prototyp B („cinematic“). Bewusst eigenes CSS, kein Framework. */
+:root {
+  --fg: #eceef4;
+  --fg-2: rgba(236, 238, 244, 0.74);
+  --fg-3: rgba(236, 238, 244, 0.46);
+  --line: rgba(236, 238, 244, 0.13);
+  --gold: #f1c98e;
+  --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --sans: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: #020308;
+  color: var(--fg);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Himmel oder Liste ----------
+   `data-view` setzt ein Inline-Script vor dem ersten Bild (lib/view-script.ts).
+   Ohne JavaScript fehlt das Attribut → die Liste ist sichtbar. */
+html[data-view="sky"],
+html[data-view="sky"] body {
+  height: 100%;
+  overflow: hidden;
+}
+html[data-view="sky"] .listview,
+html:not([data-view="sky"]) .sky {
+  display: none;
+}
+
+/* Sichtbare Fokus-Ringe für alles, was per Tastatur erreichbar ist */
+:focus-visible {
+  outline: 1px solid rgba(241, 201, 142, 0.85);
+  outline-offset: 3px;
+}
+/* Landepunkte für den Fokus (Überschriften) brauchen keinen Ring */
+h1[tabindex="-1"]:focus,
+h2[tabindex="-1"]:focus {
+  outline: none;
+}
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+a {
+  color: inherit;
+}
+.gl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: grab;
+  outline: none;
+}
+.gl.dragging {
+  cursor: grabbing;
+}
+.gl.pointing {
+  cursor: pointer;
+}
+
+/* ---------- Labels ----------
+   Position setzt die Engine (transform); sie weicht Kollisionen aus und schaltet
+   `on`, `up` (Label über dem Objekt) und `left` (Unter-Label links). Lesbarkeit
+   auf hellem Nebel: weicher dunkler Hof hinter der Schrift statt Kasten. */
+.labels {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.lbl {
+  --lx: 0px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  white-space: nowrap;
+  text-align: center;
+  padding: 4px 10px 6px;
+  /* Ausgeblendete Labels bleiben per Tab erreichbar (nur unsichtbar, nicht klickbar):
+     Fokus per Tastatur dreht die Kamera zum Objekt, dann erscheint das Label. */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
+  will-change: transform;
+}
+.lbl.on {
+  pointer-events: auto;
+}
+.lbl.up {
+  flex-direction: column-reverse;
+}
+.lbl-line {
+  display: block;
+  width: 1px;
+  height: 12px;
+  margin-bottom: 7px;
+  transform: translateX(var(--lx));
+  background: linear-gradient(to bottom, rgba(236, 238, 244, 0), rgba(236, 238, 244, 0.55));
+  transition: height 0.35s var(--ease);
+}
+.lbl.up .lbl-line {
+  margin: 7px 0 0;
+  background: linear-gradient(to top, rgba(236, 238, 244, 0), rgba(236, 238, 244, 0.55));
+}
+.lbl-txt {
+  display: block;
+  padding: 7px 14px 8px;
+  margin: -7px -14px -8px;
+  background: radial-gradient(closest-side, rgba(3, 4, 10, 0.6), rgba(3, 4, 10, 0.32) 55%, rgba(3, 4, 10, 0));
+}
+.lbl-t {
+  display: block;
+  font: 400 10.5px/1 var(--sans);
+  letter-spacing: 0.34em;
+  margin-right: -0.34em;
+  text-transform: uppercase;
+  color: var(--fg);
+  text-shadow:
+    0 0 1px rgba(2, 3, 8, 0.9),
+    0 1px 10px rgba(2, 3, 8, 0.95);
+  transition:
+    letter-spacing 0.4s var(--ease),
+    color 0.3s;
+}
+.lbl-m {
+  display: block;
+  margin-top: 7px;
+  font: 400 9px/1 var(--mono);
+  letter-spacing: 0.18em;
+  margin-right: -0.18em;
+  text-transform: uppercase;
+  color: rgba(236, 238, 244, 0.58);
+  text-shadow: 0 0 6px rgba(2, 3, 8, 0.95);
+  transition: color 0.3s;
+}
+.lbl.is-hover .lbl-line {
+  height: 20px;
+}
+.lbl.is-hover .lbl-t {
+  letter-spacing: 0.4em;
+  margin-right: -0.4em;
+  color: #fff;
+}
+.lbl.is-hover .lbl-m {
+  color: var(--gold);
+}
+.lbl:focus-visible {
+  outline: none;
+}
+.lbl:focus-visible .lbl-txt {
+  outline: 1px solid var(--gold);
+  outline-offset: -2px;
+  border-radius: 3px;
+}
+.sub {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.6s ease,
+    visibility 0s linear 0.6s;
+  font: 400 9.5px/1.2 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  text-shadow: 0 0 8px rgba(2, 3, 8, 0.95);
+  pointer-events: none;
+  padding: 5px 8px;
+  background: rgba(4, 6, 12, 0.5);
+  border-radius: 2px;
+}
+.sub.on {
+  visibility: visible;
+  transition:
+    opacity 0.6s ease,
+    visibility 0s;
+}
+.sub b {
+  display: block;
+  font-weight: 400;
+  color: var(--gold);
+  margin-bottom: 3px;
+}
+.sub::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 8px;
+  width: 5px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.7;
+}
+.sub.left::before {
+  left: auto;
+  right: -9px;
+}
+/* Skill-Gruppe im Haufen: Hover (Maus) bzw. Tippen (Mobil) zeigt ihre Skills */
+.sub.grp.on {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.sub.grp.is-act {
+  color: #fff;
+  background: rgba(4, 6, 12, 0.72);
+}
+.sub.grp.is-act::before {
+  opacity: 1;
+  width: 7px;
+}
+/* Einzelner Skill: kleiner, dezenter Name direkt am Stern */
+.skl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  padding: 3px 6px;
+  font: 300 11px/1.1 var(--sans);
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  text-shadow:
+    0 0 2px rgba(2, 3, 8, 0.95),
+    0 0 10px rgba(2, 3, 8, 0.95);
+  transition:
+    opacity 0.5s ease,
+    visibility 0s linear 0.5s;
+}
+.skl.on {
+  visibility: visible;
+  transition:
+    opacity 0.5s ease,
+    visibility 0s;
+}
+
+/* ---------- Chrome ---------- */
+.brand {
+  position: fixed;
+  top: clamp(20px, 4vh, 36px);
+  left: clamp(20px, 3vw, 40px);
+  z-index: 3;
+  pointer-events: none;
+}
+.brand-n {
+  margin: 0;
+  font: 400 11px/1 var(--sans);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+.brand-s {
+  margin: 9px 0 0;
+  font: 300 11px/1.4 var(--sans);
+  letter-spacing: 0.06em;
+  color: var(--fg-3);
+}
+.to-list {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 6px 0;
+  font: 400 9.5px/1 var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  transition: color 0.2s;
+}
+.to-list svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+.to-list:hover {
+  color: var(--fg);
+}
+
+/* Erster Tab-Stopp im Himmel: Abkürzung zur Liste + Tastaturhilfe */
+.skip {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  max-width: 330px;
+  padding: 14px 16px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(5, 7, 13, 0.94);
+  opacity: 0;
+  transform: translateY(calc(-100% - 20px));
+  transition:
+    opacity 0.25s ease,
+    transform 0.35s var(--ease);
+}
+.skip:focus-within {
+  opacity: 1;
+  transform: none;
+}
+.skip button {
+  padding: 4px 0;
+  font: 400 10px/1 var(--sans);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.skip p {
+  margin: 10px 0 0;
+  font: 300 12.5px/1.55 var(--sans);
+  color: var(--fg-2);
+}
+.lang-wrap {
+  position: fixed;
+  left: clamp(20px, 3vw, 40px);
+  bottom: clamp(20px, 4vh, 34px);
+  z-index: 3;
+  transition: opacity 0.5s;
+}
+.lang,
+.lv-lang {
+  display: flex;
+  font: 400 10px/1 var(--mono);
+  letter-spacing: 0.2em;
+}
+.lang a,
+.lv-lang a {
+  display: inline-block;
+  padding: 8px 6px;
+  color: var(--fg-3);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.lang a:hover,
+.lv-lang a:hover,
+.lang a[aria-current],
+.lv-lang a[aria-current] {
+  color: var(--fg);
+}
+.lang .sep,
+.lv-lang .sep {
+  padding: 8px 0;
+  color: var(--line);
+}
+.tour {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(20px, 4vh, 34px);
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(8, 10, 18, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font: 400 10px/1 var(--sans);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  transition:
+    opacity 0.5s,
+    border-color 0.3s,
+    color 0.3s,
+    transform 0.5s var(--ease);
+}
+.tour:hover {
+  border-color: rgba(241, 201, 142, 0.5);
+  color: var(--fg);
+}
+.tour svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.panel-open .legend {
+  opacity: 0;
+  pointer-events: none;
+}
+@media (max-width: 767px) {
+  .panel-open .lang-wrap {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+.panel-open .tour {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 10px);
+}
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: calc(clamp(20px, 4vh, 34px) + 78px);
+  transform: translateX(-50%);
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  font: 400 10px/1 var(--sans);
+  letter-spacing: 0.38em;
+  margin-right: -0.38em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+.hint.show {
+  opacity: 1;
+}
+.hint svg {
+  width: 46px;
+  height: 18px;
+  overflow: visible;
+}
+.hint .dot {
+  animation: hintdrag 2.8s var(--ease) infinite;
+}
+@keyframes hintdrag {
+  0%,
+  100% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+}
+
+/* Kompass-Band (oben mittig) */
+.compass {
+  position: fixed;
+  top: clamp(16px, 3.2vh, 30px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  transition: opacity 0.6s;
+}
+.compass canvas {
+  display: block;
+  width: 340px;
+  height: 30px;
+}
+.compass-r {
+  font: 400 9px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Legende (unten rechts, eingeklappt nur ein Knopf) */
+.legend {
+  position: fixed;
+  right: clamp(20px, 3vw, 40px);
+  bottom: clamp(20px, 4vh, 34px);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  transition: opacity 0.5s;
+  /* Die eingeklappte (unsichtbare) Liste spannt die Box trotzdem auf —
+     nur Knopf und offene Liste dürfen Zeiger fangen, sonst ist der Himmel darunter tot. */
+  pointer-events: none;
+}
+.legend-btn,
+.legend-list {
+  pointer-events: auto;
+}
+html[data-intro="title"] .legend :is(.legend-btn, .legend-list),
+.panel-open .legend :is(.legend-btn, .legend-list) {
+  pointer-events: none;
+}
+.legend-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 2px 8px 8px;
+  font: 400 10px/1 var(--sans);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  transition: color 0.2s;
+}
+.legend-btn svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.legend-n {
+  font: 400 9px/1 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--fg-3);
+}
+.legend-btn:hover,
+.legend.open .legend-btn {
+  color: var(--fg);
+}
+.legend-list {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 10px 0;
+  min-width: 250px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(to left, rgba(4, 6, 12, 0.72), rgba(4, 6, 12, 0.4));
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.45s var(--ease),
+    visibility 0s linear 0.45s;
+}
+.legend.open .legend-list {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.35s ease,
+    transform 0.45s var(--ease),
+    visibility 0s;
+}
+.legend-list li {
+  opacity: 0;
+  transform: translateX(6px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.4s var(--ease);
+}
+.legend.open .legend-list li {
+  opacity: 1;
+  transform: none;
+}
+.legend-list button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 14px;
+  text-align: left;
+  transition: background 0.2s;
+}
+.legend-list svg {
+  display: block;
+  overflow: visible;
+}
+.lg-t {
+  font: 400 10px/1 var(--sans);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  transition: color 0.2s;
+}
+.lg-m {
+  font: 400 9px/1 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--fg-3);
+}
+.legend-list button:hover,
+.legend-list button:focus-visible {
+  background: rgba(236, 238, 244, 0.04);
+  outline: none;
+}
+.legend-list button:hover .lg-t,
+.legend-list button:focus-visible .lg-t,
+.legend-list button[aria-current] .lg-t {
+  color: var(--gold);
+}
+
+/* ---------- Panel ----------
+   Hierarchie: Kicker → Titel → Tags → Lead → Fließtext → Abschnitte → Navigation.
+   Zwei Schriften mit klaren Rollen: Sora für Lesetext, Plex Mono nur für
+   Etiketten (Abschnitts-Überschriften, Zeiten, Koordinaten). */
+.panel {
+  --pad-x: 44px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(460px, 38vw);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(40px, 8vh, 84px) var(--pad-x) 30px 46px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(236, 238, 244, 0.16) transparent;
+  background: linear-gradient(to left, rgba(5, 7, 13, 0.9), rgba(5, 7, 13, 0.66));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-left: 1px solid var(--line);
+  transform: translateX(calc(100% + 30px));
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 0.9s var(--ease),
+    opacity 0.7s ease,
+    visibility 0s linear 0.9s;
+}
+.panel.open {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform 0.9s var(--ease),
+    opacity 0.7s ease,
+    visibility 0s;
+}
+.p-grip {
+  display: none;
+}
+.p-kick {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 40px;
+  font: 400 10px/1 var(--sans);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.p-kick::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(241, 201, 142, 0.4), transparent);
+}
+.p-title {
+  margin: 22px 0 0;
+  font: 200 clamp(38px, 3.3vw, 52px)/1.02 var(--sans);
+  letter-spacing: -0.02em;
+  color: #f4f5f9;
+  overflow-wrap: anywhere;
+  hyphens: manual;
+}
+.p-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: 18px;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font: 400 9.5px/1 var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+.tag i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c, #aab);
+  box-shadow: 0 0 8px var(--c, transparent);
+}
+.tag.ph {
+  border-style: dashed;
+  color: var(--fg-3);
+}
+.p-coord {
+  font: 400 9px/1 var(--mono);
+  letter-spacing: 0.12em;
+  color: rgba(236, 238, 244, 0.34);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.p-body {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.p-body p {
+  margin: 0 0 14px;
+  max-width: 38em;
+  font: 300 15px/1.7 var(--sans);
+  color: var(--fg-2);
+}
+.p-body p.lead {
+  margin-bottom: 18px;
+  font: 300 19px/1.5 var(--sans);
+  letter-spacing: -0.005em;
+  color: var(--fg);
+}
+.p-quote {
+  margin: 26px 0 6px;
+  padding: 4px 0 4px 18px;
+  border-left: 1px solid rgba(241, 201, 142, 0.55);
+}
+.p-body .p-quote p {
+  margin: 0;
+  font: 300 17px/1.5 var(--sans);
+  color: var(--gold);
+}
+
+/* Abschnitte (Für wen, Rolle, Belege, Stack): Mono-Etikett über dem Wert */
+.p-facts {
+  margin: 30px 0 0;
+}
+.p-facts > div + div {
+  margin-top: 22px;
+}
+.p-facts dt,
+.p-sec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 9px;
+  font: 400 9.5px/1 var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.p-facts dt::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.p-facts dd {
+  margin: 0;
+  font: 300 14px/1.6 var(--sans);
+  color: var(--fg-2);
+}
+.p-facts ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.p-facts .items li {
+  position: relative;
+  padding-left: 16px;
+}
+.p-facts .items li + li {
+  margin-top: 5px;
+}
+.p-facts .items li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.8em;
+  width: 7px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.7;
+}
+.p-facts .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.p-facts .chips li {
+  padding: 5px 9px 6px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font: 400 12px/1.2 var(--sans);
+  color: var(--fg-2);
+  background: rgba(236, 238, 244, 0.025);
+}
+
+/* Werdegang */
+.p-list {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+  border-left: 1px solid var(--line);
+}
+.p-list li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 22px 22px;
+}
+.p-list li:last-child {
+  padding-bottom: 2px;
+}
+.p-list li::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fg);
+  box-shadow: 0 0 8px rgba(214, 222, 255, 0.8);
+}
+.p-list .y {
+  font: 400 10px/1.2 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.p-list .t {
+  margin-top: 7px;
+  font: 400 15px/1.4 var(--sans);
+  color: var(--fg);
+}
+.p-list .d {
+  margin-top: 4px;
+  font: 300 13.5px/1.55 var(--sans);
+  color: var(--fg-3);
+}
+
+/* Skills */
+.p-skills {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.p-skills li {
+  background: rgba(6, 8, 15, 0.94);
+  padding: 15px 15px 16px;
+}
+.p-skills li {
+  transition: background 0.25s;
+}
+.p-skills > li:hover {
+  background: rgba(10, 13, 24, 0.96);
+}
+.p-skills .t {
+  margin: 0 0 10px;
+  font: 400 13.5px/1.3 var(--sans);
+  color: var(--fg);
+}
+.p-sk {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.p-skills .p-sk li {
+  padding: 4px 8px 5px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(236, 238, 244, 0.025);
+  font: 300 12px/1.2 var(--sans);
+  color: var(--fg-2);
+}
+
+/* Links */
+.p-links {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+}
+.p-links a,
+.p-links .ph {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 15px 0;
+  border-top: 1px solid var(--line);
+  text-decoration: none;
+}
+.p-links li:last-child > * {
+  border-bottom: 1px solid var(--line);
+}
+.p-links .k {
+  font: 400 9.5px/1 var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.p-links .v {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 15px/1.3 var(--sans);
+  color: var(--fg);
+  transition: color 0.2s;
+}
+.p-links .v svg {
+  width: 10px;
+  height: 10px;
+  opacity: 0.6;
+  transition: transform 0.3s var(--ease);
+}
+.p-links a:hover .v,
+.p-links a:focus-visible .v {
+  color: var(--gold);
+}
+.p-links a:hover .v svg {
+  transform: translate(2px, -2px);
+}
+.p-links .ph .v {
+  color: var(--fg-3);
+  padding: 4px 10px;
+  border: 1px dashed var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+/* Navigation + Tour-Fortschritt */
+.p-nav {
+  margin-top: auto;
+  padding-top: 36px;
+}
+.p-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+.p-steps button {
+  flex: 1;
+  height: 16px;
+  position: relative;
+}
+.p-steps button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7px;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(236, 238, 244, 0.12);
+  transition: background 0.3s;
+}
+.p-steps button.done::before {
+  background: rgba(241, 201, 142, 0.35);
+}
+.p-steps button.on::before {
+  background: var(--gold);
+}
+.p-steps button:hover::before {
+  background: rgba(236, 238, 244, 0.45);
+}
+.p-step-n {
+  margin-left: 10px;
+  font: 400 9px/1 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.p-nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+.p-nav button.back {
+  padding: 6px 0;
+  font: 400 10px/1 var(--sans);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  transition: color 0.2s;
+}
+.p-nav button.back:hover {
+  color: var(--fg);
+}
+.p-nav .next {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 6px 0;
+  text-align: right;
+}
+.p-nav .next .k {
+  font: 400 10px/1 var(--sans);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  transition: color 0.2s;
+}
+.p-nav .next .v {
+  font: 300 16px/1.1 var(--sans);
+  color: var(--fg);
+  transition: color 0.2s;
+}
+.p-nav .next:hover .k {
+  color: var(--fg);
+}
+.p-nav .next:hover .v {
+  color: var(--gold);
+}
+.p-close {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: var(--fg-3);
+  transition: color 0.2s;
+}
+.p-close:hover {
+  color: var(--fg);
+}
+.panel :focus-visible {
+  outline: 1px solid rgba(241, 201, 142, 0.7);
+  outline-offset: 3px;
+}
+.panel .p-title:focus {
+  outline: none;
+}
+
+/* ---------- Veil / Schnitt ---------- */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #020308;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 1.6s ease;
+  display: grid;
+  place-items: center;
+}
+.veil.gone {
+  opacity: 0;
+}
+.veil span {
+  font: 400 10px/1 var(--mono);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  transition: opacity 0.4s;
+}
+.veil.gone span {
+  opacity: 0;
+}
+.cut {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  background: #020308;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.cut.on {
+  opacity: 1;
+}
+
+/* ---------- Listenansicht ----------
+   Alle Inhalte als Seite zum Scrollen, gleicher Look wie der Himmel: dunkel,
+   dahinter ein Standbild des Sternenhimmels (aus der Szene gerendert). */
+.listview {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+.lv-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #020308 url("/sky.jpg") center / cover no-repeat;
+}
+.lv-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(2, 3, 8, 0) 0%, rgba(2, 3, 8, 0.62) 28%, rgba(2, 3, 8, 0.62) 72%, rgba(2, 3, 8, 0) 100%),
+    linear-gradient(to bottom, rgba(2, 3, 8, 0.2), rgba(2, 3, 8, 0.55));
+}
+.lv-top {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px clamp(20px, 3vw, 40px);
+  background: linear-gradient(to bottom, rgba(2, 3, 8, 0.92) 30%, rgba(2, 3, 8, 0));
+}
+.lv-brand {
+  margin: 0;
+  font: 400 11px/1 var(--sans);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+.lv-ctl {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.lv-sky-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(8, 10, 18, 0.5);
+  font: 400 10px/1 var(--sans);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  transition:
+    border-color 0.3s,
+    color 0.3s;
+}
+.lv-sky-btn svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.lv-sky-btn:hover {
+  border-color: rgba(241, 201, 142, 0.5);
+  color: var(--fg);
+}
+.lv-main {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(28px, 8vh, 90px) 24px 40px;
+}
+.lv-note {
+  margin: 0 0 44px;
+  padding: 12px 16px;
+  border: 1px dashed rgba(236, 238, 244, 0.22);
+  border-radius: 8px;
+  font: 300 13.5px/1.55 var(--sans);
+  color: var(--fg-2);
+}
+.lv-note[hidden] {
+  display: none;
+}
+.lv-title {
+  margin: 22px 0 0;
+  font: 200 clamp(44px, 7vw, 72px)/1 var(--sans);
+  letter-spacing: -0.02em;
+  color: #f4f5f9;
+}
+.lv-sub {
+  margin: 16px 0 0;
+  font: 300 14px/1.4 var(--sans);
+  letter-spacing: 0.06em;
+  color: var(--fg-3);
+}
+.lv-toc {
+  margin-top: 56px;
+}
+.lv-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.lv-toc a {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 4px;
+  text-decoration: none;
+}
+.lv-toc svg {
+  display: block;
+  overflow: visible;
+}
+.lv-toc a:hover .lg-t {
+  color: var(--gold);
+}
+.lv-sec {
+  margin-top: clamp(72px, 12vh, 120px);
+  scroll-margin-top: 72px;
+}
+.lv-sec .p-title {
+  font-size: clamp(34px, 5vw, 48px);
+}
+.lv-foot {
+  position: relative;
+  z-index: 1;
+  padding: 50px 24px 60px;
+  text-align: center;
+}
+.lv-foot p {
+  margin: 0;
+  font: 400 9.5px/1.6 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-view="sky"]) {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ---------- Zielerfassung ----------
+   Klammern um das Objekt unter dem Zeiger; Lage/Größe setzt die Engine.
+   Beim Erfassen ziehen sie sich zusammen und blinken einmal kurz. */
+.reticle {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+.reticle.on {
+  opacity: 1;
+  transition-duration: 0.12s;
+}
+.reticle i {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 0 solid rgba(241, 201, 142, 0.78);
+}
+.reticle i:nth-child(1) {
+  left: 0;
+  top: 0;
+  border-width: 1px 0 0 1px;
+}
+.reticle i:nth-child(2) {
+  right: 0;
+  top: 0;
+  border-width: 1px 1px 0 0;
+}
+.reticle i:nth-child(3) {
+  left: 0;
+  bottom: 0;
+  border-width: 0 0 1px 1px;
+}
+.reticle i:nth-child(4) {
+  right: 0;
+  bottom: 0;
+  border-width: 0 1px 1px 0;
+}
+.reticle.on i {
+  animation: retlock 0.55s linear both;
+}
+@keyframes retlock {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  34% {
+    opacity: 0.2;
+  }
+  48%,
+  100% {
+    opacity: 1;
+  }
+}
+.ret-r {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transform: translateY(-50%);
+  font: 400 8.5px/1 var(--mono);
+  letter-spacing: 0.16em;
+  color: rgba(241, 201, 142, 0.82);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 6px rgba(2, 3, 8, 0.95);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.ret-r::before {
+  content: "";
+  width: 16px;
+  height: 1px;
+  background: linear-gradient(to right, rgba(241, 201, 142, 0.6), rgba(241, 201, 142, 0.12));
+}
+.reticle.on .ret-r {
+  opacity: 1;
+  transition-delay: 0.3s;
+}
+
+/* ---------- Eröffnung ----------
+   Titelkarte unter der Sonne, während die Kamera zurückfährt. Der Schleier
+   darüber blendet gerade aus — die Buchstaben tauchen durch ihn hindurch auf. */
+.opening {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.op-card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + clamp(92px, 14vh, 150px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px;
+  text-align: center;
+  transition:
+    opacity 0.7s ease,
+    filter 0.7s ease,
+    translate 0.7s var(--ease);
+}
+.opening.out .op-card {
+  opacity: 0;
+  filter: blur(6px);
+  translate: 0 -10px;
+}
+.op-n {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.55em;
+  margin: 0 -0.4em 0 0;
+  font: 200 clamp(26px, 3.4vw, 50px)/1.1 var(--sans);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #f7f2ea;
+  text-shadow: 0 0 34px rgba(241, 201, 142, 0.28);
+}
+.op-w {
+  display: inline-flex;
+  white-space: nowrap;
+}
+.op-c {
+  display: inline-block;
+  animation: opChar 1.7s var(--ease) both;
+  animation-delay: calc(0.55s + var(--i) * 60ms);
+}
+@keyframes opChar {
+  from {
+    opacity: 0;
+    filter: blur(12px);
+    translate: 0 0.3em;
+  }
+  60% {
+    filter: blur(0);
+  }
+}
+.op-s {
+  margin: 20px 0 0;
+  font: 300 clamp(12px, 1vw, 14px)/1.4 var(--sans);
+  letter-spacing: 0.16em;
+  color: var(--fg-2);
+  animation: opFade 1.4s ease 1.6s both;
+}
+.op-l {
+  display: block;
+  width: min(240px, 50vw);
+  height: 1px;
+  margin-top: 26px;
+  background: linear-gradient(to right, transparent, rgba(241, 201, 142, 0.75), transparent);
+  animation: opLine 1.5s var(--ease) 2s both;
+}
+@keyframes opLine {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+@keyframes opFade {
+  from {
+    opacity: 0;
+  }
+}
+.op-skip {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(20px, 4vh, 34px);
+  transform: translateX(-50%);
+  pointer-events: auto;
+  padding: 12px 18px;
+  font: 400 9.5px/1 var(--mono);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  transition:
+    color 0.2s,
+    opacity 0.5s;
+  animation: opFade 1s ease 1.4s both;
+}
+.op-skip:hover {
+  color: var(--fg);
+}
+.opening.out .op-skip {
+  opacity: 0;
+}
+
+/* Bedienelemente: während der Titelkarte weg, danach gestaffelt herein.
+   `backwards` statt `both` — nach der Animation gelten wieder die normalen
+   Regeln (z. B. Tour-Knopf aus, sobald ein Panel offen ist). */
+html[data-intro="title"] :is(.brand, .compass, .lang-wrap, .tour, .legend, .labels, .hint) {
+  opacity: 0;
+  pointer-events: none;
+}
+html[data-intro="done"] :is(.brand, .compass) {
+  animation: chromeDown 1.2s var(--ease) backwards;
+}
+html[data-intro="done"] :is(.lang-wrap, .tour, .legend) {
+  animation: chromeUp 1.2s var(--ease) backwards;
+}
+html[data-intro="done"] .labels {
+  animation: opFade 1.6s ease backwards;
+}
+html[data-intro="done"] .brand {
+  animation-delay: 0.1s;
+}
+html[data-intro="done"] .compass {
+  animation-delay: 0.25s;
+}
+html[data-intro="done"] .labels {
+  animation-delay: 0.4s;
+}
+html[data-intro="done"] .lang-wrap {
+  animation-delay: 0.55s;
+}
+html[data-intro="done"] .legend {
+  animation-delay: 0.62s;
+}
+html[data-intro="done"] .tour {
+  animation-delay: 0.75s;
+}
+@keyframes chromeDown {
+  from {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+}
+@keyframes chromeUp {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+/* ---------- Klang (Umschalter neben der Sprache) ---------- */
+.lang-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.snd {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 4px;
+  font: 400 10px/1 var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  transition: color 0.2s;
+}
+.snd::before {
+  content: "";
+  width: 1px;
+  height: 10px;
+  margin-right: 4px;
+  background: var(--line);
+}
+.snd:hover,
+.snd.on {
+  color: var(--fg);
+}
+.snd svg {
+  width: 14px;
+  height: 12px;
+  flex: none;
+  overflow: visible;
+}
+.snd rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleY(0.4);
+  transition: transform 0.4s var(--ease);
+}
+.snd.on rect {
+  color: var(--gold);
+  animation: eq 1.2s ease-in-out infinite alternate;
+}
+.snd.on rect:nth-child(2) {
+  animation-delay: -0.4s;
+}
+.snd.on rect:nth-child(3) {
+  animation-delay: -0.8s;
+}
+.snd.on rect:nth-child(4) {
+  animation-delay: -0.25s;
+}
+@keyframes eq {
+  from {
+    transform: scaleY(0.35);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* ---------- Panel-Choreografie ----------
+   Beim Öffnen baut sich das Panel von oben nach unten auf: Kicker-Linie
+   zieht sich, der Titel steigt aus einer Maske, dann Tags, Text, Abschnitte. */
+@media (prefers-reduced-motion: no-preference) {
+  .panel.open :is(.p-kick, .p-meta, .p-nav),
+  .panel.open .p-body > *,
+  .panel.open .p-facts > div {
+    animation: pIn 0.95s var(--ease) backwards;
+  }
+  .panel.open .p-kick {
+    animation-delay: 0.18s;
+  }
+  .panel.open .p-kick::after {
+    transform-origin: left center;
+    animation: pLine 1.4s var(--ease) 0.35s backwards;
+  }
+  .panel.open .p-title {
+    animation: pTitle 1.15s var(--ease) 0.24s backwards;
+  }
+  .panel.open .p-meta {
+    animation-delay: 0.42s;
+  }
+  .panel.open .p-body > :nth-child(1) {
+    animation-delay: 0.5s;
+  }
+  .panel.open .p-body > :nth-child(2) {
+    animation-delay: 0.58s;
+  }
+  .panel.open .p-body > :nth-child(3) {
+    animation-delay: 0.66s;
+  }
+  .panel.open .p-body > :nth-child(4) {
+    animation-delay: 0.74s;
+  }
+  .panel.open .p-body > :nth-child(n + 5) {
+    animation-delay: 0.82s;
+  }
+  .panel.open .p-facts > div:nth-child(1) {
+    animation-delay: 0.66s;
+  }
+  .panel.open .p-facts > div:nth-child(2) {
+    animation-delay: 0.76s;
+  }
+  .panel.open .p-facts > div:nth-child(3) {
+    animation-delay: 0.86s;
+  }
+  .panel.open .p-facts > div:nth-child(n + 4) {
+    animation-delay: 0.96s;
+  }
+  .panel.open .p-nav {
+    animation-delay: 0.7s;
+  }
+}
+@keyframes pIn {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+@keyframes pTitle {
+  from {
+    opacity: 0;
+    translate: 0 0.4em;
+    clip-path: inset(0 -0.2em 100% -0.2em);
+  }
+  to {
+    clip-path: inset(-0.2em -0.2em -0.35em -0.2em);
+  }
+}
+@keyframes pLine {
+  from {
+    transform: scaleX(0);
+  }
+}
+/* Hochzählende Zahlen: feste Ziffernbreite, damit der Text nicht springt */
+.num {
+  display: inline-block;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Tour-Autopilot ----------
+   Der Balken der aktuellen Station füllt sich während der Lesezeit; ist er
+   voll, geht die Reise weiter. Maus über dem Panel (lesen) hält ihn an. */
+.p-steps button.on:has(.p-fill)::before {
+  background: rgba(241, 201, 142, 0.26);
+}
+.p-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(241, 201, 142, 0.55);
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: pFill var(--dwell, 8s) linear forwards;
+}
+@keyframes pFill {
+  to {
+    transform: scaleX(1);
+  }
+}
+.panel.held .p-fill {
+  animation-play-state: paused;
+}
+@media (hover: hover) {
+  .panel:hover .p-fill {
+    animation-play-state: paused;
+  }
+}
+.p-auto {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-left: 8px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--fg-3);
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.p-auto svg {
+  width: 10px;
+  height: 10px;
+}
+.p-auto:hover,
+.p-auto.on {
+  color: var(--gold);
+  border-color: rgba(241, 201, 142, 0.45);
+}
+
+@media (max-width: 767px) {
+  .op-card {
+    top: calc(50% + 70px);
+  }
+  .op-n {
+    font-size: 28px;
+    letter-spacing: 0.3em;
+    margin-right: -0.3em;
+  }
+  .snd-t {
+    display: none;
+  }
+  .ret-r {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reticle.on i,
+  .snd.on rect {
+    animation: none;
+  }
+  .snd.on rect {
+    transform: scaleY(0.8);
+  }
+  html[data-intro="done"] :is(.brand, .compass, .lang-wrap, .tour, .legend, .labels) {
+    animation: opFade 0.5s ease backwards;
+  }
+}
+
+/* ---------- Mobil ---------- */
+@media (max-width: 767px) {
+  .brand-s {
+    display: none;
+  }
+  .to-list {
+    margin-top: 8px;
+  }
+  .lv-top {
+    padding: 12px 16px;
+  }
+  .lv-brand {
+    display: none;
+  }
+  .lv-ctl {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .lv-main {
+    padding: 24px 16px 32px;
+  }
+  .lv-toc .lg-m {
+    display: none;
+  }
+  .compass {
+    left: auto;
+    right: 14px;
+    transform: none;
+    top: clamp(14px, 3vh, 24px);
+  }
+  .compass canvas {
+    width: 150px;
+    height: 28px;
+  }
+  .compass-r {
+    display: none;
+  }
+  .lbl-t {
+    font-size: 9.5px;
+    letter-spacing: 0.28em;
+    margin-right: -0.28em;
+  }
+  .lbl-m {
+    display: none;
+  }
+  /* Gruppennamen im Haufen dürfen umbrechen — sonst ragen sie über den Rand und verdrängen Skills */
+  .sub.grp {
+    white-space: normal;
+    max-width: 118px;
+    line-height: 1.35;
+  }
+  .lbl-line {
+    height: 9px;
+    margin-bottom: 6px;
+  }
+  .lbl.up .lbl-line {
+    margin: 6px 0 0;
+  }
+  .tour {
+    padding: 11px 16px 11px 13px;
+    letter-spacing: 0.26em;
+  }
+  /* Ton über der Sprache, sonst kollidiert er mit „Tour starten“ */
+  .lang-wrap {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .snd {
+    padding: 12px 10px;
+    margin: 0 0 -8px -10px;
+  }
+  .snd::before {
+    display: none;
+  }
+  .hint {
+    bottom: calc(clamp(20px, 4vh, 34px) + 70px);
+  }
+  .legend {
+    right: 12px;
+  }
+  .legend-l {
+    display: none;
+  }
+  .legend-btn {
+    padding: 10px 8px;
+  }
+  .legend-list {
+    min-width: 236px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(5, 7, 13, 0.9);
+  }
+  .legend-list button {
+    padding: 9px 14px;
+  }
+
+  /* Bottom-Sheet: am Griff ziehen (hoch = mehr Platz, runter = kleiner/schließen) */
+  .panel {
+    --pad-x: 22px;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-height: 55vh;
+    max-height: 55dvh;
+    padding: 0 22px calc(20px + env(safe-area-inset-bottom));
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    border-radius: 20px 20px 0 0;
+    background: rgba(5, 7, 13, 0.9);
+    transform: translateY(100%);
+    transition:
+      transform 0.7s var(--ease),
+      opacity 0.5s ease,
+      max-height 0.55s var(--ease),
+      visibility 0s linear 0.7s;
+  }
+  .panel.open {
+    transition:
+      transform 0.7s var(--ease),
+      opacity 0.5s ease,
+      max-height 0.55s var(--ease),
+      visibility 0s;
+  }
+  .panel.expanded {
+    max-height: 88vh;
+    max-height: 88dvh;
+  }
+  .panel.dragging {
+    transition: none;
+  }
+  .p-grip {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    flex: none;
+    height: 30px;
+    margin: 0 -22px;
+    touch-action: none;
+    cursor: grab;
+    background: linear-gradient(to bottom, rgba(5, 7, 13, 0.96) 60%, rgba(5, 7, 13, 0));
+  }
+  .p-grip::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 38px;
+    height: 4px;
+    margin-left: -19px;
+    border-radius: 4px;
+    background: rgba(236, 238, 244, 0.24);
+    transition: background 0.2s;
+  }
+  .panel.dragging .p-grip::before {
+    background: rgba(236, 238, 244, 0.5);
+  }
+  .p-close {
+    top: 16px;
+    right: 10px;
+    z-index: 2;
+  }
+  .p-kick {
+    font-size: 9.5px;
+  }
+  .p-title {
+    margin-top: 12px;
+    font-size: 34px;
+  }
+  .p-coord {
+    display: none;
+  }
+  .p-meta {
+    margin-top: 14px;
+  }
+  .p-body {
+    margin-top: 20px;
+    padding-top: 20px;
+  }
+  .p-body p {
+    font-size: 14.5px;
+  }
+  .p-body p.lead {
+    font-size: 17px;
+  }
+  .p-nav {
+    padding-top: 26px;
+  }
+  .p-skills {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Nur noch kurze Überblendungen — nichts gleitet, wächst oder läuft nach */
+  .hint .dot {
+    animation: none;
+  }
+  .lbl {
+    transition: opacity 0.2s ease;
+  }
+  .lbl-line,
+  .lbl-t,
+  .lbl-m {
+    transition: none;
+  }
+  .sub,
+  .skl {
+    transition:
+      opacity 0.2s ease,
+      visibility 0s linear 0.2s;
+  }
+  .sub.on,
+  .skl.on {
+    transition:
+      opacity 0.2s ease,
+      visibility 0s;
+  }
+  .legend-list,
+  .legend.open .legend-list {
+    transform: none;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s linear 0.2s;
+  }
+  .legend.open .legend-list {
+    transition:
+      opacity 0.2s ease,
+      visibility 0s;
+  }
+  .legend-list li {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .tour,
+  .panel-open .tour {
+    transform: translateX(-50%);
+    transition: opacity 0.2s;
+  }
+  .skip {
+    transform: none;
+    visibility: hidden;
+    transition: none;
+  }
+  .skip:focus-within {
+    visibility: visible;
+  }
+  .p-links a:hover .v svg {
+    transform: none;
+  }
+  .veil {
+    transition-duration: 0.5s;
+  }
+  .panel,
+  .panel.open {
+    transition:
+      opacity 0.3s ease,
+      visibility 0s;
+  }
+  .panel {
+    transform: none;
+  }
+}
