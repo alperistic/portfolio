@@ -36,7 +36,7 @@ export function ListView({ content, langs }: { content: PublicContent; langs: La
           <p className="lv-sub">{brand.subline}</p>
           {alper && (
             <div className="p-body">
-              <ObjectBody o={alper} locale={locale} />
+              <ObjectBody o={alper} locale={locale} shotLabels={ui} />
             </div>
           )}
         </header>
@@ -71,7 +71,7 @@ export function ListView({ content, langs }: { content: PublicContent; langs: La
               </h2>
               <Tags o={o} />
               <div className="p-body">
-                <ObjectBody o={o} locale={locale} />
+                <ObjectBody o={o} locale={locale} shotLabels={ui} />
               </div>
             </section>
           );

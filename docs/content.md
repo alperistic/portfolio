@@ -34,6 +34,7 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 - **Belege:** ~680 Commits seit Livegang · über 150 Pull Requests mit Review-Workflow · 130+ automatisierte Tests · eigene Infrastruktur auf Hetzner (Docker, Caddy).
 - **Stack:** Python/FastAPI, SQLAlchemy, Pydantic · React, Vite, Tailwind · PostgreSQL · Azure OpenAI (EU) · Stripe · Docker/Caddy auf Hetzner
 - **Links:** https://offerre.de
+- **Einblick:** Screenshot eines Angebotsentwurfs mit Beispieldaten (Quelle: Vorschau-Bild der offerre-Website, `public/work/offerre-entwurf.webp`). Bildunterschrift: „Ein Entwurf aus einer Anfrage. Jede Position nennt ihre Quelle in der Preisliste; fehlt eine Angabe, wird sie markiert statt geraten. Beispieldaten.“
 - **Framing-Regel:** Keine Kunden-, Nutzer- oder Umsatzzahlen behaupten (es gibt keine öffentlichen). Keine internen Vertriebsdetails.
 
 ### insertcoin.lol — Sternentstehungs-Nebel · Late 02 · sichtbar: ja
@@ -45,6 +46,7 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 - **Meine Rolle:** Konzept, Bau, Betrieb.
 - **Stack:** Next.js, Supabase (Postgres), Vercel, Stripe, LLM über Vercel AI Gateway
 - **Links:** https://insertcoin.lol
+- **Einblick:** 8-Sekunden-Ausschnitt aus dem Trailer, stumm, in Schleife (`public/work/insertcoin-kampf.*`). Bildunterschrift: „Ausschnitt aus dem Trailer: Produkte treten als Kämpfer in der Arena an.“
 
 ### Evidence-First Pipeline — Doppelstern · Late 03 · sichtbar: ja
 
@@ -56,6 +58,7 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 - **Belege:** Zitate werden gegen die zitierte Seite geprüft, die Trefferquote steht sichtbar in der Oberfläche · Beträge, Fristen und Parteien ordnet Python-Code zu, nicht das Modell · Uploads bleiben im Speicher, das Audit-Log speichert Hashes statt Dokumenttext.
 - **Stack:** Python, Azure OpenAI, Pydantic, rapidfuzz, Streamlit
 - **Links:** https://github.com/alperistic/evidence-first-doc-pipeline
+- **Einblick:** Ergebnisansicht mit Beispiel-Mietvertrag aus dem README-Screenshot (`public/work/pipeline-belege.webp`). Bildunterschrift: „Ergebnis für einen Beispielvertrag: Jede Angabe steht mit Seitenzahl und wörtlichem Zitat da.“
 - **Quelle:** README des öffentlichen Repos.
 
 ### Late — Kosmisches Netz · Dachmarke · sichtbar: ja

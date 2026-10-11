@@ -49,6 +49,8 @@ export const de: SiteContent = {
     sound: "Ton",
     autoPlay: "Tour automatisch abspielen",
     autoPause: "Tour anhalten",
+    enlarge: "Einblick vergrößern",
+    shrink: "Vergrößerung schließen",
   },
   tourOrder: [
     "alper",
@@ -122,6 +124,13 @@ export const de: SiteContent = {
       title: "offerre",
       tags: [{ text: "Live seit April 2026", color: "#6fe3c1" }],
       lead: "KI-gestützte Angebotserstellung für deutsche KMU.",
+      media: {
+        src: "/work/offerre-entwurf.webp",
+        width: 505,
+        height: 300,
+        alt: "Angebotsentwurf in offerre: vier Positionen mit Preisen, jede mit ihrer Quelle in der Preisliste. Bei einer Position fehlt die Menge, sie ist markiert statt geschätzt.",
+        caption: "Ein Entwurf aus einer Anfrage. Jede Position nennt ihre Quelle in der Preisliste; fehlt eine Angabe, wird sie markiert statt geraten. Beispieldaten.",
+      },
       body: [
         "Aus einer Kundenanfrage in Freitext und der eigenen Preisliste wird automatisch ein kalkulierter Angebotsentwurf. Die KI liest, der Code rechnet, der Betrieb entscheidet und verschickt.",
       ],
@@ -170,6 +179,15 @@ export const de: SiteContent = {
       title: "insertcoin.lol",
       tags: [{ text: "Live", color: "#ff7ad9" }],
       lead: "Eine Arcade, in der Startups gegeneinander antreten.",
+      media: {
+        src: "/work/insertcoin-kampf.webp",
+        video: ["/work/insertcoin-kampf.webm", "/work/insertcoin-kampf.mp4"],
+        width: 720,
+        height: 536,
+        alt: "Ausschnitt aus dem Trailer von insertcoin.lol: Pixel-Art-Kämpfer treten in der Arena gegeneinander an, darunter offerre.",
+        caption: "Ausschnitt aus dem Trailer: Produkte treten als Kämpfer in der Arena an.",
+        pixelated: true,
+      },
       body: [
         "Founder treten mit ihren Produkten 1:1 in KI-bewerteten Matches an; jeder Sieg baut einen öffentlichen Win/Loss-Rekord auf. Die Wertung ist deterministisch im Code, nicht nach Gefühl.",
       ],
@@ -204,6 +222,13 @@ export const de: SiteContent = {
       title: "Evidence-First Pipeline",
       tags: [{ text: "Open Source", color: "#8fb0ff" }],
       lead: "Dokumentanalyse mit KI, bei der jede Aussage ihren Beleg mitbringt.",
+      media: {
+        src: "/work/pipeline-belege.webp",
+        width: 1100,
+        height: 850,
+        alt: "Ergebnisansicht der Evidence-First Pipeline mit einem Beispiel-Mietvertrag: Kennzahlen zur Belegquote, darunter Vertragsparteien, jede mit Seitenzahl und wörtlichem Zitat.",
+        caption: "Ergebnis für einen Beispielvertrag: Jede Angabe steht mit Seitenzahl und wörtlichem Zitat da.",
+      },
       body: [
         "Das Sprachmodell findet, wo in einem langen Vertrag etwas steht. Jeder extrahierte Wert kommt mit Seitenzahl und wörtlichem Zitat und wird gegen den Quelltext geprüft, bevor er erscheint. Was eine Regel entscheiden kann, entscheidet der Code. Das Ergebnis ist ein Vorschlag zur Prüfung, nie eine Entscheidung.",
       ],

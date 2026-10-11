@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type CSSProperties } from "react";
 import type { CelestialContent, Fact, Locale } from "@/content";
+import { Shot } from "./Shot";
 
 /*
  * Inhalt eines Himmelsobjekts als semantisches HTML — dieselben Bausteine im
@@ -37,13 +38,16 @@ type BodyProps = {
   onGroupHover?: (index: number | null) => void;
   /** Panel geöffnet: Zahlen in Belegen zählen hoch (Listenansicht: nie). */
   animate?: boolean;
+  /** Beschriftungen für den Einblick (vergrößern/schließen). */
+  shotLabels: { enlarge: string; shrink: string };
 };
 
-export function ObjectBody({ o, locale, onGroupHover, animate }: BodyProps) {
+export function ObjectBody({ o, locale, onGroupHover, animate, shotLabels }: BodyProps) {
   const [qo, qc] = QUOTES[locale];
   return (
     <>
       <p className="lead">{o.lead}</p>
+      {o.media && <Shot m={o.media} labels={shotLabels} active={animate} />}
       {o.body?.map((p) => <p key={p}>{p}</p>)}
       {o.quote && (
         <blockquote className="p-quote">
