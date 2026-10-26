@@ -17,7 +17,32 @@ Die Seite verkauft nichts, das machen late.systems und offerre.de. Sie soll Alpe
 
 Runde 1 hat das Musikvideo wörtlich genommen: Vollbild-Szene, Silhouette, dünne Schrift linksbündig gestapelt, Projekte als ordentliche Screenshots nebeneinander. Alpers Urteil: „sieht übelst whack aus“. Gestört haben ihn Platzhalter, Grundaufbau, Schrift und Arbeits-Collage, also alles. Gemeint war von Anfang an ein **Board als Grund**.
 
-## Bildidee: Board mit Video-Fenster
+## Runde 2 verworfen, Runde 3 gilt (26.10.2026)
+
+Runde 2 (Karton-Board mit Fenster, Tape, Papier-Etiketten, Schrift als Komposition) hat Alper ebenfalls verworfen: „sieht voll uncool aus“. Die Schrift und die Zeichenart sollen nicht die Hauptsache werden. Danach wurde die Pashanim-Bildsprache recherchiert (21 Videos und Cover auf seinem Kanal). Der folgende Abschnitt „Runde 3“ ersetzt die Abschnitte zur Bildidee von Runde 2 weiter unten. Diese bleiben nur als Historie stehen.
+
+### Was den Stil ausmacht
+
+1. **Echtes eigenes Material ist der Kern:** Stadt, Fassaden, Freunde, Zimmer, Nacht, selbst gefilmt. Die Echtheit trägt den Stil.
+2. **Digitale Y2K-Nostalgie:** Camcorder, MiniDV, frühes Photoshop, MySpace. Überstrahlte Highlights, Blitzfotos, blau-violette Nachttönung, goldene Stunde. Kompositionen wie Doppelbelichtung, Spiegelung, Greenscreen und riesige Elemente über Alltagsszenen. Kein Bastelpapier, kein Karton, kein Tape.
+3. **Collage heißt Photo-Dump** (Cover von „Augenblick“): viele Blitzfotos und Momente, geschichtet, angeschnitten, dicht.
+4. **Schrift ist nur ein Stempel:** ein kleines Release-Logo je Werk, mal Chrom, mal Glitzer, mal Schreibschrift, mal Serife mit Leuchten. Das Bild ist die Hauptsache.
+5. **Alles ist als Release gedacht:** Album, Titel, Tracks, und jedes Werk hat eine eigene Welt.
+
+### Runde 3: deine Arbeit als Release
+
+Alper mag beide vorgeschlagenen Richtungen (Videoclip und Photo-Dump). Sie werden kombiniert:
+
+- **Startseite = dein Clip (persönlich, 100svh):** Vollbild-Szenen wie ein Musikvideo, mit harten Schnitten im Rhythmus und hin und wieder Doppelbelichtung oder Spiegelung. Alper ist per Greenscreen davor freigestellt, mit leichtem Saum. Der ganze Bildschirm hat einen **Camcorder-/Y2K-Look**: leicht überstrahlt, Farbrauschen, etwas Sättigung, Nachttönung oder goldene Stunde je Szene, feine Zeilenstruktur und eine Datums- oder Zeitstempel-Einblendung wie bei MiniDV. Der Name erscheint nur als **kleiner Release-Stempel** in einer Ecke, wie der Titel auf einem Video-Thumbnail (Chrom oder Leuchten im Y2K-Stil). Unten liegt eine **schmale Player-Leiste**: Abspielen/Pause steuert den Szenenwechsel (gleichzeitig die Pause-Funktion für Barrierefreiheit), dazu Fortschrittsbalken mit Kapitelmarken, Zeitcode, Ort „Karlsruhe“ und Szenen-Titel. „Follow on X“ ist klar sichtbar. Dazu der Satz „Founder of Late“ und der Stärke-Satz, klein und zurückhaltend.
+- **Tracklist (direkt darunter):** wie die Rückseite eines Albums. 01 offerre · live / 02 insertcoin.lol · live / 03 Evidence-First Pipeline · open source, Late als „Label“. Jeder Eintrag springt zu seinem Track.
+- **Je Projekt ein Track = eigene Augenblick-Collage:** ein dichter Photo-Dump aus dem echten Einblick (`public/work/`) und 4–6 Stimmungsbildern. Überlappend, angeschnitten, Blitz-Look, je Projekt mit eigener Farbwelt (offerre warm und Werkstatt, insertcoin Neon und Arcade in Magenta/Cyan, Pipeline kühles Papier-Blau). Der Projekttitel ist ein kleiner eigener Stempel im Release-Stil. Darunter in normaler, gut lesbarer Schrift: Einzeiler, Status, Rolle, Link. Die Collage ist „lebend“: Einzelne Bilder tauschen ab und zu Platz oder blitzen kurz auf, sobald der Track sichtbar ist.
+- **Darunter** wie gehabt die ruhige Ebene zum Überfliegen für Recruiter.
+
+**Ersatzmaterial:** Unsplash, nur Unsplash License. Ausgewählt wird nach Pashanim-Nähe: Blitzfotografie, Film- und Analog-Look, Nacht, Altbau, Straßen, Freunde, Alltagsmomente, keine Studio- oder Stock-Posen. Der Y2K-Look-Filter liegt über allem, damit auch Ersatzbilder nicht nach Stock aussehen. Die Ersatzfigur ist ein junger Mann in Alltagskleidung und eher mit Blitz fotografiert als im Studio. Bilder aus Runde 2, die nicht mehr passen, fliegen raus.
+
+**Bewusst nicht:** kein Karton, kein Tape, keine Papier-Etiketten, keine riesige Schrift als Hauptsache. Keine fremden Pashanim-Bilder oder -Logos, nur das Prinzip.
+
+## Bildidee: Board mit Video-Fenster (Runde 2, verworfen)
 
 - **Grund ist eine Board-Fläche** mit spürbarem Material: Karton, Papier oder roher Beton, mit Korn, leichtem Lichtabfall und Gebrauchsspuren. Sie füllt den Bildschirm und bewegt sich nicht.
 - **Auf dem Board liegt ein Fenster**, ein ausgeschnittenes oder aufgeklebtes Rechteck, nicht bildschirmfüllend. Darin wechseln die Szenen wie in Pashanim-Videos: Dämmerung über Wasser, Blumen, Nachtstraßen, Nahaufnahmen, mal harter Schnitt, mal kurze Überblendung. **Davor steht Alper freigestellt** und ragt über den Fensterrand hinaus auf das Board. Dieses Herausragen ist der Collage-Moment. Der leichte Greenscreen-Saum am Rand bleibt als Charme.
