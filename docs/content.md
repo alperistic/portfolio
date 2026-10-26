@@ -113,6 +113,7 @@ Jede Gruppe ein heller Stern im Haufen; Einträge erscheinen beim Hover/Fokus. G
 ## Kontakt — Pulsar
 
 - **GitHub:** https://github.com/alperistic
+- **X:** https://x.com/alperistic (@alperistic, freigegeben von Alper am 26.10.2026) · sichtbar: ja
 - **E-Mail:** offen — Alper entscheidet (eigene Domain-Adresse empfohlen statt privater Gmail). Bis dahin Platzhalter, klar markiert.
 - **Kein LinkedIn** (bewusste Entscheidung).
 - **CTA-Vorschlag:** „Du baust etwas und brauchst jemanden, der es wirklich ausliefert? Schreib mir."
