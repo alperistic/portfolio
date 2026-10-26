@@ -1,5 +1,5 @@
 import type { CollageProject } from "@/content/collage";
-import type { Media, PublicContent } from "@/content";
+import type { Fact, Media, PublicContent } from "@/content";
 
 /*
  * Schlanke Daten für die Client Components der Collage — alles aus content/en.ts
@@ -10,39 +10,50 @@ type Href = { text: string; href: string };
 
 export type HeroData = {
   name: string;
-  subline: string;
+  /** „Founder of Late“ */
   role: string;
+  /** Der Stärke-Satz aus dem Content. */
   strength: string;
-  /** Ort für das Etikett am Board (z. B. „Karlsruhe“). */
+  /** Ort für die Player-Leiste (z. B. „Karlsruhe“). */
   place: string;
-  /** Seit wann die Rolle läuft, aus dem Werdegang (z. B. „since 04/2026“). */
-  since: string;
-  /** Die kleine Projektzeile unter der Rolle. */
+  /** Kleine Projekt-Links in der Leiste. */
   projects: { title: string; href: string }[];
   x?: Href;
 };
 
-/** Ein Stück in der Arbeits-Collage. */
-export type WorkPiece = {
+/** Ein Projekt als Track. */
+export type Track = {
   id: CollageProject;
+  /** 01, 02, 03 */
+  no: string;
   title: string;
   lead: string;
   status: string;
   statusColor?: string;
+  role?: string;
   link?: Href;
   media?: Media;
 };
 
-export type WorkData = {
-  pieces: WorkPiece[];
-  late: { title: string; tag: string; lead: string; link?: { label: string; href: string } };
+export type ReleaseData = {
+  tracks: Track[];
+  /** Late als „Label“ der Tracklist. */
+  label: { title: string; lead: string; link?: { label: string; href: string } };
 };
 
 export const PROJECT_ORDER: CollageProject[] = ["offerre", "insertcoin", "pipeline"];
 
+/** Anker eines Tracks (Tracklist springt dorthin). */
+export const trackAnchor = (id: CollageProject) => `track-${id}`;
+
 const firstHref = (links?: { text: string; href?: string }[]): Href | undefined => {
   const l = links?.find((k) => k.href);
   return l?.href ? { text: l.text, href: l.href } : undefined;
+};
+
+export const factValue = (facts: Fact[] | undefined, label: string) => {
+  const v = facts?.find((f) => f.label === label)?.value;
+  return Array.isArray(v) ? v.join(" · ") : v;
 };
 
 /** Kontakt-Link zu X aus dem Content (eine Quelle für alle Stellen). */
@@ -51,28 +62,29 @@ export function xLink(c: PublicContent): Href | undefined {
   return l?.href ? { text: l.text, href: l.href } : undefined;
 }
 
-export function workData(c: PublicContent): WorkData {
+export function releaseData(c: PublicContent): ReleaseData {
   const late = c.objects.late;
   const lateLink = late?.links?.find((l) => l.href);
   return {
-    pieces: PROJECT_ORDER.flatMap((id) => {
+    tracks: PROJECT_ORDER.flatMap((id, i) => {
       const o = c.objects[id];
       if (!o) return [];
       return [
         {
           id,
+          no: String(i + 1).padStart(2, "0"),
           title: o.title,
           lead: o.lead,
           status: o.tags[0]?.text ?? o.meta,
           statusColor: o.tags[0]?.color,
+          role: factValue(o.facts, "My role"),
           link: firstHref(o.links),
           media: o.media,
         },
       ];
     }),
-    late: {
+    label: {
       title: late?.title ?? "Late",
-      tag: late?.tags[0]?.text ?? "",
       lead: late?.lead ?? "",
       link: lateLink?.href ? { label: lateLink.label, href: lateLink.href } : undefined,
     },
@@ -81,16 +93,12 @@ export function workData(c: PublicContent): WorkData {
 
 export function heroData(c: PublicContent): HeroData {
   const alper = c.objects.alper;
-  const role = alper?.tags[0]?.text ?? "";
-  const station = c.objects.werdegang?.stations?.find((s) => s.title.startsWith(role));
   return {
     name: c.brand.name,
-    subline: c.brand.subline,
-    role,
+    role: alper?.tags[0]?.text ?? "",
     strength: alper?.body?.[0] ?? "",
     place: alper?.tags[1]?.text ?? "",
-    since: station ? `${c.objects.late?.title ?? "Late"} · ${station.period}` : "",
-    projects: workData(c).pieces.flatMap((p) => (p.link ? [{ title: p.title, href: p.link.href }] : [])),
+    projects: releaseData(c).tracks.flatMap((t) => (t.link ? [{ title: t.title, href: t.link.href }] : [])),
     x: xLink(c),
   };
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type RefObject } from "react";
-import type { SceneSlot } from "@/content/collage";
+import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } from "react";
 
 const RM = "(prefers-reduced-motion: reduce)";
 const subscribeRM = (cb: () => void) => {
@@ -14,7 +13,7 @@ const subscribeVis = (cb: () => void) => {
   return () => document.removeEventListener("visibilitychange", cb);
 };
 
-/** Reduzierte Bewegung: kein Szenenwechsel, kein Zoom, keine wandernden Stücke. */
+/** Reduzierte Bewegung: kein Auto-Schnitt, kein Rauschen, keine wechselnden Bilder. */
 export const useReducedMotion = () => useSyncExternalStore(subscribeRM, () => matchMedia(RM).matches, () => false);
 /** Tab im Hintergrund: Wechsel und Clips stehen. */
 export const useTabHidden = () => useSyncExternalStore(subscribeVis, () => document.hidden, () => false);
@@ -45,24 +44,21 @@ export function usePlayback(play: boolean) {
   return ref;
 }
 
-/**
- * Eine Szene im Fenster. Schnitt bzw. Überblendung und der leichte Zoom kommen aus dem
- * CSS (`.b-scene`); hier wird nur umgeschaltet. Dekor: Das Fenster als Ganzes trägt
- * eine Beschreibung, die einzelnen Bilder sind leer beschriftet.
- */
-export function Scene({ s, on, first }: { s: SceneSlot; on: boolean; first: boolean }) {
-  const style = { "--hold": `${s.hold}ms`, "--focus": s.focus ?? "50% 50%" } as CSSProperties;
-  return (
-    <div className={`b-scene${on ? " is-on" : ""}${s.cut === "fade" ? " fade" : ""}`} style={style}>
-      {/* Statischer Export ohne Bild-Optimierung: Dateien sind vorab passend verkleinert */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={s.src}
-        alt=""
-        decoding="async"
-        loading={first ? "eager" : "lazy"}
-        fetchPriority={first ? "high" : "low"}
-      />
-    </div>
-  );
+/* MiniDV-Einblendung: Datum und Uhrzeit des Besuchs, wie ein Camcorder sie einbrennt.
+   Live statt erfunden; deutsche Monatskürzel wie auf einem Gerät aus Karlsruhe. */
+const MONTHS = ["JAN", "FEB", "MÄR", "APR", "MAI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DEZ"];
+const pad = (n: number) => String(n).padStart(2, "0");
+const stamp = () => {
+  const d = new Date();
+  return `${MONTHS[d.getMonth()]} ${pad(d.getDate())} ${d.getFullYear()}|${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+const subscribeClock = (cb: () => void) => {
+  const t = window.setInterval(cb, 15000);
+  return () => window.clearInterval(t);
+};
+
+/** [Datum, Uhrzeit] — auf dem Server (statischer Export) noch leer. */
+export function useCamcorderClock(): [string, string] | null {
+  const s = useSyncExternalStore(subscribeClock, stamp, () => "");
+  return s ? (s.split("|") as [string, string]) : null;
 }

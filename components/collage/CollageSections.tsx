@@ -1,15 +1,10 @@
-import type { Fact, PublicContent } from "@/content";
+import type { PublicContent } from "@/content";
 import { COLLAGE_UI } from "@/content/collage";
 import { Arrow } from "./Arrow";
-import { PROJECT_ORDER, xLink } from "./data";
-
-const factValue = (facts: Fact[] | undefined, label: string) => {
-  const v = facts?.find((f) => f.label === label)?.value;
-  return Array.isArray(v) ? v.join(" · ") : v;
-};
+import { factValue, PROJECT_ORDER, xLink } from "./data";
 
 /**
- * Die ruhige Ebene unter den Collagen: zum Überfliegen in 30 Sekunden, ohne
+ * Die ruhige Ebene unter den Tracks: zum Überfliegen in 30 Sekunden, ohne
  * Interaktion. Server Component — reines HTML, kein JavaScript im Browser.
  */
 export function CollageSections({ content }: { content: PublicContent }) {

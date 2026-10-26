@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { CollageHero } from "@/components/collage/CollageHero";
+import { ClipHero } from "@/components/collage/ClipHero";
 import { CollageSections } from "@/components/collage/CollageSections";
-import { heroData, workData } from "@/components/collage/data";
-import { WorkCollage } from "@/components/collage/WorkCollage";
+import { heroData, releaseData } from "@/components/collage/data";
+import { TrackDump } from "@/components/collage/TrackDump";
+import { Tracklist } from "@/components/collage/Tracklist";
 import { getPublicContent } from "@/content";
 
 const content = getPublicContent("en");
@@ -14,12 +15,19 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** Drei Kapitel: persönliche Collage → Arbeits-Collage → ruhige Ebene zum Überfliegen. */
+/**
+ * Deine Arbeit als Release (docs/konzept-collage.md, Runde 3):
+ * Clip → Tracklist → je Projekt ein Track als Photo-Dump → ruhige Ebene zum Überfliegen.
+ */
 export default function Page() {
+  const release = releaseData(content);
   return (
     <main>
-      <CollageHero data={heroData(content)} />
-      <WorkCollage data={workData(content)} />
+      <ClipHero data={heroData(content)} />
+      <Tracklist data={release} />
+      {release.tracks.map((t) => (
+        <TrackDump key={t.id} t={t} />
+      ))}
       <CollageSections content={content} />
     </main>
   );

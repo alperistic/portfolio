@@ -1,7 +1,7 @@
 import type { ObjectId } from "./types";
 
 /**
- * Bild-Manifest der „Lebenden Collage" (`/collage`, Konzept: docs/konzept-collage.md, Runde 2).
+ * Bild-Manifest der „Lebenden Collage" (`/collage`, Konzept: docs/konzept-collage.md, Runde 3).
  *
  * Hier stehen nur Bilder und Bedien-Beschriftungen der Variante. Alle Texte über
  * Alper und die Projekte kommen weiter aus `content/en.ts`.
@@ -12,19 +12,19 @@ import type { ObjectId } from "./types";
  *
  * EIGENE FOTOS EINHÄNGEN (ohne Code-Umbau):
  * 1. Datei nach `public/collage/` legen (nicht nach `standin/`), als WebP:
- *    Fenster-Szenen lange Kante 1600 px, höchstens ca. 250 KB; Board-Stücke 720 px;
- *    Projekt-Stimmung 1000 px. Beispiel: `cwebp -resize 1600 0 -q 70 in.jpg -o out.webp`.
- * 2. Beim passenden Eintrag `src` umstellen, `alt` auf das echte Bild umschreiben
- *    und `standIn` löschen.
- * 3. Person: Hochformat vor ruhigem Hintergrund freistellen mit
- *    `swift scripts/cutout.swift foto.jpg public/collage/person-01.webp`
- *    und im Person-Eintrag eintragen. Die Figur steht unten im Fenster und ragt oben heraus.
+ *    Clip-Szenen lange Kante 1600 px, höchstens ca. 200 KB; Photo-Dump-Bilder 760 px,
+ *    ca. 20–50 KB. Beispiel: `cwebp -resize 1600 0 -q 60 in.jpg -o out.webp`.
+ * 2. Beim passenden Eintrag `src` umstellen, `alt`/`title` auf das echte Bild umschreiben
+ *    und `standIn` löschen. Kurze Clips (3–6 s, stumm) kommen später als eigener Typ dazu.
+ * 3. Person: Foto vor ruhigem Hintergrund freistellen mit
+ *    `swift scripts/cutout.swift foto.jpg public/collage/person-01.webp`,
+ *    auf Hüfthöhe zuschneiden und im Person-Eintrag eintragen (Breite/Höhe anpassen).
  * 4. Ist kein Ersatzbild mehr übrig: `public/collage/standin/` samt CREDITS.md löschen.
  *
  * Nur eigenes oder lizenziertes Material — das Repo und die Seite sind öffentlich.
  */
 
-/** Projekte mit eigenem Stück auf dem Arbeits-Board. */
+/** Projekte mit eigenem Track. */
 export type CollageProject = Extract<ObjectId, "offerre" | "insertcoin" | "pipeline">;
 
 export type Photo = {
@@ -34,155 +34,162 @@ export type Photo = {
   standIn?: true;
 };
 
-export type SceneSlot = Photo & {
+/** Farbstimmung einer Szene im Camcorder-Look. */
+export type Tint = "night" | "violet" | "golden";
+
+export type ClipScene = Photo & {
   id: string;
-  /** Standzeit im Fenster (ms), ca. 3500–5000. */
+  /** Kapitel-Titel in der Player-Leiste (klein, Kleinbuchstaben). */
+  title: string;
+  /** Standzeit (ms), ca. 2200–4000: harte Schnitte im Rhythmus. */
   hold: number;
-  /** Übergang IN diese Szene: harter Schnitt oder kurze Überblendung (~350 ms). */
-  cut: "hard" | "fade";
-  /** Bildausschnitt im Fenster und Richtung des leichten Zooms (CSS object-position). */
+  tint: Tint;
+  /**
+   * Übergang IN diese Szene, sparsam: `double` = die vorige Szene liegt noch kurz als
+   * Doppelbelichtung darüber, `mirror` = die Szene startet kurz gespiegelt. Sonst harter Schnitt.
+   */
+  fx?: "double" | "mirror";
+  /** Bildausschnitt (CSS object-position). */
   focus?: string;
 };
 
-/** Ein Foto-Stück auf dem persönlichen Board. Position/Drehung macht das CSS (`.b-piece--<id>`). */
-export type PieceSlot = {
-  id: string;
-  /** Erstes Bild und Ersatz-Bilder, zwischen denen das Stück ab und zu wechselt. */
-  photos: Photo[];
-  /** Mono-Beschriftung auf einem Papierstreifen am Stück (Text aus content, siehe Hero). */
-  label?: "place" | "since";
-};
-
-/** Fenster-Szenen des ersten Bildschirms, Reihenfolge = Zyklus. Die erste lädt priorisiert. */
-export const LIFE_SCENES: SceneSlot[] = [
+/** Clip-Szenen der Startseite, Reihenfolge = Ablauf. Die erste lädt priorisiert. */
+export const CLIP_SCENES: ClipScene[] = [
   {
-    id: "dusk-water",
-    src: "/collage/standin/scene-dusk-water.webp",
-    alt: "Stand-in photo: a bridge in silhouette over a river at sunset",
+    id: "tram",
+    title: "night tram",
+    src: "/collage/standin/scene-tram.webp",
+    alt: "Stand-in photo: a tram at a stop at night, blue light",
     standIn: true,
-    hold: 4600,
-    cut: "fade",
+    hold: 3400,
+    tint: "night",
+    focus: "62% 55%",
+  },
+  {
+    id: "kiosk",
+    title: "kiosk",
+    src: "/collage/standin/scene-kiosk.webp",
+    alt: "Stand-in photo: a brightly lit street kiosk at night",
+    standIn: true,
+    hold: 2600,
+    tint: "night",
+    focus: "50% 58%",
+  },
+  {
+    id: "golden",
+    title: "golden hour",
+    src: "/collage/standin/scene-golden-bike.webp",
+    alt: "Stand-in photo: a city street at sunset, the sun between the buildings",
+    standIn: true,
+    hold: 3200,
+    tint: "golden",
+    fx: "double",
+    focus: "55% 50%",
+  },
+  {
+    id: "altbau",
+    title: "altbau",
+    src: "/collage/standin/scene-facade.webp",
+    alt: "Stand-in photo: an old apartment building facade with balconies",
+    standIn: true,
+    hold: 2400,
+    tint: "golden",
+    focus: "50% 40%",
+  },
+  {
+    id: "u-bahn",
+    title: "u-bahn",
+    src: "/collage/standin/scene-ubahn.webp",
+    alt: "Stand-in photo: a subway station with a glowing purple wall",
+    standIn: true,
+    hold: 3000,
+    tint: "violet",
+    fx: "mirror",
     focus: "50% 60%",
   },
   {
-    id: "night-street",
-    src: "/collage/standin/scene-night-street.webp",
-    alt: "Stand-in photo: a city street at night, lights reflecting on wet asphalt",
+    id: "platform",
+    title: "platform",
+    src: "/collage/standin/scene-train-blur.webp",
+    alt: "Stand-in photo: a red train rushing into a station, blurred",
     standIn: true,
-    hold: 3600,
-    cut: "hard",
-    focus: "50% 70%",
+    hold: 2200,
+    tint: "night",
+    focus: "45% 50%",
   },
   {
-    id: "flowers-dusk",
-    src: "/collage/standin/scene-flowers-dusk.webp",
-    alt: "Stand-in photo: a field of flowers at dusk, blurred by motion",
+    id: "walk",
+    title: "walk home",
+    src: "/collage/standin/scene-friends-2.webp",
+    alt: "Stand-in photo: two people walking down a sidewalk at night, seen from behind",
     standIn: true,
-    hold: 4000,
-    cut: "fade",
+    hold: 3200,
+    tint: "night",
+    fx: "double",
+    focus: "50% 62%",
+  },
+  {
+    id: "room",
+    title: "room",
+    src: "/collage/standin/scene-room.webp",
+    alt: "Stand-in photo: a dim bedroom with an unmade bed and the city in the window",
+    standIn: true,
+    hold: 3000,
+    tint: "violet",
     focus: "50% 55%",
   },
-  {
-    id: "close-up-coffee",
-    src: "/collage/standin/scene-close-up-coffee.webp",
-    alt: "Stand-in photo: a glass of coffee on a wooden table, café lights behind",
-    standIn: true,
-    hold: 3600,
-    cut: "hard",
-    focus: "35% 60%",
-  },
-  {
-    id: "train-window",
-    src: "/collage/standin/scene-train-window.webp",
-    alt: "Stand-in photo: the view from a moving train, blurred",
-    standIn: true,
-    hold: 3800,
-    cut: "hard",
-    focus: "40% 50%",
-  },
-  {
-    id: "city-dusk",
-    src: "/collage/standin/scene-city-dusk.webp",
-    alt: "Stand-in photo: a city at dusk, streets lit up",
-    standIn: true,
-    hold: 4400,
-    cut: "fade",
-    focus: "50% 50%",
-  },
 ];
 
-/** Stücke rund ums Fenster. Wenige, echte Stücke; auf dem Handy nur die ersten zwei. */
-export const PIECES: PieceSlot[] = [
-  {
-    id: "lamp",
-    label: "place",
-    photos: [
-      { src: "/collage/standin/piece-lamp.webp", alt: "Stand-in photo: a street lamp beside a tree at night", standIn: true },
-    ],
-  },
-  {
-    id: "candle",
-    label: "since",
-    photos: [
-      { src: "/collage/standin/piece-candle.webp", alt: "Stand-in photo: a small candle on a café table", standIn: true },
-      { src: "/collage/standin/piece-train-dusk.webp", alt: "Stand-in photo: a field at dusk through a train window", standIn: true },
-    ],
-  },
-  {
-    id: "roofs",
-    photos: [
-      { src: "/collage/standin/piece-roofs.webp", alt: "Stand-in photo: red tiled roofs from above", standIn: true },
-    ],
-  },
-  {
-    id: "flowers",
-    photos: [
-      { src: "/collage/standin/piece-flowers.webp", alt: "Stand-in photo: orange flowers in close-up", standIn: true },
-    ],
-  },
-];
-
-/** Freigestellte Figur (PNG/WebP mit Transparenz). Es steht immer nur eine da. */
+/** Freigestellte Figur (WebP mit Transparenz, Hüfte aufwärts). Steht unten im Clip. */
 export const PERSON: Photo & { width: number; height: number } = {
   src: "/collage/standin/person-01.webp",
-  alt: "Stand-in photo: a young man in a light blue shirt, cut out (placeholder for a photo of Alper Bulat)",
+  alt: "Stand-in photo: a young man in a black jacket, cut out (placeholder for a photo of Alper Bulat)",
   standIn: true,
-  width: 882,
-  height: 1600,
+  width: 810,
+  height: 1380,
 };
 
-/** Stimmungsfoto je Projekt auf dem Arbeits-Board, neben dem echten Einblick aus public/work/. */
-export const PROJECT_MOOD: Record<CollageProject, Photo> = {
-  offerre: {
-    src: "/collage/standin/mood-offerre-workshop.webp",
-    alt: "Stand-in photo: a workshop table with papers in window light",
-    standIn: true,
-  },
-  insertcoin: {
-    src: "/collage/standin/mood-insertcoin-arcade.webp",
-    alt: "Stand-in photo: a row of lit arcade machines",
-    standIn: true,
-  },
-  pipeline: {
-    src: "/collage/standin/mood-pipeline-papers.webp",
-    alt: "Stand-in photo: a stack of old files tied with string",
-    standIn: true,
-  },
+/**
+ * Stimmungsbilder je Track (Photo-Dump neben dem echten Einblick aus public/work/).
+ * Reihenfolge = Plätze in der Collage; auf dem Handy nur die ersten drei.
+ */
+export const DUMP: Record<CollageProject, Photo[]> = {
+  offerre: [
+    { src: "/collage/standin/dump-offerre-1.webp", alt: "Stand-in photo: a workshop with workbenches in window light", standIn: true },
+    { src: "/collage/standin/dump-offerre-2.webp", alt: "Stand-in photo: a bench vise in close-up", standIn: true },
+    { src: "/collage/standin/dump-offerre-3.webp", alt: "Stand-in photo: a hand carving wood", standIn: true },
+    { src: "/collage/standin/dump-offerre-4.webp", alt: "Stand-in photo: offcuts of wood on a table", standIn: true },
+    { src: "/collage/standin/dump-offerre-5.webp", alt: "Stand-in photo: tools on a wooden workbench, from above", standIn: true },
+  ],
+  insertcoin: [
+    { src: "/collage/standin/dump-insertcoin-1.webp", alt: "Stand-in photo: a row of lit arcade machines", standIn: true },
+    { src: "/collage/standin/dump-insertcoin-2.webp", alt: "Stand-in photo: an arcade room in neon light", standIn: true },
+    { src: "/collage/standin/dump-insertcoin-3.webp", alt: "Stand-in photo: a purple neon heart on a wall", standIn: true },
+    { src: "/collage/standin/dump-insertcoin-4.webp", alt: "Stand-in photo: a basketball arcade machine showing 00", standIn: true },
+    { src: "/collage/standin/dump-insertcoin-5.webp", alt: "Stand-in photo: two skee-ball lanes glowing blue", standIn: true },
+  ],
+  pipeline: [
+    { src: "/collage/standin/dump-pipeline-1.webp", alt: "Stand-in photo: stacks of paper documents and file folders", standIn: true },
+    { src: "/collage/standin/dump-pipeline-2.webp", alt: "Stand-in photo: an office building at night, windows lit", standIn: true },
+    { src: "/collage/standin/dump-pipeline-3.webp", alt: "Stand-in photo: a row of worn binders on a shelf", standIn: true },
+    { src: "/collage/standin/dump-pipeline-4.webp", alt: "Stand-in photo: hands going through papers on a table", standIn: true },
+    { src: "/collage/standin/dump-pipeline-5.webp", alt: "Stand-in photo: an office late at night, seen through glass", standIn: true },
+  ],
 };
-
-/** Material des Boards und der Papierstreifen (Hintergründe im CSS, hier nur zur Übersicht). */
-export const MATERIAL = {
-  board: "/collage/standin/board.webp",
-  paper: "/collage/standin/paper.webp",
-} as const;
 
 /** Bedien-Beschriftungen nur dieser Variante (Englisch, wie die Route). */
 export const COLLAGE_UI = {
   followX: "Follow on X",
-  /** Sprung vom ersten Bildschirm zum Arbeits-Board. */
-  toWork: "Work",
-  builtUnder: "Built under",
-  sections: { work: "Work", path: "Path", stack: "Stack", contact: "Contact" },
+  play: "Play",
+  pause: "Pause",
+  /** Kapitel-Sprung in der Player-Leiste, z. B. „Scene 3: golden hour“. */
+  scene: "Scene",
+  tracklist: "Tracklist",
+  toTracklist: "Tracklist",
+  label: "Label",
+  track: "Track",
   role: "Role",
   stack: "Stack",
+  realWork: "From the product",
+  sections: { work: "Work", path: "Path", stack: "Stack", contact: "Contact" },
 } as const;
