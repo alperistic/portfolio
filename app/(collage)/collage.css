@@ -1,0 +1,816 @@
+/* Lebende Collage (docs/konzept-collage.md). Eigenes CSS, nur auf /collage geladen.
+   Präfix `c-`, damit nichts mit dem Weltall (app/globals.css) kollidiert. */
+:root {
+  --ink: #0b0807;
+  --ice: #a8dcf5;
+  --ice-2: rgba(168, 220, 245, 0.7);
+  --warm: #f3e6d6;
+  --warm-2: rgba(243, 230, 214, 0.76);
+  --warm-3: rgba(243, 230, 214, 0.5);
+  --line: rgba(168, 220, 245, 0.2);
+  --paper: #efe8dc;
+  --gut: clamp(16px, 5.5vw, 96px);
+  --display: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+  --sans: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--font-plex-mono), ui-monospace, monospace;
+  --ease: cubic-bezier(0.2, 0.75, 0.15, 1);
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  background: var(--ink);
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--warm);
+  font-family: var(--sans);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+a {
+  color: inherit;
+}
+:focus-visible {
+  outline: 1px solid var(--ice);
+  outline-offset: 3px;
+}
+.c-arrow {
+  width: 0.62em;
+  height: 0.62em;
+  margin-left: 0.35em;
+  vertical-align: 0.02em;
+  flex: none;
+}
+
+/* ---------- Szenen (beide Collagen) ----------
+   Alle Szenen liegen übereinander. Die aktive liegt oben; die vorige bleibt noch
+   340 ms sichtbar darunter, damit eine Überblendung (300 ms) nicht durch Schwarz
+   geht. Harter Schnitt = die neue ist sofort ganz da. */
+.c-scenes {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.c-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0s linear 340ms;
+}
+.c-scene.is-on {
+  z-index: 2;
+  opacity: 1;
+  transition: none;
+}
+.c-scene.is-on.fade {
+  transition: opacity 300ms ease;
+}
+/* Ken-Burns: langsamer Zoom über die Standzeit, Richtung aus dem Manifest */
+.c-scene-img {
+  position: absolute;
+  inset: -2%;
+  background-color: #000;
+  transform-origin: var(--focus, 50% 50%);
+  transform: scale(1);
+  transition: transform 0s linear 340ms;
+}
+.c-scene.is-on .c-scene-img {
+  transform: scale(1.075);
+  transition: transform calc(var(--hold, 4000ms) + 800ms) linear;
+}
+@starting-style {
+  .c-scene.is-on .c-scene-img {
+    transform: scale(1);
+  }
+}
+.c-scene-img img,
+.c-scene-img video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Warme Farbgebung, Vignette und Abdunklung dort, wo Schrift steht */
+.c-grade {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 100% at 55% 45%, transparent 50%, rgba(22, 8, 0, 0.5) 82%, rgba(8, 3, 0, 0.88) 100%),
+    linear-gradient(90deg, rgba(10, 6, 4, 0.66) 0%, rgba(10, 6, 4, 0.3) 36%, transparent 58%),
+    linear-gradient(0deg, rgba(8, 5, 4, 0.7) 0%, transparent 22%),
+    linear-gradient(rgba(255, 130, 50, 0.07), rgba(255, 130, 50, 0.07));
+}
+.c-grade--work {
+  background:
+    radial-gradient(130% 100% at 50% 50%, transparent 40%, rgba(22, 8, 0, 0.55) 80%, rgba(8, 3, 0, 0.9) 100%),
+    linear-gradient(rgba(10, 6, 4, 0.42), rgba(10, 6, 4, 0.42)),
+    linear-gradient(0deg, var(--ink) 0%, transparent 14%),
+    linear-gradient(180deg, var(--ink) 0%, transparent 10%);
+}
+
+/* Filmkorn: generiertes Rauschen (SVG-feTurbulence), in Sprüngen verschoben */
+.c-grain {
+  position: absolute;
+  inset: -60%;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  animation: c-grain 0.8s steps(5) infinite;
+}
+@keyframes c-grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-7%, 5%);
+  }
+  40% {
+    transform: translate(6%, -8%);
+  }
+  60% {
+    transform: translate(-4%, 9%);
+  }
+  80% {
+    transform: translate(8%, 3%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* Slot-Label der Platzhalter-Szene, unten links */
+.c-slot {
+  position: absolute;
+  z-index: 6;
+  left: var(--gut);
+  bottom: max(18px, env(safe-area-inset-bottom));
+  margin: 0;
+  font: 10px/1.2 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm-3);
+}
+
+/* ================= 1 · Persönliche Collage ================= */
+.c-hero {
+  position: relative;
+  height: 100svh;
+  min-height: 600px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ink);
+}
+
+/* Figur: unten verankert, leicht rechts der Mitte, atmet kaum merklich */
+.c-person {
+  position: absolute;
+  z-index: 4;
+  bottom: 0;
+  left: 52.5%;
+  height: 90svh;
+  aspect-ratio: 400 / 900;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.c-person svg,
+.c-person img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  transform-origin: 50% 100%;
+  animation: c-breathe 6.5s ease-in-out infinite;
+  /* Lichtsaum wie bei einer etwas groben Freistellung */
+  filter: drop-shadow(0 0 1px rgba(236, 248, 255, 0.75)) drop-shadow(0 0 7px rgba(168, 220, 245, 0.28));
+}
+@keyframes c-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.004, 1.009);
+  }
+}
+.c-person-label {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translateX(-50%);
+  font: 9.5px/1.2 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm-3);
+  white-space: nowrap;
+}
+
+.c-top {
+  position: absolute;
+  z-index: 8;
+  top: max(18px, env(safe-area-inset-top));
+  left: var(--gut);
+  right: var(--gut);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.c-sub {
+  margin: 0;
+  font: 11px/1.3 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm-2);
+}
+
+/* „Follow on X": echter Knopf, kein Glas */
+.c-follow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 9px 16px 10px;
+  border: 1px solid var(--ice-2);
+  border-radius: 999px;
+  color: var(--ice);
+  background: rgba(11, 8, 7, 0.45);
+  font: 400 13px/1 var(--sans);
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 200ms,
+    color 200ms,
+    border-color 200ms;
+}
+.c-follow:hover,
+.c-follow:focus-visible {
+  background: var(--ice);
+  border-color: var(--ice);
+  color: var(--ink);
+}
+.c-follow-handle {
+  font: 11px/1 var(--mono);
+  opacity: 0.75;
+}
+.c-follow--solid {
+  background: var(--ice);
+  border-color: var(--ice);
+  color: var(--ink);
+  font-weight: 500;
+  padding: 12px 20px 13px;
+  font-size: 14px;
+}
+.c-follow--solid:hover,
+.c-follow--solid:focus-visible {
+  background: #d2eefb;
+}
+
+.c-title {
+  position: absolute;
+  z-index: 6;
+  left: var(--gut);
+  top: clamp(76px, 13svh, 140px);
+  width: min(62vw, 980px);
+}
+/* Riesig, sehr dünn, hellblau — überlappt die Figur */
+.c-name {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 140;
+  font-size: clamp(76px, 15.2vw, 250px);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  color: var(--ice);
+  text-shadow: 0 2px 30px rgba(8, 4, 2, 0.35);
+}
+.c-name span {
+  display: block;
+  white-space: nowrap;
+}
+.c-name span + span {
+  /* zweite Zeile nach rechts versetzt: läuft in die Figur hinein */
+  padding-left: 0.8em;
+}
+.c-role {
+  margin: 0.55em 0 0;
+  font-family: var(--display);
+  font-weight: 250;
+  font-size: clamp(24px, 2.7vw, 42px);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: var(--ice);
+}
+.c-worksline {
+  margin: 12px 0 0;
+  font: 12px/1.6 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--warm-3);
+}
+.c-worksline a {
+  color: var(--warm-2);
+  text-decoration: underline;
+  text-decoration-color: rgba(243, 230, 214, 0.3);
+  text-underline-offset: 3px;
+}
+.c-worksline a:hover,
+.c-worksline a:focus-visible {
+  color: var(--ice);
+  text-decoration-color: var(--ice);
+}
+.c-strength {
+  margin: 18px 0 0;
+  max-width: 34ch;
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.55;
+  color: var(--warm-2);
+}
+.c-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  margin-top: 26px;
+}
+.c-towork {
+  font: 12px/1 var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--warm-2);
+  text-decoration: none;
+  padding: 8px 0;
+}
+.c-towork:hover,
+.c-towork:focus-visible {
+  color: var(--ice);
+}
+
+/* ================= 2 · Arbeits-Collage ================= */
+.c-work {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ink);
+  scroll-margin-top: 0;
+}
+.c-work-inner {
+  position: relative;
+  z-index: 6;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(56px, 9svh, 96px) var(--gut) clamp(56px, 8svh, 84px);
+}
+.c-roof {
+  margin: 0;
+  font: 11px/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--warm-2);
+}
+.c-roof-k {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--warm-3);
+}
+.c-roof strong {
+  font-weight: 400;
+  color: var(--warm);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.c-roof a {
+  margin-left: 1.2em;
+  color: var(--warm-2);
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.c-roof a:hover,
+.c-roof a:focus-visible {
+  color: var(--ice);
+}
+.c-work-h {
+  margin: 10px 0 0;
+  font-family: var(--display);
+  font-weight: 140;
+  font-size: clamp(56px, 8.4vw, 136px);
+  line-height: 0.9;
+  letter-spacing: -0.015em;
+  color: var(--ice);
+}
+
+.c-pieces {
+  list-style: none;
+  margin: auto 0 0;
+  padding: clamp(28px, 5svh, 56px) 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1.12fr 1.08fr;
+  gap: clamp(24px, 3.4vw, 56px);
+  align-items: start;
+}
+.c-piece {
+  position: relative;
+  cursor: pointer;
+  transition:
+    opacity 380ms var(--ease),
+    filter 380ms var(--ease);
+}
+.c-piece--insertcoin {
+  margin-top: clamp(16px, 5svh, 52px);
+}
+.c-piece--pipeline {
+  margin-top: clamp(0px, 1.5svh, 14px);
+}
+/* Was nicht vorn ist, tritt zurück */
+.c-pieces .c-piece:not(.is-on) {
+  opacity: 0.58;
+  filter: saturate(0.7) brightness(0.85);
+}
+.c-cut-wrap {
+  margin: 0;
+  transform: rotate(var(--rot));
+  transform-origin: 50% 60%;
+  transition: transform 520ms var(--ease);
+  /* Schatten am Wrapper, weil der ausgeschnittene Rand (clip-path) ihn sonst kappt */
+  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.55)) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+}
+.c-piece.is-on .c-cut-wrap {
+  transform: rotate(calc(var(--rot) * 0.6)) translateY(-6px) scale(1.035);
+}
+/* Papierkante, leicht unregelmäßig geschnitten */
+.c-cut {
+  padding: 6px;
+  background: var(--paper);
+  clip-path: polygon(0.4% 1.2%, 38% 0, 71% 0.9%, 99.6% 0.2%, 100% 46%, 99.3% 99.1%, 58% 100%, 22% 99.2%, 0 99.8%, 0.6% 52%);
+}
+.c-cut img,
+.c-cut video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #1a1410;
+}
+.c-cut-wrap.px img,
+.c-cut-wrap.px video {
+  image-rendering: pixelated;
+}
+.c-piece-text {
+  margin-top: 18px;
+  padding-left: 4px;
+}
+.c-piece-name {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 250;
+  font-size: clamp(24px, 2.1vw, 34px);
+  line-height: 1.05;
+  color: var(--ice);
+}
+.c-piece-lead {
+  margin: 8px 0 0;
+  max-width: 36ch;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--warm-2);
+}
+.c-piece-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  margin: 10px 0 0;
+  font: 11.5px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+}
+.c-piece-meta a {
+  color: var(--warm);
+  text-underline-offset: 3px;
+}
+.c-piece-meta a:hover,
+.c-piece-meta a:focus-visible {
+  color: var(--ice);
+}
+.c-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  color: var(--warm-2);
+}
+.c-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ice);
+  box-shadow: 0 0 8px currentColor;
+}
+.c-slot--work {
+  bottom: max(14px, env(safe-area-inset-bottom));
+}
+
+/* ================= 3 · Ruhige Ebene zum Überfliegen ================= */
+.c-skim {
+  position: relative;
+  background: var(--ink);
+  padding: clamp(24px, 4vw, 48px) var(--gut) 40px;
+}
+.c-sec {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) 3fr;
+  gap: 24px clamp(24px, 4vw, 72px);
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(40px, 6vw, 72px) 0;
+  border-top: 1px solid var(--line);
+}
+.c-h {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 160;
+  font-size: clamp(44px, 5.6vw, 84px);
+  line-height: 0.9;
+  color: var(--ice);
+}
+.c-sec-body {
+  min-width: 0;
+}
+.c-work-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 44px 48px;
+}
+.c-item h3,
+.c-stack-group h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 1.1;
+  color: var(--warm);
+}
+.c-item .c-status {
+  margin: 8px 0 0;
+  font: 11.5px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+}
+.c-item-lead {
+  margin: 12px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--warm);
+}
+.c-item-body {
+  margin: 10px 0 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--warm-2);
+}
+.c-item dl {
+  margin: 14px 0 0;
+  display: grid;
+  gap: 8px;
+}
+.c-item dl > div {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+}
+.c-item dt {
+  font: 10.5px/1.7 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm-3);
+}
+.c-item dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--warm-2);
+}
+.c-link {
+  display: inline-block;
+  margin-top: 14px;
+  font: 12.5px/1.4 var(--mono);
+  color: var(--ice);
+  text-underline-offset: 3px;
+}
+.c-path {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.c-path li {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 4px 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(243, 230, 214, 0.08);
+}
+.c-path li:first-child {
+  padding-top: 0;
+}
+.c-path-when {
+  font: 12px/1.7 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--warm-3);
+}
+.c-path-what {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--warm);
+}
+.c-path-detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--warm-2);
+}
+.c-stack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 32px 40px;
+}
+.c-stack-group h3 {
+  font-size: 21px;
+}
+.c-stack-group ul {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--warm-2);
+}
+.c-contact-lead {
+  margin: 0;
+  max-width: 30ch;
+  font-family: var(--display);
+  font-weight: 250;
+  font-size: clamp(24px, 2.4vw, 34px);
+  line-height: 1.2;
+  color: var(--warm);
+}
+.c-contact {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+}
+.c-contact li {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(243, 230, 214, 0.08);
+  font-size: 16px;
+}
+.c-contact-k {
+  font: 11px/1.9 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm-3);
+}
+.c-contact a {
+  color: var(--ice);
+  text-underline-offset: 4px;
+}
+.c-ph {
+  justify-self: start;
+  padding: 1px 8px;
+  border: 1px dashed rgba(243, 230, 214, 0.35);
+  border-radius: 4px;
+  font: 12.5px/1.6 var(--mono);
+  color: var(--warm-3);
+}
+.c-foot {
+  max-width: 1240px;
+  margin: 40px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font: 11px/1.4 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm-3);
+}
+
+/* ================= Mobil ================= */
+@media (max-width: 767px) {
+  .c-hero {
+    min-height: 560px;
+  }
+  .c-follow-handle {
+    display: none;
+  }
+  .c-sub {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+  .c-top .c-follow {
+    padding: 8px 13px 9px;
+    font-size: 12.5px;
+  }
+  .c-title {
+    top: max(78px, 11svh);
+    width: auto;
+    right: var(--gut);
+  }
+  .c-name {
+    font-size: clamp(64px, 25vw, 140px);
+    font-weight: 160;
+  }
+  .c-role {
+    font-size: 23px;
+  }
+  .c-strength {
+    max-width: 23ch;
+    font-size: 14.5px;
+  }
+  .c-worksline {
+    max-width: 30ch;
+    font-size: 11.5px;
+  }
+  .c-person {
+    left: 74%;
+    height: 66svh;
+  }
+  .c-actions {
+    gap: 12px 20px;
+  }
+  .c-grade {
+    background:
+      radial-gradient(130% 100% at 60% 50%, transparent 50%, rgba(22, 8, 0, 0.5) 82%, rgba(8, 3, 0, 0.85) 100%),
+      linear-gradient(90deg, rgba(10, 6, 4, 0.62) 0%, rgba(10, 6, 4, 0.32) 60%, rgba(10, 6, 4, 0.12) 100%),
+      linear-gradient(0deg, rgba(8, 5, 4, 0.6) 0%, transparent 26%),
+      linear-gradient(rgba(255, 130, 50, 0.07), rgba(255, 130, 50, 0.07));
+  }
+
+  .c-pieces {
+    grid-template-columns: 1fr;
+    gap: 44px;
+    margin-top: 0;
+  }
+  .c-piece--insertcoin,
+  .c-piece--pipeline {
+    margin-top: 0;
+  }
+  .c-piece--insertcoin .c-cut-wrap {
+    margin-left: 8%;
+  }
+  .c-cut-wrap {
+    width: 92%;
+  }
+  /* Gestapelt sieht man alle — keins wird ausgegraut */
+  .c-pieces .c-piece:not(.is-on) {
+    opacity: 1;
+    filter: none;
+  }
+
+  .c-sec {
+    grid-template-columns: 1fr;
+  }
+  .c-work-list {
+    grid-template-columns: 1fr;
+  }
+  .c-path li {
+    grid-template-columns: 1fr;
+  }
+  .c-contact li {
+    grid-template-columns: 70px 1fr;
+  }
+}
+
+/* ================= Reduzierte Bewegung ================= */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .c-scene,
+  .c-scene.is-on,
+  .c-scene.is-on.fade,
+  .c-scene-img,
+  .c-scene.is-on .c-scene-img {
+    transition: none;
+    transform: none;
+  }
+  .c-grain,
+  .c-person svg,
+  .c-person img {
+    animation: none;
+  }
+  .c-piece,
+  .c-cut-wrap {
+    transition: none;
+  }
+}
