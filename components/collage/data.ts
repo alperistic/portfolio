@@ -13,6 +13,10 @@ export type HeroData = {
   subline: string;
   role: string;
   strength: string;
+  /** Ort für das Etikett am Board (z. B. „Karlsruhe“). */
+  place: string;
+  /** Seit wann die Rolle läuft, aus dem Werdegang (z. B. „since 04/2026“). */
+  since: string;
   /** Die kleine Projektzeile unter der Rolle. */
   projects: { title: string; href: string }[];
   x?: Href;
@@ -77,11 +81,15 @@ export function workData(c: PublicContent): WorkData {
 
 export function heroData(c: PublicContent): HeroData {
   const alper = c.objects.alper;
+  const role = alper?.tags[0]?.text ?? "";
+  const station = c.objects.werdegang?.stations?.find((s) => s.title.startsWith(role));
   return {
     name: c.brand.name,
     subline: c.brand.subline,
-    role: alper?.tags[0]?.text ?? "",
+    role,
     strength: alper?.body?.[0] ?? "",
+    place: alper?.tags[1]?.text ?? "",
+    since: station ? `${c.objects.late?.title ?? "Late"} · ${station.period}` : "",
     projects: workData(c).pieces.flatMap((p) => (p.link ? [{ title: p.title, href: p.link.href }] : [])),
     x: xLink(c),
   };

@@ -1,20 +1,29 @@
-/* Lebende Collage (docs/konzept-collage.md). Eigenes CSS, nur auf /collage geladen.
-   Präfix `c-`, damit nichts mit dem Weltall (app/globals.css) kollidiert. */
+/* Lebende Collage, Runde 2 (docs/konzept-collage.md). Eigenes CSS, nur auf /collage geladen.
+   Bildidee: ein Board als Grund, darauf ein Fenster mit wechselnden Szenen, die Figur
+   davor und oben herausragend, Stücke rundherum, Schrift als Komposition darüber. */
+
 :root {
-  --ink: #0b0807;
-  --ice: #a8dcf5;
-  --ice-2: rgba(168, 220, 245, 0.7);
-  --warm: #f3e6d6;
-  --warm-2: rgba(243, 230, 214, 0.76);
-  --warm-3: rgba(243, 230, 214, 0.5);
-  --line: rgba(168, 220, 245, 0.2);
-  --paper: #efe8dc;
-  --gut: clamp(16px, 5.5vw, 96px);
-  --display: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+  --ink: #0f0b09;
+  --ink-2: #17110e;
+  --ice: #abdcf5;
+  --warm: #f2e8da;
+  --warm-2: rgba(242, 232, 218, 0.78);
+  --warm-3: rgba(242, 232, 218, 0.56);
+  --paper: #e7ddca;
+  --paper-ink: #1d1713;
+  --paper-ink-2: rgba(29, 23, 19, 0.72);
+  --board-tone: #735d47;
+  --gut: clamp(16px, 3.5vw, 56px);
+  --display: var(--font-jost), "Futura", ui-sans-serif, system-ui, sans-serif;
   --sans: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
   --mono: var(--font-plex-mono), ui-monospace, monospace;
   --ease: cubic-bezier(0.2, 0.75, 0.15, 1);
+  /* Schatten echter, aufgeklebter Dinge: knapp an der Kante, weich darunter */
+  --lay: 0 1px 1px rgba(10, 6, 3, 0.45), 0 10px 22px -8px rgba(10, 6, 3, 0.65);
+  --lift: 0 2px 3px rgba(10, 6, 3, 0.4), 0 26px 40px -12px rgba(10, 6, 3, 0.75);
+  color-scheme: dark;
 }
+
 * {
   box-sizing: border-box;
 }
@@ -27,7 +36,6 @@ body {
   background: var(--ink);
   color: var(--warm);
   font-family: var(--sans);
-  font-weight: 300;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: clip;
@@ -36,512 +44,697 @@ a {
   color: inherit;
 }
 :focus-visible {
-  outline: 1px solid var(--ice);
+  outline: 2px solid var(--ice);
   outline-offset: 3px;
 }
-.c-arrow {
-  width: 0.62em;
-  height: 0.62em;
-  margin-left: 0.35em;
-  vertical-align: 0.02em;
-  flex: none;
+img,
+video {
+  display: block;
 }
 
-/* ---------- Szenen (beide Collagen) ----------
-   Alle Szenen liegen übereinander. Die aktive liegt oben; die vorige bleibt noch
-   340 ms sichtbar darunter, damit eine Überblendung (300 ms) nicht durch Schwarz
-   geht. Harter Schnitt = die neue ist sofort ganz da. */
-.c-scenes {
+/* ---------- Material: Board, Papier, Tape, Korn (beide Boards) ---------- */
+
+/* Board: Recycling-Karton, warm abgedunkelt, eine Lampe von oben links, Ränder fallen ab */
+.board {
   position: absolute;
   inset: 0;
   z-index: 0;
-  overflow: hidden;
+  background: var(--board-tone) url("/collage/standin/board.webp") 50% 30% / cover;
+  background-blend-mode: multiply;
 }
-.c-scene {
+.board::before {
+  /* Gebrauchsspuren: ein paar Nadellöcher (Kratzer und Flecken bringt der Karton selbst mit) */
+  content: "";
   position: absolute;
   inset: 0;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0s linear 340ms;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(0, 0, 0, 0.55) 0 1.4px, transparent 2px),
+    radial-gradient(circle at 81% 9%, rgba(0, 0, 0, 0.5) 0 1.4px, transparent 2px),
+    radial-gradient(circle at 92% 64%, rgba(0, 0, 0, 0.5) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 6% 71%, rgba(0, 0, 0, 0.45) 0 1.2px, transparent 1.8px);
 }
-.c-scene.is-on {
-  z-index: 2;
-  opacity: 1;
-  transition: none;
-}
-.c-scene.is-on.fade {
-  transition: opacity 300ms ease;
-}
-/* Ken-Burns: langsamer Zoom über die Standzeit, Richtung aus dem Manifest */
-.c-scene-img {
-  position: absolute;
-  inset: -2%;
-  background-color: #000;
-  transform-origin: var(--focus, 50% 50%);
-  transform: scale(1);
-  transition: transform 0s linear 340ms;
-}
-.c-scene.is-on .c-scene-img {
-  transform: scale(1.075);
-  transition: transform calc(var(--hold, 4000ms) + 800ms) linear;
-}
-@starting-style {
-  .c-scene.is-on .c-scene-img {
-    transform: scale(1);
-  }
-}
-.c-scene-img img,
-.c-scene-img video {
+.board::after {
+  content: "";
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  background:
+    radial-gradient(70% 62% at 38% 34%, rgba(255, 196, 128, 0.14), transparent 70%),
+    radial-gradient(120% 95% at 42% 40%, transparent 34%, rgba(8, 5, 3, 0.7) 86%, rgba(6, 4, 2, 0.9) 100%);
+}
+.board--work::after {
+  background:
+    radial-gradient(60% 50% at 60% 30%, rgba(255, 196, 128, 0.12), transparent 70%),
+    radial-gradient(130% 90% at 50% 40%, transparent 40%, rgba(8, 5, 3, 0.6) 85%, rgba(6, 4, 2, 0.85) 100%);
 }
 
-/* Warme Farbgebung, Vignette und Abdunklung dort, wo Schrift steht */
-.c-grade {
+/* Papier: Etiketten, Zettel, Streifen */
+.strip,
+.b-slip,
+.b-projects,
+.w-label,
+.w-roof {
+  background: var(--paper) url("/collage/standin/paper.webp") 30% 40% / 420px;
+  background-blend-mode: multiply;
+  color: var(--paper-ink);
+  box-shadow: var(--lay);
+}
+
+/* Tape: halbdurchsichtig, mit ausgefransten Enden */
+.tape {
   position: absolute;
-  inset: 0;
   z-index: 3;
+  width: 86px;
+  height: 24px;
+  background: rgba(226, 214, 186, 0.62) url("/collage/standin/paper.webp") 50% 50% / 160px;
+  background-blend-mode: multiply;
+  opacity: 0.86;
+  clip-path: polygon(
+    0 8%, 4% 0, 9% 10%, 14% 2%, 20% 0, 80% 0, 86% 6%, 91% 0, 96% 9%, 100% 3%,
+    100% 92%, 95% 100%, 90% 91%, 85% 100%, 79% 96%, 20% 100%, 14% 93%, 9% 100%, 4% 92%, 0 100%
+  );
   pointer-events: none;
-  background:
-    radial-gradient(130% 100% at 55% 45%, transparent 50%, rgba(22, 8, 0, 0.5) 82%, rgba(8, 3, 0, 0.88) 100%),
-    linear-gradient(90deg, rgba(10, 6, 4, 0.66) 0%, rgba(10, 6, 4, 0.3) 36%, transparent 58%),
-    linear-gradient(0deg, rgba(8, 5, 4, 0.7) 0%, transparent 22%),
-    linear-gradient(rgba(255, 130, 50, 0.07), rgba(255, 130, 50, 0.07));
-}
-.c-grade--work {
-  background:
-    radial-gradient(130% 100% at 50% 50%, transparent 40%, rgba(22, 8, 0, 0.55) 80%, rgba(8, 3, 0, 0.9) 100%),
-    linear-gradient(rgba(10, 6, 4, 0.42), rgba(10, 6, 4, 0.42)),
-    linear-gradient(0deg, var(--ink) 0%, transparent 14%),
-    linear-gradient(180deg, var(--ink) 0%, transparent 10%);
 }
 
-/* Filmkorn: generiertes Rauschen (SVG-feTurbulence), in Sprüngen verschoben */
-.c-grain {
+/* Filmkorn über allem: generiertes Rauschen (SVG-feTurbulence), still */
+.grain {
   position: absolute;
-  inset: -60%;
-  z-index: 5;
+  inset: 0;
+  z-index: 30;
   pointer-events: none;
-  opacity: 0.16;
+  opacity: 0.2;
   mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 220px 220px;
-  animation: c-grain 0.8s steps(5) infinite;
-}
-@keyframes c-grain {
-  0% {
-    transform: translate(0, 0);
-  }
-  20% {
-    transform: translate(-7%, 5%);
-  }
-  40% {
-    transform: translate(6%, -8%);
-  }
-  60% {
-    transform: translate(-4%, 9%);
-  }
-  80% {
-    transform: translate(8%, 3%);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Slot-Label der Platzhalter-Szene, unten links */
-.c-slot {
-  position: absolute;
-  z-index: 6;
-  left: var(--gut);
-  bottom: max(18px, env(safe-area-inset-bottom));
+/* Schrift-Komposition: harte Größensprünge innerhalb einer Zeile */
+.b-name,
+.b-role,
+.w-title {
   margin: 0;
-  font: 10px/1.2 var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--warm-3);
+  font-family: var(--display);
+  color: var(--ice);
+  letter-spacing: -0.035em;
+  text-shadow: 0 1px 2px rgba(6, 4, 2, 0.35), 0 4px 30px rgba(6, 4, 2, 0.4);
+}
+.t-xl {
+  font-size: var(--xl);
+  font-weight: 200;
+  line-height: 0.78;
+}
+.t-m {
+  font-size: var(--m);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
-/* ================= 1 · Persönliche Collage ================= */
-.c-hero {
+/* ================= 1 · Persönliches Board ================= */
+
+.b-hero {
   position: relative;
   height: 100svh;
   min-height: 600px;
-  overflow: hidden;
+  max-height: 1200px;
+  overflow: clip;
+  container-type: size;
   isolation: isolate;
-  background: var(--ink);
+  /* Fenster (Desktop): nicht bildschirmfüllend, leicht rechts der Mitte */
+  --wx: 25cqw;
+  --wy: 24cqh;
+  --ww: 49cqw;
+  --wh: 60cqh;
+  --frame: 6px;
+  /* Figur: unten im Fenster verankert, ragt oben deutlich heraus */
+  --ph: min(76cqh, 64cqw);
+  --pcx: calc(var(--wx) + var(--ww) * 0.3);
+  --xl: min(14cqw, 23cqh);
+  --m: min(5cqw, 8.4cqh);
 }
 
-/* Figur: unten verankert, leicht rechts der Mitte, atmet kaum merklich */
-.c-person {
+/* Fenster: aufgeklebter Abzug mit schmalem Papierrand, darin die Szenen */
+.b-window {
+  position: absolute;
+  z-index: 2;
+  left: var(--wx);
+  top: var(--wy);
+  width: var(--ww);
+  height: var(--wh);
+  padding: var(--frame);
+  background: #e9e0cf;
+  box-shadow: 0 1px 1px rgba(10, 6, 3, 0.5), 0 30px 60px -18px rgba(6, 3, 1, 0.85);
+}
+.b-scenes {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #120d0a;
+}
+/* Schnitt: die neue Szene liegt oben und ist sofort da (oder blendet ~360 ms ein);
+   die alte bleibt so lange sichtbar darunter, damit nie das Board durchscheint */
+.b-scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0s linear 380ms;
+}
+.b-scene.is-on {
+  z-index: 1;
+  opacity: 1;
+  transition: none;
+}
+.b-scene.is-on.fade {
+  transition: opacity 360ms ease-out;
+}
+.b-scene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--focus, 50% 50%);
+  transform-origin: var(--focus, 50% 50%);
+  transform: scale(1.02);
+  /* Leicht analog: etwas weniger Sättigung, wärmer, mehr Kontrast */
+  filter: saturate(0.88) sepia(0.12) contrast(1.06);
+}
+.b-scene.is-on img {
+  transform: scale(1.085);
+  transition: transform calc(var(--hold, 4000ms) + 900ms) linear;
+}
+
+.tape--tl {
+  top: -9px;
+  left: -26px;
+  transform: rotate(-34deg);
+}
+.tape--br {
+  right: -24px;
+  bottom: -6px;
+  transform: rotate(-28deg);
+}
+
+/* Figur */
+.b-person {
   position: absolute;
   z-index: 4;
-  bottom: 0;
-  left: 52.5%;
-  height: 90svh;
-  aspect-ratio: 400 / 900;
-  transform: translateX(-50%);
+  bottom: calc(100cqh - var(--wy) - var(--wh) + var(--frame));
+  left: calc(var(--pcx) - var(--ph) * 0.2756);
+  height: var(--ph);
+  aspect-ratio: 882 / 1600;
   pointer-events: none;
 }
-.c-person svg,
-.c-person img {
-  display: block;
+.b-person img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: 50% 100%;
-  transform-origin: 50% 100%;
-  animation: c-breathe 6.5s ease-in-out infinite;
-  /* Lichtsaum wie bei einer etwas groben Freistellung */
-  filter: drop-shadow(0 0 1px rgba(236, 248, 255, 0.75)) drop-shadow(0 0 7px rgba(168, 220, 245, 0.28));
-}
-@keyframes c-breathe {
-  0%,
-  100% {
-    transform: scale(1, 1);
-  }
-  50% {
-    transform: scale(1.004, 1.009);
-  }
-}
-.c-person-label {
-  position: absolute;
-  top: 46%;
-  left: 50%;
-  transform: translateX(-50%);
-  font: 9.5px/1.2 var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--warm-3);
-  white-space: nowrap;
+  /* Heller Saum wie bei grobem Greenscreen, dann Schatten aufs Board */
+  filter: saturate(0.9) sepia(0.08) brightness(0.96) drop-shadow(0 0 0.8px rgba(255, 244, 226, 0.7))
+    drop-shadow(-6px 16px 20px rgba(6, 3, 1, 0.5));
 }
 
-.c-top {
+/* Name: „Alper“ riesig, „Bulat“ klein und oben bündig — läuft über Board und Fenster */
+.b-name {
+  position: absolute;
+  z-index: 5;
+  right: 7cqw;
+  top: 10cqh;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9cqw;
+}
+.b-name .t-m {
+  margin-top: calc(var(--xl) * 0.06);
+}
+/* Rolle: „Founder of“ klein, „Late“ riesig, auf einer Grundlinie — unten rechts versetzt */
+.b-role {
+  position: absolute;
+  z-index: 5;
+  right: 3.5cqw;
+  bottom: 8cqh;
+  display: flex;
+  align-items: baseline;
+  gap: 1.2cqw;
+}
+
+/* Follow on X: ein hellblaues Etikett mit Tape — trotzdem eindeutig ein Knopf */
+.b-follow {
   position: absolute;
   z-index: 8;
-  top: max(18px, env(safe-area-inset-top));
-  left: var(--gut);
-  right: var(--gut);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
+  top: clamp(16px, 3.4cqh, 34px);
+  right: clamp(16px, 3.5cqw, 56px);
+  display: grid;
+  gap: 4px;
+  padding: 13px 18px 12px 16px;
+  background: var(--ice) url("/collage/standin/paper.webp") 60% 20% / 380px;
+  background-blend-mode: multiply;
+  color: #0e1a22;
+  text-decoration: none;
+  box-shadow: var(--lay);
+  transform: rotate(1.6deg);
+  transition:
+    transform 260ms var(--ease),
+    box-shadow 260ms var(--ease);
 }
-.c-sub {
-  margin: 0;
-  font: 11px/1.3 var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--warm-2);
+.b-follow::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 62px;
+  height: 20px;
+  margin-left: -31px;
+  background: rgba(226, 214, 186, 0.6);
+  clip-path: polygon(0 10%, 6% 0, 94% 0, 100% 12%, 100% 90%, 94% 100%, 6% 100%, 0 88%);
+  transform: rotate(-3deg);
 }
-
-/* „Follow on X": echter Knopf, kein Glas */
-.c-follow {
+.b-follow-main {
+  font: 600 15px/1.1 var(--sans);
+  letter-spacing: -0.005em;
+}
+.b-follow-handle {
   display: inline-flex;
   align-items: center;
-  gap: 0.6em;
-  padding: 9px 16px 10px;
-  border: 1px solid var(--ice-2);
-  border-radius: 999px;
-  color: var(--ice);
-  background: rgba(11, 8, 7, 0.45);
-  font: 400 13px/1 var(--sans);
-  letter-spacing: 0.01em;
-  text-decoration: none;
-  white-space: nowrap;
-  transition:
-    background 200ms,
-    color 200ms,
-    border-color 200ms;
+  gap: 6px;
+  font: 12px/1.2 var(--mono);
+  color: rgba(14, 26, 34, 0.78);
 }
-.c-follow:hover,
-.c-follow:focus-visible {
-  background: var(--ice);
-  border-color: var(--ice);
-  color: var(--ink);
+.b-follow:hover,
+.b-follow:focus-visible {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow: var(--lift);
 }
-.c-follow-handle {
-  font: 11px/1 var(--mono);
-  opacity: 0.75;
+.b-follow:active {
+  transform: rotate(0deg) translateY(0);
 }
-.c-follow--solid {
-  background: var(--ice);
-  border-color: var(--ice);
-  color: var(--ink);
-  font-weight: 500;
-  padding: 12px 20px 13px;
-  font-size: 14px;
-}
-.c-follow--solid:hover,
-.c-follow--solid:focus-visible {
-  background: #d2eefb;
+.c-arrow {
+  width: 0.72em;
+  height: 0.72em;
+  flex: none;
 }
 
-.c-title {
+/* Stärke-Satz: ein Zettel, über die Fensterecke geklebt */
+.b-slip {
   position: absolute;
   z-index: 6;
-  left: var(--gut);
-  top: clamp(76px, 13svh, 140px);
-  width: min(62vw, 980px);
-}
-/* Riesig, sehr dünn, hellblau — überlappt die Figur */
-.c-name {
+  left: 3.5cqw;
+  bottom: 13cqh;
+  width: min(25cqw, 330px);
   margin: 0;
-  font-family: var(--display);
-  font-weight: 140;
-  font-size: clamp(76px, 15.2vw, 250px);
-  line-height: 0.82;
-  letter-spacing: -0.02em;
-  color: var(--ice);
-  text-shadow: 0 2px 30px rgba(8, 4, 2, 0.35);
+  padding: 15px 18px 16px;
+  font: 400 15px/1.48 var(--sans);
+  transform: rotate(-1.8deg);
 }
-.c-name span {
-  display: block;
-  white-space: nowrap;
+.b-slip::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 22px;
+  width: 70px;
+  height: 22px;
+  background: rgba(226, 214, 186, 0.62);
+  clip-path: polygon(0 12%, 5% 0, 95% 4%, 100% 16%, 100% 86%, 95% 100%, 5% 96%, 0 84%);
+  transform: rotate(4deg);
 }
-.c-name span + span {
-  /* zweite Zeile nach rechts versetzt: läuft in die Figur hinein */
-  padding-left: 0.8em;
-}
-.c-role {
-  margin: 0.55em 0 0;
-  font-family: var(--display);
-  font-weight: 250;
-  font-size: clamp(24px, 2.7vw, 42px);
-  line-height: 1.1;
-  letter-spacing: 0.01em;
-  color: var(--ice);
-}
-.c-worksline {
-  margin: 12px 0 0;
-  font: 12px/1.6 var(--mono);
-  letter-spacing: 0.04em;
-  color: var(--warm-3);
-}
-.c-worksline a {
-  color: var(--warm-2);
-  text-decoration: underline;
-  text-decoration-color: rgba(243, 230, 214, 0.3);
-  text-underline-offset: 3px;
-}
-.c-worksline a:hover,
-.c-worksline a:focus-visible {
-  color: var(--ice);
-  text-decoration-color: var(--ice);
-}
-.c-strength {
-  margin: 18px 0 0;
-  max-width: 34ch;
-  font-size: clamp(15px, 1.15vw, 18px);
-  line-height: 1.55;
-  color: var(--warm-2);
-}
-.c-actions {
+
+/* Kleine Projektzeile + „Work ↓“: ein schmaler Papierstreifen unter dem Fenster */
+.b-projects {
+  position: absolute;
+  z-index: 7;
+  left: calc(var(--wx) + 2cqw);
+  bottom: 2.6cqh;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 14px 24px;
-  margin-top: 26px;
+  gap: 18px;
+  padding: 7px 12px 7px 14px;
+  font: 12px/1.3 var(--mono);
+  transform: rotate(0.6deg);
+  clip-path: polygon(0 0, 100% 0, 99.2% 22%, 100% 46%, 99.4% 70%, 100% 100%, 0 100%);
 }
-.c-towork {
-  font: 12px/1 var(--mono);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--warm-2);
+.b-projects-list {
+  margin: 0;
+}
+.b-projects-list a {
+  white-space: nowrap;
+}
+.b-projects a {
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.b-projects a:hover {
+  color: #000;
+  text-decoration-thickness: 2px;
+}
+.b-towork {
+  padding: 3px 8px;
+  white-space: nowrap;
+  background: var(--paper-ink);
+  color: var(--paper);
   text-decoration: none;
-  padding: 8px 0;
 }
-.c-towork:hover,
-.c-towork:focus-visible {
+.b-projects a.b-towork:hover {
   color: var(--ice);
 }
 
-/* ================= 2 · Arbeits-Collage ================= */
-.c-work {
-  position: relative;
-  min-height: 100svh;
-  overflow: hidden;
-  isolation: isolate;
-  background: var(--ink);
-  scroll-margin-top: 0;
+/* ---------- Stücke rund ums Fenster ---------- */
+.b-pieces {
+  /* kein eigener Stapel-Kontext: einzelne Stücke dürfen über die Fensterkante */
+  position: absolute;
+  inset: 0;
 }
-.c-work-inner {
-  position: relative;
-  z-index: 6;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  padding: clamp(56px, 9svh, 96px) var(--gut) clamp(56px, 8svh, 84px);
-}
-.c-roof {
+.b-piece {
+  position: absolute;
+  z-index: 1;
   margin: 0;
-  font: 11px/1.6 var(--mono);
-  letter-spacing: 0.08em;
-  color: var(--warm-2);
+  padding: 5px;
+  background: #ece4d4;
+  box-shadow: var(--lay);
+  transform: translate(var(--nx, 0), var(--ny, 0)) rotate(calc(var(--r, 0deg) + var(--nr, 0deg)));
+  transition: transform 1600ms var(--ease);
 }
-.c-roof-k {
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--warm-3);
+.b-piece[data-nudge="1"] {
+  --nx: 3px;
+  --ny: -2px;
+  --nr: 0.7deg;
 }
-.c-roof strong {
-  font-weight: 400;
-  color: var(--warm);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.b-piece[data-nudge="2"] {
+  --nx: -2px;
+  --ny: 2px;
+  --nr: -0.5deg;
 }
-.c-roof a {
-  margin-left: 1.2em;
-  color: var(--warm-2);
-  text-underline-offset: 3px;
+.b-piece img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.85) sepia(0.1) contrast(1.04);
+}
+.b-piece .tape--a {
+  top: -10px;
+  left: 50%;
+  margin-left: -38px;
+  width: 76px;
+  transform: rotate(-4deg);
+}
+.strip {
+  position: absolute;
+  z-index: 4;
+  padding: 5px 10px 4px;
+  font: 11.5px/1.2 var(--mono);
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
-.c-roof a:hover,
-.c-roof a:focus-visible {
-  color: var(--ice);
+/* Lampe: links oben, halb vom Rand angeschnitten */
+.b-piece--lamp {
+  --r: -3.5deg;
+  left: -1.2cqw;
+  top: 14cqh;
+  width: 19cqw;
+  height: 34cqh;
 }
-.c-work-h {
-  margin: 10px 0 0;
-  font-family: var(--display);
-  font-weight: 140;
-  font-size: clamp(56px, 8.4vw, 136px);
-  line-height: 0.9;
-  letter-spacing: -0.015em;
-  color: var(--ice);
+.b-piece--lamp .strip {
+  right: -16px;
+  bottom: 18px;
+  transform: rotate(5deg);
+}
+/* Kerze / Zugfenster: rechts zwischen Name und Rolle, über die Fensterkante */
+.b-piece--candle {
+  --r: 3deg;
+  z-index: 3;
+  left: 70cqw;
+  top: 42cqh;
+  width: 15cqw;
+  height: 25cqh;
+}
+.b-piece--candle .strip {
+  right: -18px;
+  bottom: -12px;
+  transform: rotate(-3deg);
+}
+/* Dächer: unten links, vom Zettel halb verdeckt */
+.b-piece--roofs {
+  --r: 5deg;
+  left: 13cqw;
+  bottom: 30cqh;
+  width: 12cqw;
+  height: 17cqh;
+}
+/* Blumen: rechts außen, vom Rand angeschnitten */
+.b-piece--flowers {
+  --r: -6deg;
+  right: -3cqw;
+  top: 39cqh;
+  width: 11cqw;
+  height: 28cqh;
 }
 
-.c-pieces {
-  list-style: none;
-  margin: auto 0 0;
-  padding: clamp(28px, 5svh, 56px) 0 0;
-  display: grid;
-  grid-template-columns: 1fr 1.12fr 1.08fr;
-  gap: clamp(24px, 3.4vw, 56px);
-  align-items: start;
-}
-.c-piece {
+/* ================= 2 · Arbeits-Board ================= */
+
+.w-board {
   position: relative;
-  cursor: pointer;
-  transition:
-    opacity 380ms var(--ease),
-    filter 380ms var(--ease);
+  isolation: isolate;
+  overflow: clip;
+  padding: clamp(56px, 6vw, 96px) var(--gut) clamp(80px, 8vw, 128px);
 }
-.c-piece--insertcoin {
-  margin-top: clamp(16px, 5svh, 52px);
-}
-.c-piece--pipeline {
-  margin-top: clamp(0px, 1.5svh, 14px);
-}
-/* Was nicht vorn ist, tritt zurück */
-.c-pieces .c-piece:not(.is-on) {
-  opacity: 0.58;
-  filter: saturate(0.7) brightness(0.85);
-}
-.c-cut-wrap {
-  margin: 0;
-  transform: rotate(var(--rot));
-  transform-origin: 50% 60%;
-  transition: transform 520ms var(--ease);
-  /* Schatten am Wrapper, weil der ausgeschnittene Rand (clip-path) ihn sonst kappt */
-  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.55)) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
-}
-.c-piece.is-on .c-cut-wrap {
-  transform: rotate(calc(var(--rot) * 0.6)) translateY(-6px) scale(1.035);
-}
-/* Papierkante, leicht unregelmäßig geschnitten */
-.c-cut {
-  padding: 6px;
-  background: var(--paper);
-  clip-path: polygon(0.4% 1.2%, 38% 0, 71% 0.9%, 99.6% 0.2%, 100% 46%, 99.3% 99.1%, 58% 100%, 22% 99.2%, 0 99.8%, 0.6% 52%);
-}
-.c-cut img,
-.c-cut video {
-  display: block;
-  width: 100%;
-  height: auto;
-  background: #1a1410;
-}
-.c-cut-wrap.px img,
-.c-cut-wrap.px video {
-  image-rendering: pixelated;
-}
-.c-piece-text {
-  margin-top: 18px;
-  padding-left: 4px;
-}
-.c-piece-name {
-  margin: 0;
-  font-family: var(--display);
-  font-weight: 250;
-  font-size: clamp(24px, 2.1vw, 34px);
-  line-height: 1.05;
-  color: var(--ice);
-}
-.c-piece-lead {
-  margin: 8px 0 0;
-  max-width: 36ch;
-  font-size: 14.5px;
-  line-height: 1.5;
-  color: var(--warm-2);
-}
-.c-piece-meta {
+.w-head {
+  position: relative;
+  z-index: 2;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 18px;
-  margin: 10px 0 0;
-  font: 11.5px/1.4 var(--mono);
-  letter-spacing: 0.04em;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
-.c-piece-meta a {
-  color: var(--warm);
-  text-underline-offset: 3px;
+.w-title {
+  font-size: clamp(96px, 15vw, 230px);
+  font-weight: 200;
+  line-height: 0.78;
 }
-.c-piece-meta a:hover,
-.c-piece-meta a:focus-visible {
-  color: var(--ice);
+/* Late als Dach: ein kleiner Streifen oben rechts */
+.w-roof {
+  position: relative;
+  max-width: 380px;
+  margin-bottom: 1.5vw;
+  padding: 14px 18px 13px;
+  font: 13.5px/1.5 var(--sans);
+  transform: rotate(1.2deg);
 }
-.c-status {
+.w-roof p {
+  margin: 0;
+}
+.w-roof strong {
+  font-weight: 600;
+}
+.w-roof-lead {
+  color: var(--paper-ink-2);
+}
+.w-roof a {
   display: inline-flex;
   align-items: center;
-  gap: 0.6em;
-  color: var(--warm-2);
+  gap: 6px;
+  margin-top: 8px;
+  font: 12px/1.3 var(--mono);
+  text-underline-offset: 3px;
 }
-.c-status i {
-  width: 6px;
-  height: 6px;
+.tape--roof {
+  top: -11px;
+  right: 26px;
+  transform: rotate(6deg);
+}
+
+.w-pieces {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  max-width: 1400px;
+  margin: clamp(0px, 0.5vw, 8px) auto 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+.w-piece {
+  position: relative;
+  grid-row: 1;
+  cursor: pointer;
+  transition: transform 380ms var(--ease);
+}
+.w-piece--offerre {
+  grid-column: 1 / span 5;
+  --mr: -4deg;
+  --sr: 1.6deg;
+  --lr: -1.4deg;
+}
+.w-piece--insertcoin {
+  grid-column: 5 / span 4;
+  margin-top: clamp(56px, 8vw, 128px);
+  z-index: 2;
+  --mr: 3deg;
+  --sr: -2.2deg;
+  --lr: 1.2deg;
+}
+.w-piece--pipeline {
+  grid-column: 9 / span 4;
+  margin-top: clamp(8px, 2vw, 32px);
+  --mr: -2deg;
+  --sr: 1.4deg;
+  --lr: -0.8deg;
+}
+/* Stimmungsfoto: hinten, angeschnitten durch den Einblick davor */
+.w-mood {
+  position: absolute;
+  top: 0;
+  width: 54%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  padding: 5px;
+  background: #ece4d4;
+  box-shadow: var(--lay);
+  transform: rotate(var(--mr));
+  filter: saturate(0.85) sepia(0.1) contrast(1.04);
+}
+.w-piece--offerre .w-mood,
+.w-piece--pipeline .w-mood {
+  right: 2%;
+}
+.w-piece--insertcoin .w-mood {
+  left: -4%;
+  top: -12%;
+}
+/* Der echte Einblick: ausgeschnitten, mit Tape */
+.w-shot {
+  position: relative;
+  z-index: 1;
+  width: 86%;
+  margin: 24% 0 0 2%;
+  box-shadow: var(--lay);
+  transform: rotate(var(--sr));
+  transition:
+    box-shadow 380ms var(--ease),
+    transform 380ms var(--ease);
+}
+.w-piece--insertcoin .w-shot {
+  margin-left: 14%;
+}
+.w-shot img,
+.w-shot video {
+  width: 100%;
+  height: auto;
+  /* Schere statt Lineal: minimal schiefe Schnittkanten */
+  clip-path: polygon(0.4% 0.6%, 99.5% 0, 100% 99.2%, 0 100%);
+}
+.w-shot.px img,
+.w-shot.px video {
+  image-rendering: pixelated;
+}
+.w-shot .tape--a {
+  top: -10px;
+  left: -18px;
+  transform: rotate(-30deg);
+}
+.w-shot .tape--b {
+  right: -20px;
+  bottom: -8px;
+  transform: rotate(-24deg);
+}
+/* Etikett: Name, Einzeiler, Status, Link */
+.w-label {
+  position: relative;
+  z-index: 2;
+  width: min(86%, 380px);
+  margin: -14px 0 0 8%;
+  padding: 14px 18px 15px;
+  transform: rotate(var(--lr));
+  transition:
+    box-shadow 380ms var(--ease),
+    transform 380ms var(--ease);
+}
+.w-piece--insertcoin .w-label {
+  margin-left: 22%;
+}
+.w-label h3 {
+  margin: 0;
+  font: 400 clamp(24px, 2.2vw, 32px) / 1.05 var(--display);
+  letter-spacing: -0.02em;
+}
+.w-lead {
+  margin: 6px 0 0;
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.w-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  margin: 10px 0 0;
+  font: 11.5px/1.4 var(--mono);
+}
+.w-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.w-status i {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--ice);
-  box-shadow: 0 0 8px currentColor;
+  box-shadow: 0 0 0 1.5px rgba(29, 23, 19, 0.55);
 }
-.c-slot--work {
-  bottom: max(14px, env(safe-area-inset-bottom));
+.w-meta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-underline-offset: 3px;
+}
+/* Anheben: Zeiger drauf, Tastatur-Fokus im Stück oder angetippt */
+.w-piece:focus-within,
+.w-piece.is-up {
+  z-index: 5;
+  transform: translateY(-10px);
+}
+.w-piece:focus-within .w-shot,
+.w-piece.is-up .w-shot,
+.w-piece:focus-within .w-label,
+.w-piece.is-up .w-label {
+  box-shadow: var(--lift);
+  transform: rotate(calc(var(--sr) * 0.25));
+}
+@media (hover: hover) {
+  .w-piece:hover {
+    z-index: 5;
+    transform: translateY(-10px);
+  }
+  .w-piece:hover .w-shot,
+  .w-piece:hover .w-label {
+    box-shadow: var(--lift);
+    transform: rotate(calc(var(--sr) * 0.25));
+  }
 }
 
 /* ================= 3 · Ruhige Ebene zum Überfliegen ================= */
+
 .c-skim {
   position: relative;
-  background: var(--ink);
-  padding: clamp(24px, 4vw, 48px) var(--gut) 40px;
+  background: var(--ink-2);
+  padding: clamp(40px, 5vw, 72px) var(--gut) 40px;
 }
 .c-sec {
   display: grid;
   grid-template-columns: minmax(160px, 1fr) 3fr;
   gap: 24px clamp(24px, 4vw, 72px);
-  max-width: 1240px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: clamp(40px, 6vw, 72px) 0;
-  border-top: 1px solid var(--line);
+  padding: clamp(40px, 5vw, 72px) 0;
+}
+.c-sec + .c-sec {
+  border-top: 1px solid rgba(242, 232, 218, 0.08);
 }
 .c-h {
   margin: 0;
   font-family: var(--display);
-  font-weight: 160;
-  font-size: clamp(44px, 5.6vw, 84px);
-  line-height: 0.9;
+  font-weight: 200;
+  font-size: clamp(48px, 5.6vw, 84px);
+  line-height: 0.85;
+  letter-spacing: -0.03em;
   color: var(--ice);
 }
 .c-sec-body {
@@ -561,10 +754,20 @@ a {
   line-height: 1.1;
   color: var(--warm);
 }
+.c-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.c-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
 .c-item .c-status {
   margin: 8px 0 0;
-  font: 11.5px/1.4 var(--mono);
-  letter-spacing: 0.04em;
+  font: 12px/1.4 var(--mono);
+  color: var(--warm-2);
 }
 .c-item-lead {
   margin: 12px 0 0;
@@ -574,7 +777,7 @@ a {
 }
 .c-item-body {
   margin: 10px 0 0;
-  font-size: 14.5px;
+  font-size: 15px;
   line-height: 1.6;
   color: var(--warm-2);
 }
@@ -589,21 +792,21 @@ a {
   gap: 12px;
 }
 .c-item dt {
-  font: 10.5px/1.7 var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font: 12px/1.6 var(--mono);
   color: var(--warm-3);
 }
 .c-item dd {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 15px;
+  line-height: 1.5;
   color: var(--warm-2);
 }
 .c-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-top: 14px;
-  font: 12.5px/1.4 var(--mono);
+  font-size: 14px;
   color: var(--ice);
   text-underline-offset: 3px;
 }
@@ -611,20 +814,16 @@ a {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: grid;
+  gap: 18px;
 }
 .c-path li {
   display: grid;
   grid-template-columns: 170px 1fr;
   gap: 4px 24px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(243, 230, 214, 0.08);
-}
-.c-path li:first-child {
-  padding-top: 0;
 }
 .c-path-when {
-  font: 12px/1.7 var(--mono);
-  letter-spacing: 0.04em;
+  font: 12.5px/1.7 var(--mono);
   color: var(--warm-3);
 }
 .c-path-what {
@@ -635,7 +834,7 @@ a {
 .c-path-detail {
   display: block;
   margin-top: 2px;
-  font-size: 14px;
+  font-size: 14.5px;
   color: var(--warm-2);
 }
 .c-stack {
@@ -644,13 +843,13 @@ a {
   gap: 32px 40px;
 }
 .c-stack-group h3 {
-  font-size: 21px;
+  font-size: 22px;
 }
 .c-stack-group ul {
   list-style: none;
   margin: 10px 0 0;
   padding: 0;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.75;
   color: var(--warm-2);
 }
@@ -658,7 +857,7 @@ a {
   margin: 0;
   max-width: 30ch;
   font-family: var(--display);
-  font-weight: 250;
+  font-weight: 300;
   font-size: clamp(24px, 2.4vw, 34px);
   line-height: 1.2;
   color: var(--warm);
@@ -667,114 +866,157 @@ a {
   list-style: none;
   margin: 28px 0 0;
   padding: 0;
+  display: grid;
+  gap: 12px;
 }
 .c-contact li {
   display: grid;
   grid-template-columns: 90px 1fr;
   gap: 16px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(243, 230, 214, 0.08);
   font-size: 16px;
 }
 .c-contact-k {
-  font: 11px/1.9 var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font: 12px/1.9 var(--mono);
   color: var(--warm-3);
 }
 .c-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
   color: var(--ice);
   text-underline-offset: 4px;
 }
 .c-ph {
   justify-self: start;
-  padding: 1px 8px;
-  border: 1px dashed rgba(243, 230, 214, 0.35);
-  border-radius: 4px;
-  font: 12.5px/1.6 var(--mono);
+  font: 13px/1.6 var(--mono);
   color: var(--warm-3);
 }
 .c-foot {
-  max-width: 1240px;
+  max-width: 1400px;
   margin: 40px auto 0;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
-  font: 11px/1.4 var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font: 12px/1.4 var(--mono);
   color: var(--warm-3);
 }
 
-/* ================= Mobil ================= */
-@media (max-width: 767px) {
-  .c-hero {
-    min-height: 560px;
+/* ================= Hochformat & Handy: neu komponiert, nicht verkleinert ================= */
+@media (max-aspect-ratio: 4/5), (max-width: 640px) {
+  .b-hero {
+    min-height: 640px;
+    --wx: 6cqw;
+    --wy: 25cqh;
+    --ww: 88cqw;
+    --wh: 38cqh;
+    --frame: 5px;
+    --ph: min(47cqh, 94cqw);
+    --pcx: calc(var(--wx) + var(--ww) * 0.68);
+    --xl: min(27cqw, 15cqh);
+    --m: min(9.6cqw, 5.4cqh);
   }
-  .c-follow-handle {
+  .b-name {
+    right: auto;
+    left: 5cqw;
+    top: 8.5cqh;
+    gap: 2cqw;
+  }
+  .b-role {
+    right: 5cqw;
+    bottom: auto;
+    top: calc(var(--wy) + var(--wh) + 3cqh);
+    gap: 2.4cqw;
+  }
+  .b-follow {
+    padding: 10px 13px 9px 12px;
+    gap: 2px;
+  }
+  .b-follow-main {
+    font-size: 14px;
+  }
+  .b-follow-handle {
+    font-size: 11px;
+  }
+  .b-slip {
+    left: 5cqw;
+    bottom: 10.5cqh;
+    width: 74cqw;
+    padding: 12px 15px 13px;
+    font-size: 14px;
+  }
+  .b-projects {
+    left: 5cqw;
+    right: 5cqw;
+    bottom: 3cqh;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+  .b-projects-list {
+    line-height: 1.5;
+  }
+  .b-piece--lamp {
+    left: auto;
+    right: -6cqw;
+    top: 13cqh;
+    width: 26cqw;
+    height: 16cqh;
+    --r: 5deg;
+  }
+  .b-piece--lamp .strip {
+    right: auto;
+    left: -30px;
+    bottom: -10px;
+    transform: rotate(-4deg);
+  }
+  .b-piece--candle {
+    /* hinter dem Zettel, rechts angeschnitten; Etikett nur auf dem Desktop */
+    z-index: 1;
+    left: auto;
+    top: auto;
+    right: -7cqw;
+    bottom: 15cqh;
+    width: 28cqw;
+    height: 15cqh;
+    --r: 6deg;
+  }
+  .b-piece--candle .strip {
     display: none;
   }
-  .c-sub {
-    font-size: 10px;
-    letter-spacing: 0.1em;
+  .b-piece--roofs,
+  .b-piece--flowers {
+    display: none;
   }
-  .c-top .c-follow {
-    padding: 8px 13px 9px;
-    font-size: 12.5px;
+  .tape--tl {
+    left: -18px;
   }
-  .c-title {
-    top: max(78px, 11svh);
-    width: auto;
-    right: var(--gut);
-  }
-  .c-name {
-    font-size: clamp(64px, 25vw, 140px);
-    font-weight: 160;
-  }
-  .c-role {
-    font-size: 23px;
-  }
-  .c-strength {
-    max-width: 23ch;
-    font-size: 14.5px;
-  }
-  .c-worksline {
-    max-width: 30ch;
-    font-size: 11.5px;
-  }
-  .c-person {
-    left: 74%;
-    height: 66svh;
-  }
-  .c-actions {
-    gap: 12px 20px;
-  }
-  .c-grade {
-    background:
-      radial-gradient(130% 100% at 60% 50%, transparent 50%, rgba(22, 8, 0, 0.5) 82%, rgba(8, 3, 0, 0.85) 100%),
-      linear-gradient(90deg, rgba(10, 6, 4, 0.62) 0%, rgba(10, 6, 4, 0.32) 60%, rgba(10, 6, 4, 0.12) 100%),
-      linear-gradient(0deg, rgba(8, 5, 4, 0.6) 0%, transparent 26%),
-      linear-gradient(rgba(255, 130, 50, 0.07), rgba(255, 130, 50, 0.07));
+  .tape--br {
+    right: -16px;
   }
 
-  .c-pieces {
+  .w-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .w-roof {
+    margin-left: auto;
+    max-width: 88%;
+  }
+  .w-pieces {
     grid-template-columns: 1fr;
-    gap: 44px;
+    gap: 56px;
+  }
+  .w-piece--offerre,
+  .w-piece--insertcoin,
+  .w-piece--pipeline {
+    grid-column: 1;
+    grid-row: auto;
     margin-top: 0;
   }
-  .c-piece--insertcoin,
-  .c-piece--pipeline {
-    margin-top: 0;
+  .w-mood {
+    width: 50%;
   }
-  .c-piece--insertcoin .c-cut-wrap {
-    margin-left: 8%;
-  }
-  .c-cut-wrap {
-    width: 92%;
-  }
-  /* Gestapelt sieht man alle — keins wird ausgegraut */
-  .c-pieces .c-piece:not(.is-on) {
-    opacity: 1;
-    filter: none;
+  .w-shot {
+    margin-top: 26%;
   }
 
   .c-sec {
@@ -791,26 +1033,24 @@ a {
   }
 }
 
-/* ================= Reduzierte Bewegung ================= */
+/* ================= Reduzierte Bewegung: Standbild ================= */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  .c-scene,
-  .c-scene.is-on,
-  .c-scene.is-on.fade,
-  .c-scene-img,
-  .c-scene.is-on .c-scene-img {
+  .b-scene,
+  .b-scene.is-on,
+  .b-scene.is-on.fade,
+  .b-scene img,
+  .b-scene.is-on img {
     transition: none;
     transform: none;
   }
-  .c-grain,
-  .c-person svg,
-  .c-person img {
-    animation: none;
-  }
-  .c-piece,
-  .c-cut-wrap {
+  .b-piece,
+  .b-follow,
+  .w-piece,
+  .w-shot,
+  .w-label {
     transition: none;
   }
 }
