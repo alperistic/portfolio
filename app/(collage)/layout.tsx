@@ -4,7 +4,7 @@ import "./collage.css";
 
 // Dieselben lokalen Dateien wie das Weltall (app/document.tsx), hier bewusst eigens
 // deklariert: Ein gemeinsames Schrift-Modul ließ Turbopack die Schrift-CSS beider
-// Varianten zusammenlegen — dann hätte auch das Weltall Jost vorgeladen.
+// Varianten zusammenlegen — dann hätte auch das Weltall die Collage-Schriften vorgeladen.
 const sora = localFont({
   src: "../fonts/sora-latin.woff2",
   weight: "200 500",
@@ -17,20 +17,35 @@ const plexMono = localFont({
   variable: "--font-plex-mono",
   display: "swap",
 });
-// Dünne geometrische Display-Schrift nur für die Collage (OFL, app/fonts/OFL-Jost.txt).
-// Variable Achse 100–900 in einer Datei: Thin für den Namen, ExtraLight für die Rolle.
-const jost = localFont({
-  src: "../fonts/jost-latin.woff2",
-  weight: "100 900",
-  variable: "--font-jost",
+// Release-Stempel (alle OFL, Lizenzen in app/fonts/): Unbounded für Name und insertcoin
+// (Chrom, Y2K), Mr Dafoe als Schreibschrift für offerre, Instrument Serif für die Pipeline.
+// Nur der Name steht im ersten Bild — die beiden Track-Schriften laden erst bei Bedarf.
+const unbounded = localFont({
+  src: "../fonts/unbounded-latin.woff2",
+  weight: "200 900",
+  variable: "--font-unbounded",
   display: "swap",
+});
+const dafoe = localFont({
+  src: "../fonts/mr-dafoe-400-latin.woff2",
+  weight: "400",
+  variable: "--font-dafoe",
+  display: "swap",
+  preload: false,
+});
+const instrument = localFont({
+  src: "../fonts/instrument-serif-400-latin.woff2",
+  weight: "400",
+  variable: "--font-instrument",
+  display: "swap",
+  preload: false,
 });
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0b0807",
+  themeColor: "#07060a",
 };
 
 /**
@@ -42,7 +57,7 @@ export const viewport: Viewport = {
  */
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sora.variable} ${plexMono.variable} ${jost.variable}`}>
+    <html lang="en" className={`${sora.variable} ${plexMono.variable} ${unbounded.variable} ${dafoe.variable} ${instrument.variable}`}>
       <body>{children}</body>
     </html>
   );
