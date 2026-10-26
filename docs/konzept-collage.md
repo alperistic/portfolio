@@ -10,7 +10,7 @@ Die Seite verkauft nichts, das machen late.systems und offerre.de. Sie soll Alpe
 - **Nebengruppe:** Recruiter. Sie brauchen einen Überblick in 30 Sekunden, ohne Interaktion.
 - **Die drei Fragen, die nach 10 Sekunden ohne Klick beantwortet sein müssen:**
   1. Wer ist das und was macht er?
-  2. Ist das echt? Die laufenden Produkte stehen mit Status und Link schon auf dem ersten Bildschirm.
+  2. Ist das echt? Auf dem ersten Bildschirm nur minimal (Projektnamen als Links); voll beantwortet in der Arbeits-Collage direkt darunter.
   3. Warum sollte ich folgen? Persönlichkeit, dazu ein sichtbarer Knopf „Follow on X“.
 
 ## Bildidee
@@ -23,18 +23,19 @@ Leitplanken:
 - **Szenen aus Alpers echtem Leben** statt geliehener Luxussymbole. Porsche und Parfum wirken bei einem Rapper, bei einem Gründer ohne öffentliche Umsätze aber wie Hustle-Inszenierung.
 - **Persönlich, nicht kitschig.** Keine Emojis, kein Glassmorphism, keine Sticker-Orgie. Die Collage lebt vom Rhythmus der Schnitte und von der Schrift, nicht von möglichst vielen Elementen.
 
-## Projekte in der Collage
+## Zwei Collagen: persönlich und Arbeit
 
-Die wechselnden Szenen sind gleichzeitig eine Tour durch die Arbeit:
+Alper, 26.10.2026: Die Startseite zeigt **nur ihn als Person**. Die Projekte bekommen **eine eigene Collage**.
 
-- Der Szenen-Zyklus mischt **Lebens-Szenen** mit **Projekt-Szenen**: offerre (Werkstatt/Handwerk), insertcoin.lol (Arcade, Neon, Magenta/Cyan), Evidence-First Pipeline (Papier, Akten, Zitate).
-- Läuft eine Projekt-Szene, fliegt der echte **Einblick** des Projekts als Collage-Element ein. Er ist leicht gedreht, wie ein aufgeklebter Ausschnitt; die Dateien liegen schon in `public/work/`. Gleichzeitig leuchtet das Projekt im Beleg-Streifen auf.
-- **Beleg-Streifen** auf dem ersten Bildschirm: offerre · live · Link / insertcoin.lol · live · Link / Evidence-First Pipeline · open source · Link, darunter Late als Dach. Hover oder Tap auf ein Projekt springt sofort zu seiner Szene und hält den Zyklus an.
+- **Persönliche Collage (erster Bildschirm):** nur Lebens-Szenen, keine Projekt-Szenen, keine Einblicke. Der einzige Hinweis auf die Arbeit ist eine kleine Zeile unter der Rolle mit den Projektnamen als Links (offerre · insertcoin.lol · Evidence-First Pipeline) und ein dezentes „Work ↓“. Diese Zeile deckt Frage 2 minimal ab, ohne die persönliche Collage zu verwässern. Alper kann sie streichen.
+- **Arbeits-Collage (zweites Kapitel, beim Scrollen, 100svh):** eigene Collage mit Projekt-Szenen: offerre (Werkstatt/Handwerk), insertcoin.lol (Arcade, Neon, Magenta/Cyan), Evidence-First Pipeline (Papier, Akten, Zitate). Die echten **Einblicke** aus `public/work/` sind leicht gedreht aufgeklebt, wie ausgeschnitten, jeweils mit Name, Einzeiler, Status und Link. Hover, Fokus oder Tap auf ein Projekt holt seine Szene nach vorn und hebt sein Stück hervor. Late steht klein als Dach darüber.
+- Annahme: Die Arbeits-Collage ist ein Kapitel auf derselben Seite und keine eigene Unterseite (kein zusätzlicher Klick, einfacher zu vergleichen). Lässt sich später leicht auf `/collage/work` verschieben.
 
 ## Aufbau
 
-1. **Erster Bildschirm (100svh):** Szenen-Ebene → Person → Schrift (Name, Rolle „Founder of Late“, der Stärke-Satz aus dem Content) → Beleg-Streifen → „Follow on X“ (oben rechts und am Streifen). Alle Texte kommen aus `content/`, nichts wird erfunden.
-2. **Darunter eine ruhige Ebene zum Überfliegen** (für Recruiter, gleiches Typo-System auf dunklem Grund): Work (drei Projekte plus Late, kurz), Path (Werdegang), Stack (Skill-Gruppen), Contact (X, GitHub, E-Mail-Platzhalter). Klassisches Scrollen ist hier ausdrücklich erlaubt, weil es eine eigene Variante ist.
+1. **Erster Bildschirm (100svh), persönliche Collage:** Szenen-Ebene (nur Leben) → Person → Schrift (Name, Rolle „Founder of Late“, der Stärke-Satz aus dem Content, die kleine Projektzeile) → „Follow on X“ oben rechts und nahe der Schrift → „Work ↓“. Alle Texte kommen aus `content/`, nichts wird erfunden.
+2. **Arbeits-Collage** (siehe oben).
+3. **Darunter eine ruhige Ebene zum Überfliegen** (für Recruiter, gleiches Typo-System auf dunklem Grund): Work (drei Projekte plus Late, kurz), Path (Werdegang), Stack (Skill-Gruppen), Contact (X, GitHub, E-Mail-Platzhalter). Klassisches Scrollen ist hier ausdrücklich erlaubt, weil es eine eigene Variante ist.
 
 ## Bildmaterial (Slots)
 
