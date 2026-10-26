@@ -368,6 +368,7 @@ export const de: SiteContent = {
       lead: "Du baust etwas und brauchst jemanden, der es wirklich ausliefert? Schreib mir.",
       links: [
         { label: "GitHub", text: "github.com/alperistic", href: "https://github.com/alperistic" },
+        { label: "X", text: "@alperistic", href: "https://x.com/alperistic" },
         // E-Mail: offen — Alper entscheidet (eigene Domain-Adresse empfohlen).
         { label: "E-Mail", text: "Adresse folgt" },
       ],

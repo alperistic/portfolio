@@ -363,6 +363,7 @@ export const en: SiteContent = {
       lead: "Building something and need someone who actually ships it? Write to me.",
       links: [
         { label: "GitHub", text: "github.com/alperistic", href: "https://github.com/alperistic" },
+        { label: "X", text: "@alperistic", href: "https://x.com/alperistic" },
         // Email: open — Alper decides (own domain address recommended).
         { label: "Email", text: "Address to follow" },
       ],
