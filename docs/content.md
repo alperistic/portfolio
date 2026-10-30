@@ -65,8 +65,7 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 
 - **Einzeiler:** Das Haus, unter dem ich Software baue.
 - **Was es ist:** Late ist meine Firma: ein kleiner menschlicher Kern, KI-Agenten als operatives Team, organisiert über eine Bibliothek aus Fähigkeiten statt über Rollen. offerre, insertcoin.lol und die Evidence-First Pipeline sind darunter entstanden.
-- **Regel:** Das Modell extrahiert, der Code rechnet, der Mensch entscheidet alles, was nach außen geht.
-- **Links:** Late OS, https://github.com/alperistic/oneos
+- **Links:** Website, https://late-systems.vercel.app · Late OS, https://github.com/alperistic/oneos
 - **Framing-Regel:** Late ist die Dachmarke (Entscheidung 11.10.2026), Alper die Person dahinter. Kein Firmen-Pitch, keine internen Zahlen oder Prozessdetails. Visuell: verbindet die drei Projekte.
 
 ---
@@ -113,7 +112,7 @@ Jede Gruppe ein heller Stern im Haufen; Einträge erscheinen beim Hover/Fokus. G
 ## Kontakt — Pulsar
 
 - **GitHub:** https://github.com/alperistic
-- **E-Mail:** offen — Alper entscheidet (eigene Domain-Adresse empfohlen statt privater Gmail). Bis dahin Platzhalter, klar markiert.
+- **E-Mail:** alper@offerre.de (Übergang, bis eine Adresse auf eigener Domain steht).
 - **Kein LinkedIn** (bewusste Entscheidung).
 - **CTA-Vorschlag:** „Du baust etwas und brauchst jemanden, der es wirklich ausliefert? Schreib mir."
 
