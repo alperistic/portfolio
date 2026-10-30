@@ -42,6 +42,45 @@ Alper mag beide vorgeschlagenen Richtungen (Videoclip und Photo-Dump). Sie werde
 
 **Bewusst nicht:** kein Karton, kein Tape, keine Papier-Etiketten, keine riesige Schrift als Hauptsache. Keine fremden Pashanim-Bilder oder -Logos, nur das Prinzip.
 
+**Stand 30.10.2026:** Alper hat die Richtung von Runde 3 freigegeben („weiter so“). Als Nächstes ersetzt eigenes Material die Unsplash-Ersatzbilder, nach der Shotlist unten.
+
+### Shotlist: eigenes Material
+
+Mit dem Handy reicht es: Hauptkamera, volle Auflösung, **ohne Filter**, denn den Look macht die Seite. Unperfekt ist erwünscht, Blitz ist erwünscht.
+
+**1. Figur (am wichtigsten, 3–5 Fotos).** Jemand anderes fotografiert, kein Selfie. Hochformat, von der Hüfte oder vom Knie aufwärts, Kopf und Schultern komplett im Bild. Alltagskleidung, die sich vom Hintergrund abhebt. Blick zur Seite oder in die Kamera, locker stehen, keine Pose. Kein Gegenlicht.
+- Mindestens eine **Nachtversion mit Blitz** (draußen, Handy-Blitz an) und eine **warme Version im Abendlicht**. Dann kann die Seite je Szene die passende Figur zeigen, und die Figur wirkt in der Golden-Hour-Szene nicht mehr eingefügt (braucht eine kleine Code-Änderung).
+
+**2. Szenen (6–8 Fotos, ohne dich).** Querformat, Hauptkamera (nicht Ultraweitwinkel). Die Mitte bleibt eher ruhig, weil dort die Figur steht. Das Wichtige gehört nicht an den äußersten Rand, weil das Handy die Bildmitte zeigt. Die Plätze entsprechen den jetzigen Szenen, gern in Karlsruhe:
+- Tram bei Nacht
+- Kiosk oder Späti bei Nacht
+- Straße zur goldenen Stunde
+- Altbau-Fassade
+- U-Strab oder Tunnel
+- Bahnsteig
+- Heimweg mit Freunden, von hinten
+- Dein Zimmer oder Schreibtisch nachts, mit Bildschirmlicht
+
+**3. Photo-Dumps (je Projekt 4–6 Fotos).** Blitz an, nah ran, gern schräg und angeschnitten. Hoch- und Querformat dürfen gemischt sein.
+- **offerre** (warm, Werkstatt): Werkzeug, Material, Notizblock, Laptop mit einem Entwurf aus Beispieldaten, Kaffee, Schreibtisch.
+- **insertcoin.lol** (Neon, Arcade): Spielhalle, Automaten, Controller, Bildschirm mit der öffentlichen Rangliste.
+- **Evidence-First Pipeline** (kühl, Papier): Papierstapel, Ordner, Schreibtischlampe nachts, Bildschirm mit dem Beispielvertrag.
+
+**Optional: Clips.** 3–6 Sekunden, Querformat, ruhig gehalten. Damit würden einzelne Szenen im Clip zu echtem Video. Das braucht eine Code-Änderung und mehr Ladegewicht, deshalb erst nach den Fotos entscheiden.
+
+**Regeln, weil das Repo öffentlich ist:**
+- Andere Personen nur von hinten oder unscharf, sonst nur mit ihrem OK.
+- Nichts, was die Wohnung verrät: Hausnummer, Klingelschild, Straßenschild vor der Tür, Blick aus dem Fenster. Keine Kennzeichen.
+- Keine echten Kunden: weder Namen noch Betriebe noch Bildschirme mit echten Daten oder Mails. In der Werkstatt nur mit Erlaubnis und ohne erkennbaren Betrieb.
+- Nur eigene Fotos oder solche mit Erlaubnis der Fotografin oder des Fotografen.
+- Handyfotos enthalten den Standort (GPS in den EXIF-Daten). Beim Einbau werden alle Metadaten entfernt, und das wird geprüft. Ins Repo kommen nur die konvertierten WebP, nie die Originale.
+
+**Übergabe:** ein Ordner außerhalb des Repos, z. B. `~/Desktop/collage-material/` mit den Unterordnern `figur/`, `szenen/`, `offerre/`, `insertcoin/` und `pipeline/`. Danach wird alles eingebaut:
+1. die Figur mit `scripts/cutout.swift` freistellen,
+2. alles nach WebP konvertieren und die Metadaten entfernen,
+3. im Manifest `standIn: false` setzen,
+4. die ersetzten Unsplash-Bilder samt Credits entfernen.
+
 ## Bildidee: Board mit Video-Fenster (Runde 2, verworfen)
 
 - **Grund ist eine Board-Fläche** mit spürbarem Material: Karton, Papier oder roher Beton, mit Korn, leichtem Lichtabfall und Gebrauchsspuren. Sie füllt den Bildschirm und bewegt sich nicht.
