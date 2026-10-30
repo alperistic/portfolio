@@ -108,7 +108,11 @@ export function ObjectBody({ o, locale, onGroupHover, animate, shotLabels }: Bod
           {o.links.map((l) => (
             <li key={l.label}>
               {l.href ? (
-                <a href={l.href} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={l.href}
+                  // mailto: öffnet das Mailprogramm, kein leerer Tab
+                  {...(l.href.startsWith("mailto:") ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+                >
                   <span className="k">{l.label}</span>
                   <span className="v">
                     {l.text}

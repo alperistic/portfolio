@@ -25,7 +25,7 @@ Vorschlag für die Zuordnung (Metapher soll zum Inhalt passen, darf in der Umset
 |---|---|---|
 | **Goldene Sonne mit Korona** | Alper (Start, Zentrum) | Der eigene Stern — hellstes, wärmstes Objekt. Einziges Objekt, das immer leicht strahlt. |
 | **Spiralgalaxie** | offerre | Das größte, ausgereifteste Werk — eine ganze Welt für sich. |
-| **Doppelstern** (zwei umeinander kreisende Sterne) | Evidence-First Pipeline | Behauptung ↔ Beleg, die sich gegenseitig prüfen; klein, präzise, eng gekoppelt. (Bis 11.10.2026: Rechnungsbriefkasten.) |
+| **Doppelstern** (zwei umeinander kreisende Sterne) | Evidence-First Pipeline | Behauptung ↔ Beleg, die sich gegenseitig prüfen; klein, präzise, eng gekoppelt. |
 | **Sternentstehungs-Nebel mit Protostern** | insertcoin.lol | Entsteht gerade (Status: kurz vor Launch); Farbwelt darf leicht „arcade" sein (Magenta/Cyan). |
 | **Kosmisches Netz / Filamente** mit Knotenpunkt | Late (Dachmarke) | Das Haus, das die Projekte verbindet. Bei Fokus leuchten die Filamente zu offerre, insertcoin und der Pipeline auf → perfekter Highlighting-Moment. |
 | **Sternbild** (Punkte + Linien) | Werdegang | Jede Station ein Stern; das Sternbild wächst, wenn neue Stationen dazukommen. |

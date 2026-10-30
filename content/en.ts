@@ -270,9 +270,9 @@ export const en: SiteContent = {
       lead: "The house I build software under.",
       body: [
         "Late is my company: a small human core with AI agents as the operating team, organized around a library of capabilities rather than roles. offerre, insertcoin.lol and the Evidence-First Pipeline were built under it.",
-        "The rule behind it: the model extracts, code computes, and a human decides everything that leaves the building.",
       ],
       links: [
+        { label: "Website", text: "late-systems.vercel.app", href: "https://late-systems.vercel.app" },
         {
           label: "Late OS",
           text: "GitHub",
@@ -363,8 +363,7 @@ export const en: SiteContent = {
       lead: "Building something and need someone who actually ships it? Write to me.",
       links: [
         { label: "GitHub", text: "github.com/alperistic", href: "https://github.com/alperistic" },
-        // Email: open — Alper decides (own domain address recommended).
-        { label: "Email", text: "Address to follow" },
+        { label: "Email", text: "alper@offerre.de", href: "mailto:alper@offerre.de" },
       ],
     },
   },
