@@ -153,6 +153,8 @@ export type SiteContent = {
     /** Tour-Autopilot starten bzw. anhalten. */
     autoPlay: string;
     autoPause: string;
+    /** Externer Link eines Projekts im Titelbild, `{name}` wird ersetzt. */
+    open: string;
     /** Einblick vergrößern bzw. Vergrößerung schließen. */
     enlarge: string;
     shrink: string;

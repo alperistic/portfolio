@@ -2,7 +2,6 @@
 
 import { useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type Ref } from "react";
 import type { CelestialContent, ObjectId, PublicContent } from "@/content";
-import { coordsOf } from "@/lib/scene/layout";
 import { COMMITS } from "@/content/commits";
 import { CONTRIBUTIONS } from "@/content/contributions";
 import { ObjectBody, Tags } from "./ObjectContent";
@@ -27,6 +26,8 @@ type Props = {
 };
 
 const MOBILE = "(max-width: 767px)";
+/** Mobil: Höhen des Sheets (Anteil der Fensterhöhe) — Peek, halb offen, fast ganz. Wie in globals.css. */
+const SNAPS = [0.44, 0.72, 0.92];
 
 /**
  * Lesezeit einer Station im Autopilot (s): Grundzeit plus Wörter, gedeckelt —
@@ -48,21 +49,22 @@ function dwellOf(o: CelestialContent) {
 /**
  * Content-Panel: rechts (Desktop) bzw. Bottom-Sheet (Mobil).
  *
- * Typo-Hierarchie von oben nach unten: Kicker (Gold, Versalien) → Titel (groß,
- * leicht) → Status-Tags → Lead (hell) → Fließtext (gedämpft) → Abschnitte mit
- * kleinen Mono-Überschriften → Navigation.
+ * Typo-Hierarchie von oben nach unten: Kicker → Titel (groß, leicht) → Status →
+ * Lead → Einblick → Fließtext → Abschnitte → Links → Erklärsatz (Commit-Sterne,
+ * Jahresring) → Navigation (klebt unten, damit „Nächster Stern“ immer erreichbar ist).
  *
- * Mobil lässt sich das Sheet am Griff ziehen: nach oben = mehr Platz zum Lesen,
- * nach unten = kleiner bzw. schließen. Tippen auf den Griff schaltet um.
+ * Mobil rastet das Sheet auf drei Höhen ein (44 / 72 / 92 % der Fensterhöhe):
+ * am Griff hochziehen = mehr Platz zum Lesen, runterziehen = kleiner bzw. schließen.
+ * Tippen auf den Griff schaltet eine Stufe weiter.
  */
 export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onGroupHover, titleRef, auto, onAuto }: Props) {
   const { ui, objects, tourOrder } = content;
   const o = id ? objects[id] : undefined;
   const n = next ? objects[next] : undefined;
 
-  // Ausgeklappt gilt nur für das Objekt, bei dem es passiert ist (kein Effekt nötig).
-  const [expandedFor, setExpandedFor] = useState<ObjectId | null>(null);
-  const expanded = !!id && expandedFor === id;
+  // Sheet-Stufe gilt nur für das Objekt, bei dem sie gewählt wurde (kein Effekt nötig).
+  const [snapFor, setSnapFor] = useState<{ id: ObjectId; i: number } | null>(null);
+  const snap = id && snapFor?.id === id ? snapFor.i : 0;
   // Mobil: Antippen des Sheets hält den Autopilot an (Desktop: Maus über dem Panel, per CSS).
   const [heldFor, setHeldFor] = useState<ObjectId | null>(null);
   const held = !!id && heldFor === id;
@@ -73,34 +75,57 @@ export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onG
     else onFocus(next);
   };
   const el = useRef<HTMLElement | null>(null);
-  const drag = useRef<{ y0: number; t0: number; dy: number } | null>(null);
+  const drag = useRef<{ y0: number; t0: number; dy: number; h0: number } | null>(null);
 
   const onGripDown = (e: RPointerEvent<HTMLElement>) => {
     if (!matchMedia(MOBILE).matches || !el.current) return;
     e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { y0: e.clientY, t0: performance.now(), dy: 0 };
+    drag.current = { y0: e.clientY, t0: performance.now(), dy: 0, h0: el.current.offsetHeight };
     el.current.classList.add("dragging");
   };
   const onGripMove = (e: RPointerEvent<HTMLElement>) => {
     const d = drag.current;
     if (!d || !el.current) return;
     d.dy = e.clientY - d.y0;
-    // nach unten folgt das Sheet dem Finger, nach oben nur mit Widerstand
-    const y = d.dy > 0 ? d.dy : d.dy * 0.25;
-    el.current.style.transform = `translateY(${y.toFixed(1)}px)`;
+    // Hoch: das Sheet wächst mit dem Finger (bis 92 %). Runter: es schrumpft bis zur
+    // Peek-Höhe und rutscht darunter als Ganzes weg (Andeutung: gleich zu).
+    const H = innerHeight;
+    const peek = Math.min(d.h0, SNAPS[0] * H);
+    const h = d.h0 - d.dy;
+    const s = el.current.style;
+    if (h >= peek) {
+      s.maxHeight = `${Math.min(h, SNAPS[2] * H).toFixed(1)}px`;
+      s.transform = "";
+    } else {
+      s.maxHeight = `${peek.toFixed(1)}px`;
+      s.transform = `translateY(${(peek - h).toFixed(1)}px)`;
+    }
   };
   const onGripUp = () => {
     const d = drag.current;
     drag.current = null;
     if (!d || !el.current || !id) return;
     el.current.classList.remove("dragging");
+    el.current.style.maxHeight = "";
     el.current.style.transform = "";
-    const v = d.dy / Math.max(performance.now() - d.t0, 1); // px/ms
-    if (Math.abs(d.dy) < 6) setExpandedFor(expanded ? null : id);
-    else if (d.dy > 90 || (v > 0.5 && d.dy > 24)) {
-      if (expanded) setExpandedFor(null);
-      else onHome(false);
-    } else if (d.dy < -36 || v < -0.5) setExpandedFor(id);
+    if (Math.abs(d.dy) < 6) {
+      setSnapFor({ id, i: (snap + 1) % SNAPS.length });
+      return;
+    }
+    const H = innerHeight;
+    const v = d.dy / Math.max(performance.now() - d.t0, 1); // px/ms, + = nach unten
+    // Wohin das Sheet mit Schwung käme; daran die nächste Stufe (oder schließen)
+    const h = d.h0 - d.dy - v * 140;
+    const peek = Math.min(d.h0, SNAPS[0] * H);
+    if (h < peek - 70 || (snap === 0 && v > 0.5 && d.dy > 24)) {
+      onHome(false);
+      return;
+    }
+    let best = 0;
+    SNAPS.forEach((f, i) => {
+      if (Math.abs(f * H - h) < Math.abs(SNAPS[best] * H - h)) best = i;
+    });
+    setSnapFor({ id, i: best });
   };
 
   return (
@@ -110,7 +135,8 @@ export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onG
         if (typeof ref === "function") ref(node);
         else if (ref) ref.current = node;
       }}
-      className={`panel${open ? " open" : ""}${expanded ? " expanded" : ""}${held ? " held" : ""}`}
+      className={`panel${open ? " open" : ""}${snap ? ` snap-${snap}` : ""}${held ? " held" : ""}`}
+      data-id={id ?? undefined}
       aria-label={o?.title ?? undefined}
       onPointerDown={(e) => {
         if (auto && e.pointerType !== "mouse" && id) setHeldFor(id);
@@ -140,13 +166,13 @@ export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onG
             <h2 className="p-title" ref={titleRef} tabIndex={-1}>
               {o.title}
             </h2>
-            <Tags o={o} coord={coordsOf(o.id)} />
-            {COMMITS.days[o.id] && <p className="p-commits">{ui.commitNote}</p>}
-            {o.id === "alper" && CONTRIBUTIONS.counts.length > 0 && <p className="p-commits">{ui.ringNote}</p>}
+            <Tags o={o} />
           </header>
 
           <div className="p-body">
             <ObjectBody o={o} locale={content.locale} onGroupHover={onGroupHover} animate={open} shotLabels={ui} />
+            {COMMITS.days[o.id] && <p className="p-commits">{ui.commitNote}</p>}
+            {o.id === "alper" && CONTRIBUTIONS.counts.length > 0 && <p className="p-commits">{ui.ringNote}</p>}
           </div>
 
           <nav className="p-nav">

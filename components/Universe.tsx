@@ -9,6 +9,7 @@ import { getView, setView, useView, type Why } from "@/lib/view";
 import { Legend } from "./Legend";
 import { Opening } from "./Opening";
 import { Panel } from "./Panel";
+import { Title } from "./Title";
 import { LangSwitch } from "./ViewControls";
 
 /** Die Eröffnung läuft einmal je Sitzung (danach nur noch das Einblenden der UI). */
@@ -68,14 +69,15 @@ const writeHash = (id: ObjectId | null) => {
  *
  * Ablauf beim Start: Schleier („Kalibriere Himmel“) → Eröffnung (Titelkarte,
  * nur beim ersten Besuch je Sitzung) → die Bedienelemente blenden gestaffelt ein
- * (`<html data-intro>` steuert das per CSS). „Tour starten“ fliegt als Autopilot
+ * (`<html data-intro>` steuert das per CSS), das Titelbild unten links kurz danach. „Tour starten“ fliegt als Autopilot
  * von Station zu Station; Klang ist optional und standardmäßig aus.
  */
 export default function Universe({ content, langs }: { content: PublicContent; langs: LangLink[] }) {
   const { ui, tourOrder, objects } = content;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const brandRef = useRef<HTMLDivElement>(null);
+  const titleBoxRef = useRef<HTMLElement>(null);
+  const toListRef = useRef<HTMLButtonElement>(null);
   const compassRef = useRef<HTMLDivElement>(null);
   const compassCanvasRef = useRef<HTMLCanvasElement>(null);
   const compassReadRef = useRef<HTMLDivElement>(null);
@@ -105,6 +107,8 @@ export default function Universe({ content, langs }: { content: PublicContent; l
   const [hint, setHint] = useState(false);
   /** Eröffnung: läuft noch (`title`) bzw. vorbei (`done`); `null` = Himmel noch nicht bereit. */
   const [phase, setPhase] = useState<"title" | "done" | null>(null);
+  /** Titelbild eingeblendet (nach der Eröffnung). */
+  const [titleIn, setTitleIn] = useState(false);
   /** Tour-Autopilot aktiv. */
   const [auto, setAuto] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
@@ -194,15 +198,15 @@ export default function Universe({ content, langs }: { content: PublicContent; l
           compass: compassCanvasRef.current
             ? { canvas: compassCanvasRef.current, readout: compassReadRef.current }
             : null,
-          // Feste UI, die Labels nicht überdecken sollen (Marke inkl. Listen-Knopf, Kompass, …)
+          // Feste UI, die Labels nicht überdecken sollen (Titelbild, Listen-Knopf, Kompass, …)
           obstacles: () => [
-            brandRef.current,
+            panelOpenRef.current ? null : titleBoxRef.current,
+            toListRef.current,
             compassRef.current,
             langRef.current,
             // eingeklappt nur der Knopf — die unsichtbare Liste belegt sonst Platz
             legendRef.current?.querySelector(".legend-btn"),
             legendRef.current?.classList.contains("open") ? legendRef.current.querySelector(".legend-list") : null,
-            panelOpenRef.current ? null : tourRef.current,
             panelOpenRef.current ? panelRef.current : null,
           ],
           veil: cutRef.current,
@@ -323,6 +327,18 @@ export default function Universe({ content, langs }: { content: PublicContent; l
   useEffect(() => {
     if (phase) api.current?.setOpening(phase === "title");
   }, [phase]);
+  // Titelbild: nach der Titelkarte mit kurzer Verzögerung, sonst (übersprungen) sofort.
+  const hadTitle = useRef(false);
+  useEffect(() => {
+    if (phase === "title") hadTitle.current = true;
+    if (phase !== "done") return;
+    if (!hadTitle.current) {
+      setTitleIn(true);
+      return;
+    }
+    const t = window.setTimeout(() => setTitleIn(true), 300);
+    return () => clearTimeout(t);
+  }, [phase]);
 
   // Zieh-Hinweis, sobald die UI steht (nicht, wenn man schon unterwegs ist).
   useEffect(() => {
@@ -409,6 +425,17 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         <span className="ret-r" />
       </div>
 
+      <Title
+        ref={titleBoxRef}
+        tourRef={tourRef}
+        content={content}
+        shown={titleIn}
+        hidden={panelOpen}
+        onFocus={focus}
+        onHover={(id) => api.current?.setLabelHover(id ?? kbdLabel.current)}
+        onTour={startTour}
+      />
+
       <div className="labels">
         {tourOrder.map((id) => {
           const o = objects[id]!;
@@ -478,16 +505,12 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         )}
       </div>
 
-      <div className="brand" ref={brandRef}>
-        <p className="brand-n">{content.brand.name}</p>
-        <p className="brand-s">{content.brand.subline}</p>
-        <button type="button" className="to-list" onClick={toList}>
-          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
-            <path d="M2 3.5h10M2 7h10M2 10.5h6" />
-          </svg>
-          {ui.listView}
-        </button>
-      </div>
+      <button type="button" className="to-list" ref={toListRef} onClick={toList}>
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
+          <path d="M2 3.5h10M2 7h10M2 10.5h6" />
+        </svg>
+        {ui.listView}
+      </button>
 
       <div className="compass" ref={compassRef} aria-hidden="true">
         <canvas ref={compassCanvasRef} />
@@ -514,14 +537,6 @@ export default function Universe({ content, langs }: { content: PublicContent; l
           <span className="snd-t">{ui.sound}</span>
         </button>
       </div>
-
-      <button className="tour" type="button" ref={tourRef} onClick={startTour}>
-        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
-          <circle cx="7" cy="7" r="6.2" opacity=".5" />
-          <path d="M5.6 4.6l3.6 2.4-3.6 2.4z" fill="currentColor" stroke="none" />
-        </svg>
-        {ui.tourStart}
-      </button>
 
       <Legend
         ref={legendRef}

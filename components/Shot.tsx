@@ -20,10 +20,13 @@ const subscribeRM = (cb: () => void) => {
   return () => mq.removeEventListener("change", cb);
 };
 const reducedMotion = () => matchMedia(RM).matches;
+const DESKTOP = "(min-width: 768px)";
 
 /**
  * Einblick in die Arbeit: Screenshot oder stummer Clip in Schleife, darunter
- * eine Bildunterschrift. Ein Klick vergrößert (natives <dialog>, Esc schließt).
+ * die Bildunterschrift mit „Vergrößern“ (natives <dialog>, Esc schließt). Auf
+ * dem Desktop vergrößert auch ein Klick aufs Bild; mobil nicht, damit beim
+ * Scrollen im Sheet nichts aus Versehen aufgeht.
  * Clips laufen nur, wenn man sie sieht, und bei reduzierter Bewegung gar nicht
  * von selbst — dann steht das Standbild mit Bedienelementen da.
  */
@@ -89,19 +92,14 @@ export function Shot({ m, labels, active }: Props) {
       <div
         className="p-shot-frame"
         onClick={(e) => {
+          if (!matchMedia(DESKTOP).matches) return;
           // Mit eigenen Bedienelementen (reduzierte Bewegung) gehört der Klick aufs Video ihnen
           if (still && e.target instanceof HTMLVideoElement) return;
           open();
         }}
       >
         {media(false)}
-        <button type="button" className="p-shot-zoom" aria-label={labels.enlarge}>
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
-            <path d="M7.5 1.5h3v3M4.5 10.5h-3v-3M10.5 1.5 7 5M1.5 10.5 5 7" />
-          </svg>
-        </button>
       </div>
-      <figcaption>{m.caption}</figcaption>
       <dialog
         ref={dialog}
         className={`shot-big${m.pixelated ? " px" : ""}`}
@@ -121,6 +119,15 @@ export function Shot({ m, labels, active }: Props) {
           </svg>
         </button>
       </dialog>
+      <figcaption>
+        <span className="p-shot-cap">{m.caption}</span>
+        <button type="button" className="p-shot-zoom" onClick={open}>
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
+            <path d="M7.5 1.5h3v3M4.5 10.5h-3v-3M10.5 1.5 7 5M1.5 10.5 5 7" />
+          </svg>
+          {labels.enlarge}
+        </button>
+      </figcaption>
     </figure>
   );
 }

@@ -44,7 +44,7 @@ export function createCompass(canvas: HTMLCanvasElement, readout: HTMLElement | 
     };
     const fg = "236,238,244";
     // gleiche Mono-Schrift wie die Textzeile (next/font vergibt einen eigenen Familiennamen)
-    c.font = `400 8.5px ${font || "ui-monospace, monospace"}`;
+    c.font = `400 12px ${font || "ui-monospace, monospace"}`;
     c.textAlign = "center";
     c.textBaseline = "alphabetic";
 

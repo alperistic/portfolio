@@ -2,8 +2,7 @@ import type { ObjectId } from "@/content/types";
 
 /**
  * Wo die Objekte am Himmel stehen: Azimut (yaw) und Höhe (pitch) in Grad vom
- * Zentrum aus, Entfernung in Szene-Einheiten. Reine Daten — die UI nutzt sie
- * für die Koordinatenzeile im Panel, die Engine zum Platzieren.
+ * Zentrum aus, Entfernung in Szene-Einheiten. Reine Daten für die Engine.
  * Nicht alles liegt im Startblickfeld (yaw ≈ ±40°): Umdrehen soll sich lohnen.
  */
 export const LAYOUT: Record<ObjectId, { yaw: number; pitch: number; dist: number }> = {
@@ -16,6 +15,19 @@ export const LAYOUT: Record<ObjectId, { yaw: number; pitch: number; dist: number
   skills: { yaw: -158, pitch: 12, dist: 96 },
   kontakt: { yaw: -108, pitch: -6, dist: 78 },
 };
+
+/**
+ * Startblick der Übersicht (Grad). Die Sonne steht rechts oberhalb der Bildmitte,
+ * damit unten links Platz für das Titelbild bleibt; hochkant (Mobil) in der oberen
+ * Hälfte über dem Titelbild. Die Eröffnung blickt zuerst genau auf die Sonne
+ * (`INTRO_VIEW`, der Sternenstaub startet in der Bildmitte) und schwenkt nach der
+ * Titelkarte hierher. Pitch < Sonnenhöhe = Kamera blickt tiefer, die Sonne steigt im Bild.
+ */
+export const START_VIEW = {
+  desktop: { yaw: -4, pitch: -5 },
+  mobile: { yaw: 0, pitch: -15 },
+};
+export const INTRO_VIEW = { yaw: LAYOUT.alper.yaw, pitch: LAYOUT.alper.pitch };
 
 /** Akzentfarbe je Objekt — für Kompass-Marker und Legende (passend zur Szene). */
 export const ACCENT: Record<ObjectId, string> = {
@@ -38,12 +50,3 @@ export const LATE_LINKS: ObjectId[] = ["offerre", "insertcoin", "pipeline"];
  * drei Projekte im Bild nicht überdecken.
  */
 export const LATE_VIEW = { yaw: 68, pitch: -25 };
-
-const pad = (n: number, l = 3) => String(Math.round(Math.abs(n))).padStart(l, "0");
-
-/** „AZ 040° · ALT −12° · 118 AE“ — Koordinatenzeile fürs Panel. */
-export function coordsOf(id: ObjectId) {
-  const { yaw, pitch, dist } = LAYOUT[id];
-  const az = ((yaw % 360) + 360) % 360;
-  return `AZ ${pad(az)}° · ALT ${pitch < 0 ? "−" : "+"}${pad(pitch, 2)}° · ${dist} AE`;
-}

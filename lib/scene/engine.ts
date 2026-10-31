@@ -2,7 +2,7 @@ import * as THREE from "three";
 import type { ObjectId } from "@/content/types";
 import { COMMITS } from "@/content/commits";
 import { CONTRIBUTIONS } from "@/content/contributions";
-import { ACCENT, LATE_LINKS, LATE_VIEW, LAYOUT } from "./layout";
+import { ACCENT, INTRO_VIEW, LATE_LINKS, LATE_VIEW, LAYOUT, START_VIEW } from "./layout";
 import { createCompass, type CompassMarker } from "./compass";
 import { makeBinary } from "./objects/binary";
 import { makeCluster } from "./objects/cluster";
@@ -102,7 +102,9 @@ export type Universe = {
   setPaused: (paused: boolean) => void;
   /**
    * Die Titelkarte der Eröffnung steht (true) bzw. ist weg (false). Solange sie
-   * steht, bleibt der Jahresring aus — er liefe sonst durch Namen und Sternenstaub.
+   * steht, bleibt der Jahresring aus — er liefe sonst durch Namen und Sternenstaub —
+   * und die Kamera blickt genau auf die Sonne. Geht die Karte, schwenkt sie in den
+   * Startblick (Platz fürs Titelbild), sofern man sich noch nicht selbst umgesehen hat.
    */
   setOpening: (active: boolean) => void;
   destroy: () => void;
@@ -298,10 +300,23 @@ export function createUniverse(opts: UniverseOptions): Universe {
 
   /* ---------- Kamera-Zustand ---------- */
   const tmp = new THREE.Vector3();
-  const HOME: Pose = { pos: new THREE.Vector3(), yaw: 0, pitch: 3 * D2R };
-  const basePos = HOME.pos.clone();
-  let yaw = 0;
-  let pitch = HOME.pitch;
+  /** Startblick der Übersicht — hochkant (Mobil) ein anderer als quer (siehe START_VIEW). */
+  const HOME_POS = new THREE.Vector3();
+  const homePose = (): Pose => {
+    const v = mqMobile.matches ? START_VIEW.mobile : START_VIEW.desktop;
+    return { pos: HOME_POS, yaw: v.yaw * D2R, pitch: v.pitch * D2R };
+  };
+  const INTRO_POSE: Pose = { pos: HOME_POS, yaw: INTRO_VIEW.yaw * D2R, pitch: INTRO_VIEW.pitch * D2R };
+  const basePos = HOME_POS.clone();
+  let yaw = homePose().yaw;
+  let pitch = homePose().pitch;
+  /**
+   * Eröffnung: Solange die Titelkarte steht, blickt die Kamera auf die Sonne. Danach
+   * schwenkt sie einmal in den Startblick (`settle`), außer man hat sich schon umgesehen.
+   */
+  let titleCard = false;
+  let settle = false;
+  let userMoved = false;
   let vYaw = 0;
   let vPitch = 0;
   let dragging = false;
@@ -330,7 +345,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
   const subParent = () => (focused && OBJ.get(focused)?.childAnchors ? OBJ.get(focused)! : null);
   const activeSub = () => (subParent() && (!travel || travel.kind === "zoom") ? (subHover ?? subPick ?? subPin) : null);
   let warp = 0;
-  let intro: { t0: number; dur: number; p0: number } | null = null;
+  let intro: { t0: number; dur: number; p0: number; y0: number; gy: number; gp: number } | null = null;
   const mouse = new THREE.Vector2();
   const raycaster = new THREE.Raycaster();
   let needPick = false;
@@ -411,6 +426,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     lastT = t;
     yaw -= dx * k;
     pitch = clamp(pitch + dy * k, -PITCH_MAX, PITCH_MAX);
+    if (dragMoved > 6) userMoved = true;
     vYaw = lerp(vYaw, (-dx * k) / dt, 0.35);
     vPitch = lerp(vPitch, (dy * k) / dt, 0.35);
     interacted();
@@ -489,7 +505,8 @@ export function createUniverse(opts: UniverseOptions): Universe {
     const tanV = Math.tan((baseFov() * D2R) / 2);
     const aspect = innerWidth / innerHeight;
     const panel = opts.getPanelSize();
-    const sheet = Math.min(panel.height || innerHeight * 0.5, innerHeight * 0.55) / innerHeight;
+    // Mobil: das Sheet startet auf 44dvh (Peek, siehe .panel) — darüber wird eingerahmt
+    const sheet = Math.min(panel.height || innerHeight * 0.44, innerHeight * 0.44) / innerHeight;
     const pw = (panel.width || 440) / innerWidth;
     let center = o.pos;
     let dist: number;
@@ -604,7 +621,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     needPick = pointerInside;
   };
 
-  const startTravel = (to: Pose, onOpen?: () => void, kind: TravelKind = "trip") => {
+  const startTravel = (to: Pose, onOpen?: () => void, kind: TravelKind = "trip", durOverride?: number) => {
     clearHover();
     const from: Pose = { pos: basePos.clone(), yaw, pitch };
     vYaw = vPitch = 0;
@@ -623,11 +640,12 @@ export function createUniverse(opts: UniverseOptions): Universe {
     }
     const dist = from.pos.distanceTo(target.pos) + Math.abs(wrapPi(target.yaw - yaw)) * 20;
     const dur =
-      kind === "turn"
+      durOverride ??
+      (kind === "turn"
         ? 0.7 + Math.min(Math.abs(target.yaw - yaw) + Math.abs(target.pitch - pitch), Math.PI) * 0.22
         : kind === "zoom"
           ? 1.0
-          : 1.45 + Math.min(dist / 260, 0.35);
+          : 1.45 + Math.min(dist / 260, 0.35));
     travel = { t0: now, dur, from, to: target, dist, onOpen, opened: false, kind };
     canvas.classList.add("traveling");
     opts.onTravel?.(kind, dur);
@@ -647,6 +665,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     }
     focused = id;
     subPin = null;
+    userMoved = true;
     startTravel(arrivalFor(id), () => opts.onPanel(id));
   };
   const home = (face?: ObjectId) => {
@@ -654,7 +673,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     if (!focused && !travel && basePos.lengthSq() < 1e-6 && !o) return;
     focused = null;
     subPin = null;
-    startTravel(o ? facing(HOME.pos, o.pos) : HOME);
+    startTravel(o ? facing(HOME_POS, o.pos) : homePose());
   };
   const reveal = (id: ObjectId) => {
     const o = OBJ.get(id);
@@ -716,12 +735,26 @@ export function createUniverse(opts: UniverseOptions): Universe {
       const t = clamp((now - intro.t0) / intro.dur, 0, 1);
       const e = easeOutCubic(t);
       basePos.set(0, lerp(1.6, 0, e), lerp(26, 0, e));
-      pitch = lerp(intro.p0, HOME.pitch, e);
+      // Ziel: mit Titelkarte genau auf die Sonne, sonst der Startblick. Das Ziel gleitet,
+      // statt zu springen, wenn die Titelkarte mitten in der Fahrt endet (übersprungen).
+      const goal = titleCard ? INTRO_POSE : homePose();
+      const k = 1 - Math.exp(-dt * 2.5);
+      intro.gy += wrapPi(goal.yaw - intro.gy) * k;
+      intro.gp += (goal.pitch - intro.gp) * k;
+      pitch = lerp(intro.p0, intro.gp, e);
+      yaw = lerp(intro.y0, intro.gy, e);
       introFov = lerp(9, 0, e);
       if (t >= 1) {
         intro = null;
-        basePos.copy(HOME.pos);
+        basePos.copy(HOME_POS);
       }
+    }
+    // Nach der Titelkarte einmal weich in den Startblick schwenken
+    if (settle && !titleCard && !intro && !travel && !dragging) {
+      settle = false;
+      const h = homePose();
+      const off = Math.abs(wrapPi(h.yaw - yaw)) + Math.abs(h.pitch - pitch);
+      if (!userMoved && !focused && off > 0.005) startTravel(h, undefined, "turn", 2.2);
     }
 
     if (travel) {
@@ -1197,9 +1230,14 @@ export function createUniverse(opts: UniverseOptions): Universe {
   };
 
   resize();
-  camera.rotation.set(HOME.pitch, 0, 0, "YXZ");
+  camera.rotation.set(pitch, -yaw, 0, "YXZ");
   if (opts.intro !== false && !reduced && !params.has("nointro")) {
-    intro = { t0: 0, dur: 3.4, p0: HOME.pitch + 0.05 };
+    // Bis die UI meldet, ob eine Titelkarte kommt, auf die Sonne zielen
+    titleCard = true;
+    settle = true;
+    yaw = INTRO_POSE.yaw;
+    pitch = INTRO_POSE.pitch;
+    intro = { t0: 0, dur: 3.4, p0: INTRO_POSE.pitch + 0.05, y0: INTRO_POSE.yaw, gy: INTRO_POSE.yaw, gp: INTRO_POSE.pitch };
     // Mit Eröffnungsfahrt startet der Ring unsichtbar; ob eine Titelkarte kommt, meldet die UI.
     ringShow.value = 0;
     ringOn = false;
@@ -1287,6 +1325,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     setPaused,
     setOpening: (active) => {
       ringOn = !active;
+      titleCard = active;
     },
     destroy,
   };

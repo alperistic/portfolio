@@ -10,21 +10,17 @@ import { Shot } from "./Shot";
  * h1 für Alper in der Liste), Skill-Gruppen sind h3.
  */
 
-export function Tags({ o, coord }: { o: CelestialContent; coord?: string }) {
-  if (!o.tags.length && !coord) return null;
+/** Statuszeile: schlichter Text, davor ein kleiner Punkt in der Akzentfarbe. */
+export function Tags({ o }: { o: CelestialContent }) {
+  if (!o.tags.length) return null;
   return (
     <div className="p-meta">
       {o.tags.map((t) => (
         <span key={t.text} className={`tag${t.placeholder ? " ph" : ""}`} style={{ "--c": t.color } as CSSProperties}>
-          {t.color && <i />}
+          {t.color && <i aria-hidden="true" />}
           {t.text}
         </span>
       ))}
-      {coord && (
-        <span className="p-coord" aria-hidden="true">
-          {coord}
-        </span>
-      )}
     </div>
   );
 }

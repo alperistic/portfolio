@@ -50,6 +50,7 @@ export const de: SiteContent = {
     sound: "Ton",
     autoPlay: "Tour automatisch abspielen",
     autoPause: "Tour anhalten",
+    open: "{name} öffnen",
     enlarge: "Vergrößern",
     shrink: "Schließen",
     commitNote: "Jeder kleine Lichtpunkt am Rand ist ein Commit: innen die ältesten, außen die neuesten.",
