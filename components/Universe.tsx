@@ -317,6 +317,10 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     },
     [],
   );
+  // Jahresring erst nach der Titelkarte einblenden (er liefe sonst durch den Namen).
+  useEffect(() => {
+    if (phase) api.current?.setOpening(phase === "title");
+  }, [phase]);
 
   // Zieh-Hinweis, sobald die UI steht (nicht, wenn man schon unterwegs ist).
   useEffect(() => {
