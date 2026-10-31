@@ -79,6 +79,15 @@ Um offerre, insertcoin.lol und die Evidence-First Pipeline sitzt je Commit ein k
 
 ---
 
+## Jahresring — GitHub-Beiträge um die Sonne
+
+Um Alpers Sonne liegt sein letztes Jahr auf GitHub als Ring aus Lichtpunkten: die Wochen im Umlauf, die sieben Wochentage als Spuren, ein Punkt je Tag, die Helligkeit folgt der Zahl der Beiträge (freigegeben von Alper am 31.10.2026). Daten: nur Datum und Anzahl je Tag aus dem GitHub-Beitragskalender, private Repos nur als Anzahl, erzeugt mit `scripts/contribution-ring.mjs` nach `content/contributions.ts`. Im Alper-Panel steht nur der Erklärsatz, keine Zahl.
+
+- **DE:** Der Ring aus Lichtpunkten um die Sonne ist mein letztes Jahr auf GitHub: jeder Punkt ein Tag, je heller, desto mehr Beiträge.
+- **EN:** The ring of points around the sun is my last year on GitHub: one point per day, brighter means more contributions.
+
+---
+
 ## Werdegang — Sternbild
 
 Jede Station ein Stern. Neue Stationen = neuer Eintrag in der Datenstruktur, das Sternbild wächst automatisch.

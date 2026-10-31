@@ -99,6 +99,15 @@ Anstoß: Vergleich mit hancore.dev — weniger neue Technik, mehr die eigene Met
 - **Sternenstaub:** In der Eröffnung lösen sich Funken aus der Sonne und formen auf Bögen den Namen; dann blendet die Schrift scharf ein, beim Ausblenden zerstreut sich der Staub (`lib/opening-dust.ts`, Canvas 2D). Klappt das Abtasten nicht, bleibt die alte Buchstaben-Animation.
 - **Gravitation am Zeiger:** Eine weiche Punktmassen-Linse im Kino-Pass biegt Sterne und Staub um den Mauszeiger. Nur feiner Zeiger, nur über offenem Himmel (nicht über Objekten, Labels, Panel), im Fokus halb, aus beim Ziehen/Reisen/Eröffnung/reduced-motion.
 
+## Jahresring (31.10.2026)
+
+Alpers GitHub-Beitragskalender als Sternenfeld, ohne Zahlen (Idee vom 30.10., Platz von Alper gewählt: Ring um die Sonne statt eigenes Objekt oder Hintergrund-Deko).
+
+- **Form:** Das GitHub-Raster ist zu einem Ring um die Sonne gerollt: die Wochen im Umlauf, die sieben Wochentage als Spuren von innen (Sonntag) nach außen (Samstag), ein Lichtpunkt je Tag. Die Naht liegt oben hinter der Sonne, die Zeit läuft aus der Startansicht im Uhrzeigersinn. Innenradius etwa 3,5 Sonnenradien (außerhalb von Korona und Bloom), um 43° geneigt, damit er als offene Ellipse liest und nicht als Saturnring.
+- **Helligkeit:** folgt den Beiträgen, logarithmisch auf das 95. Perzentil normiert (ein Ausreißer drückt nicht alles platt). Tage ohne Beitrag sind schwacher Staub. Gold wie die Sonne, zu warmem Weiß bei viel Aktivität, kein GitHub-Grün. Die letzten 14 Tage flackern leise wärmer, wie bei den Commit-Sternen.
+- **Verhalten:** statisch, dimmt und hellt mit der Sonne. In der Eröffnung erst nach der Titelkarte weich eingeblendet. Im Alper-Panel nur der Erklärsatz aus `docs/content.md`.
+- **Daten:** `scripts/contribution-ring.mjs` holt den Kalender lokal über `gh` und schreibt `content/contributions.ts` (nur Datum und Anzahl, eingecheckt wie die Commit-Sterne). Aktualisieren: Skript laufen lassen, committen.
+
 ## Launch-Stand (Etappe 5, Teil 1)
 
 - **Hosting:** Vercel, Projekt `portfolio`. Jeder Merge auf `main` geht automatisch live (Produktion), jeder PR bekommt eine Vorschau-URL. Aktuell nur `portfolio-mauve-nu-64.vercel.app`, eigene Domain fehlt.

@@ -152,6 +152,8 @@ export type SiteContent = {
     shrink: string;
     /** Erklärt die Commit-Sterne im Panel der Projekte, die welche haben. */
     commitNote: string;
+    /** Erklärt den Jahresring (GitHub-Beiträge) im Panel von Alper. */
+    ringNote: string;
   };
   tourOrder: ObjectId[];
   objects: Record<ObjectId, CelestialContent>;
