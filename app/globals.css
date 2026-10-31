@@ -1301,7 +1301,20 @@ html[data-intro="title"] .legend :is(.legend-btn, .legend-list),
   margin: auto calc(-1 * var(--pad-x)) 0;
   padding: 44px var(--pad-x) 26px;
   /* Deckend (nicht 0.94 wie die Fläche): sonst schimmert darunter gescrollter Text durch */
-  background: linear-gradient(rgba(6, 8, 14, 0), rgb(6, 8, 14) 38px);
+  background: rgb(6, 8, 14);
+}
+/* Weicher Auslauf über der deckenden Fläche: Inhalt blendet unter der Navigation
+   aus, statt hart abgeschnitten zu werden. Liegt außerhalb der Box, die Navigation
+   wird nicht höher; pointer-events:none, damit nichts verdeckt wird. */
+.p-nav::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 40px;
+  background: linear-gradient(rgba(6, 8, 14, 0), rgb(6, 8, 14));
+  pointer-events: none;
 }
 .p-steps {
   display: flex;
@@ -2285,7 +2298,9 @@ html[data-intro="done"] .legend {
   }
   .p-nav {
     padding: 34px var(--pad-x) calc(16px + env(safe-area-inset-bottom));
-    background: linear-gradient(rgba(6, 8, 14, 0), rgb(6, 8, 14) 28px);
+  }
+  .p-nav::before {
+    height: 32px;
   }
   /* Kontakt: im kleinen Sheet nicht künstlich mittig */
   .panel[data-id="kontakt"] .p-head {
