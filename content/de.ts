@@ -125,7 +125,7 @@ export const de: SiteContent = {
       meta: "Projekt · Live",
       kicker: "Late",
       title: "offerre",
-      tags: [{ text: "Live seit April 2026", color: "#6fe3c1" }],
+      tags: [{ text: "Live · Pilotphase", color: "#6fe3c1" }],
       lead: "Macht aus Kundenanfragen kalkulierte Angebotsentwürfe, für kleine Betriebe in Deutschland.",
       media: {
         src: "/work/offerre-entwurf.webp",
@@ -151,7 +151,7 @@ export const de: SiteContent = {
         {
           label: "Belege",
           value: [
-            "Live unter offerre.de seit April 2026",
+            "Live unter offerre.de seit April 2026, derzeit Pilotphase",
             "Jede Position nennt ihre Quelle in der Preisliste; fehlt eine Angabe, wird sie markiert statt geraten",
             "KI-Verarbeitung in der EU (Azure OpenAI), Abrechnung über Stripe, Betrieb auf Hetzner",
           ],
@@ -191,7 +191,7 @@ export const de: SiteContent = {
         pixelated: true,
       },
       body: [
-        "Founder treten mit ihren Produkten 1:1 in KI-bewerteten Matches an; jeder Sieg baut einen öffentlichen Win/Loss-Rekord auf. Die Wertung läuft deterministisch im Code.",
+        "Founder treten mit ihren Produkten 1:1 an. Die KI bewertet die Kriterien, der Code rechnet daraus das Ergebnis; jeder Sieg baut einen öffentlichen Win/Loss-Rekord auf.",
       ],
       facts: [
         {
@@ -275,7 +275,7 @@ export const de: SiteContent = {
       tags: [],
       lead: "Meine Firma. Darunter entstehen offerre, insertcoin.lol und die Evidence-First Pipeline.",
       body: [
-        "Ein kleiner menschlicher Kern, KI-Agenten als operatives Team, organisiert über Skills statt Rollen. Wie das aufgebaut ist, liegt offen in Late OS.",
+        "Ich bin der menschliche Kern, KI-Agenten sind das operative Team, organisiert über Skills statt Rollen. Wie das aufgebaut ist, liegt offen in Late OS.",
       ],
       links: [
         { label: "Website", text: "late-systems.vercel.app", href: "https://late-systems.vercel.app" },
@@ -354,7 +354,7 @@ export const de: SiteContent = {
         },
         {
           title: "Sprachen",
-          skills: ["Deutsch (Muttersprache)", "Englisch (C1/C2)", "Türkisch"],
+          skills: ["Deutsch (Muttersprache)", "Englisch (C2)", "Türkisch"],
         },
       ],
     },
@@ -371,7 +371,7 @@ export const de: SiteContent = {
       links: [
         { label: "X", text: "@alperistic", href: "https://x.com/alperistic" },
         { label: "GitHub", text: "github.com/alperistic", href: "https://github.com/alperistic" },
-        { label: "E-Mail", text: "alper@offerre.de", href: "mailto:alper@offerre.de" },
+        { label: "E-Mail", text: "hello@late.systems", href: "mailto:hello@late.systems" },
       ],
     },
   },

@@ -27,12 +27,12 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 
 ### offerre — Spiralgalaxie · Late 01 · sichtbar: ja
 
-- **Einzeiler:** Macht aus Kundenanfragen kalkulierte Angebotsentwürfe, für kleine Betriebe in Deutschland. (Lektorat 31.10.2026, Freigabe durch Alper offen)
+- **Einzeiler:** Macht aus Kundenanfragen kalkulierte Angebotsentwürfe, für kleine Betriebe in Deutschland. (Freigabe Alper 31.10.2026)
 - **Was es tut:** Aus einer Kundenanfrage in Freitext und der eigenen Preisliste wird automatisch ein kalkulierter Angebotsentwurf. Die KI liest, der Code rechnet, der Betrieb entscheidet und verschickt.
-- **Für wen:** Kleine Dienstleister mit eigener Preisliste, zum Beispiel Reinigung, IT-Wartung oder Handel. Alles vor der Rechnung, neben lexoffice oder sevDesk. (Lektorat 31.10.2026, Freigabe durch Alper offen)
-- **Status:** Live seit April 2026.
+- **Für wen:** Kleine Dienstleister mit eigener Preisliste, zum Beispiel Reinigung, IT-Wartung oder Handel. Alles vor der Rechnung, neben lexoffice oder sevDesk. (Freigabe Alper 31.10.2026)
+- **Status:** Live · Pilotphase (live seit April 2026, Freigabe Alper 31.10.2026).
 - **Meine Rolle:** Allein gebaut und betrieben — Produkt, Backend, Frontend, Infrastruktur.
-- **Belege:** Live unter offerre.de seit April 2026 · Jede Position nennt ihre Quelle in der Preisliste; fehlt eine Angabe, wird sie markiert statt geraten · KI-Verarbeitung in der EU (Azure OpenAI), Abrechnung über Stripe, Betrieb auf Hetzner. (Lektorat 31.10.2026, Freigabe durch Alper offen)
+- **Belege:** Live unter offerre.de seit April 2026, derzeit Pilotphase · Jede Position nennt ihre Quelle in der Preisliste; fehlt eine Angabe, wird sie markiert statt geraten · KI-Verarbeitung in der EU (Azure OpenAI), Abrechnung über Stripe, Betrieb auf Hetzner. (Freigabe Alper 31.10.2026)
 - **Stack:** Python/FastAPI, SQLAlchemy, Pydantic · React, Vite, Tailwind · PostgreSQL · Azure OpenAI (EU) · Stripe · Docker/Caddy auf Hetzner
 - **Links:** https://offerre.de
 - **Einblick:** Screenshot eines Angebotsentwurfs mit Beispieldaten (Quelle: Vorschau-Bild der offerre-Website, `public/work/offerre-entwurf.webp`). Bildunterschrift: „Ein Entwurf aus einer Anfrage, mit Beispieldaten.“ (Lektorat 31.10.2026, Freigabe durch Alper offen)
@@ -41,7 +41,7 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 ### insertcoin.lol — Sternentstehungs-Nebel · Late 02 · sichtbar: ja
 
 - **Einzeiler:** Eine Arcade, in der Startups gegeneinander antreten.
-- **Was es tut:** Founder treten mit ihren Produkten 1:1 in KI-bewerteten Matches an; jeder Sieg baut einen öffentlichen Win/Loss-Rekord auf. Die Wertung läuft deterministisch im Code. (Lektorat 31.10.2026, Freigabe durch Alper offen)
+- **Was es tut:** Founder treten mit ihren Produkten 1:1 an. Die KI bewertet die Kriterien, der Code rechnet daraus das Ergebnis; jeder Sieg baut einen öffentlichen Win/Loss-Rekord auf. (Freigabe Alper 31.10.2026)
 - **Für wen:** Indie-Founder, die Sichtbarkeit wollen statt eines weiteren Verzeichnis-Eintrags.
 - **Status:** Live (geprüft am 11.10.2026: Matches und Rangliste laufen öffentlich).
 - **Meine Rolle:** Konzept, Bau, Betrieb.
@@ -66,7 +66,7 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 
 - **Bezeichnung im Himmel:** Firma (statt Dachmarke, kein Tag mehr). (Lektorat 31.10.2026, Freigabe durch Alper offen)
 - **Einzeiler:** Meine Firma. Darunter entstehen offerre, insertcoin.lol und die Evidence-First Pipeline. (Lektorat 31.10.2026, Freigabe durch Alper offen)
-- **Was es ist:** Ein kleiner menschlicher Kern, KI-Agenten als operatives Team, organisiert über Skills statt Rollen. Wie das aufgebaut ist, liegt offen in Late OS. (Lektorat 31.10.2026, Freigabe durch Alper offen)
+- **Was es ist:** Ich bin der menschliche Kern, KI-Agenten sind das operative Team, organisiert über Skills statt Rollen. Wie das aufgebaut ist, liegt offen in Late OS. (Freigabe Alper 31.10.2026)
 - **Links:** Website, https://late-systems.vercel.app · Late OS, „Late OS auf GitHub“, https://github.com/alperistic/oneos (Lektorat 31.10.2026, Freigabe durch Alper offen)
 - **Framing-Regel:** Late ist die Dachmarke (Entscheidung 11.10.2026), Alper die Person dahinter. Kein Firmen-Pitch, keine internen Zahlen oder Prozessdetails. Visuell: verbindet die drei Projekte.
 
@@ -117,7 +117,7 @@ Reihenfolge der Gruppen wie unten, „Mit Coding-Agents bauen“ zuerst; gestric
 - **Web & Frontend:** TypeScript, React, Next.js, Vite, three.js, Tailwind CSS
 - **Backend & Daten:** Python, FastAPI, SQLAlchemy, PostgreSQL, Supabase, XRechnung & ZUGFeRD, PDF-Verarbeitung
 - **Betrieb & Datenschutz:** Hetzner, Docker, Caddy, Vercel, Cloudflare, DSGVO & EU-Datenhaltung, Datenschutzfreundliche Analytics
-- **Sprachen:** Deutsch (Muttersprache), Englisch (C1/C2), Türkisch
+- **Sprachen:** Deutsch (Muttersprache), Englisch (C2), Türkisch
 
 ---
 
@@ -125,9 +125,9 @@ Reihenfolge der Gruppen wie unten, „Mit Coding-Agents bauen“ zuerst; gestric
 
 - **X:** https://x.com/alperistic (Linktext „@alperistic“, steht als erster Link) (Lektorat 31.10.2026, Freigabe durch Alper offen)
 - **GitHub:** https://github.com/alperistic
-- **E-Mail:** alper@offerre.de (Übergang, bis eine Adresse auf eigener Domain steht).
+- **E-Mail:** hello@late.systems (Late-Adresse, Freigabe Alper 31.10.2026).
 - **Kein LinkedIn** (bewusste Entscheidung).
-- **CTA:** „Was ich baue und wie, schreibe ich auf X. Für alles andere: E-Mail.“ (Lektorat 31.10.2026, Freigabe durch Alper offen)
+- **CTA:** „Was ich baue und wie, schreibe ich auf X. Für alles andere: E-Mail.“ (Freigabe Alper 31.10.2026)
 
 ---
 
