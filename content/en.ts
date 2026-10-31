@@ -53,6 +53,8 @@ export const en: SiteContent = {
     open: "Open {name}",
     enlarge: "Enlarge",
     shrink: "Close",
+    play: "Play clip",
+    pause: "Pause clip",
     commitNote: "Every small point of light around it is a commit: oldest inside, newest outside.",
     ringNote:
       "The ring of points around the sun is my past year on GitHub: one point per day, brighter means more contributions.",
@@ -97,7 +99,7 @@ export const en: SiteContent = {
           visible: "ja",
         },
         {
-          year: "2020",
+          year: "10/2020",
           period: "10/2020 – 02/2021",
           title: "Internship, software/web development",
           detail:
@@ -105,14 +107,15 @@ export const en: SiteContent = {
           visible: "ja",
         },
         {
-          year: "2026",
+          year: "04/2026",
           period: "since 04/2026",
           title: "Founder of Late",
           detail: "offerre, insertcoin.lol",
+          highlight: true,
           visible: "ja",
         },
         {
-          year: "2026",
+          year: "09/2026",
           period: "since 09/2026",
           title: "E-commerce specialist, part-time (working student)",
           visible: "ja",
@@ -219,10 +222,11 @@ export const en: SiteContent = {
       tags: [{ text: "Open source", color: "#8fb0ff" }],
       lead: "AI document analysis where every claim comes with its source.",
       media: {
-        src: "/work/pipeline-belege.webp",
-        width: 1100,
-        height: 850,
-        alt: "Result view of the Evidence-First Pipeline for a sample lease: citation metrics, then the contract parties, each with page number and verbatim quote.",
+        src: "/work/pipeline-belege-detail.webp",
+        full: "/work/pipeline-belege.webp",
+        width: 736,
+        height: 464,
+        alt: "Detail of the Evidence-First Pipeline result view for a sample lease: document type and contract parties, each party followed by page number and a verbatim quote from the contract.",
         caption: "Result for a sample rental contract.",
       },
       body: [

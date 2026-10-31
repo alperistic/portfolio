@@ -189,6 +189,7 @@ export default function Universe({ content, langs }: { content: PublicContent; l
           ids: tourOrder,
           counts: {
             stations: objects.werdegang?.stations?.length ?? 0,
+            highlight: objects.werdegang?.stations?.findIndex((s) => s.highlight) ?? -1,
             skills: objects.skills?.skillGroups?.map((g) => g.skills.length) ?? [],
           },
           names: Object.fromEntries(tourOrder.map((id) => [id, objects[id]?.label ?? id])),
@@ -368,6 +369,30 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     setAuto(true);
     focus(tourOrder[0]);
   };
+
+  // Tour-Autopilot im Sternhaufen: die Gruppen der Reihe nach samt Skills zeigen (je 1,8 s).
+  // Nicht bei reduzierter Bewegung (dann stehen nur die Gruppen-Namen) und nicht mobil (zu wenig Platz).
+  useEffect(() => {
+    const n = objects.skills?.skillGroups?.length ?? 0;
+    const on =
+      auto &&
+      panelOpen &&
+      panelId === "skills" &&
+      n > 0 &&
+      !matchMedia("(prefers-reduced-motion: reduce)").matches &&
+      !matchMedia("(max-width: 767px)").matches;
+    if (!on) {
+      api.current?.setSubAuto(null);
+      return;
+    }
+    let i = 0;
+    api.current?.setSubAuto(0);
+    const t = window.setInterval(() => api.current?.setSubAuto(++i % n), 1800);
+    return () => {
+      clearInterval(t);
+      api.current?.setSubAuto(null);
+    };
+  }, [auto, panelOpen, panelId, objects]);
 
   // Beim Öffnen landet der Fokus im Panel (auf dem Titel).
   useEffect(() => {

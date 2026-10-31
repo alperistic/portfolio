@@ -7,7 +7,8 @@ import { Shot } from "./Shot";
 /*
  * Inhalt eines Himmelsobjekts als semantisches HTML — dieselben Bausteine im
  * Panel (Himmel) und in der Listenansicht. Überschriften: Titel ist h2 (bzw.
- * h1 für Alper in der Liste), Skill-Gruppen sind h3.
+ * h1 für Alper in der Liste), Skill-Gruppen sind h3 mit ihren Skills als
+ * Fließzeile darunter.
  */
 
 /** Statuszeile: schlichter Text, davor ein kleiner Punkt in der Akzentfarbe. */
@@ -34,8 +35,8 @@ type BodyProps = {
   onGroupHover?: (index: number | null) => void;
   /** Panel geöffnet: Einblick (Clip) läuft (Listenansicht: nie). */
   animate?: boolean;
-  /** Beschriftungen für den Einblick (vergrößern/schließen). */
-  shotLabels: { enlarge: string; shrink: string };
+  /** Beschriftungen für den Einblick (vergrößern/schließen, Clip abspielen/anhalten). */
+  shotLabels: { enlarge: string; shrink: string; play: string; pause: string };
 };
 
 export function ObjectBody({ o, locale, onGroupHover, animate, shotLabels }: BodyProps) {
@@ -43,7 +44,8 @@ export function ObjectBody({ o, locale, onGroupHover, animate, shotLabels }: Bod
   return (
     <>
       {o.lead && <p className="lead">{o.lead}</p>}
-      {o.media && <Shot m={o.media} labels={shotLabels} active={animate} />}
+      {/* key: je Objekt ein frischer Einblick (Clip-Zustand wandert nicht mit) */}
+      {o.media && <Shot key={o.media.src} m={o.media} labels={shotLabels} active={animate} />}
       {o.body?.map((p) => <p key={p}>{p}</p>)}
       {o.quote && (
         <blockquote className="p-quote">
@@ -85,8 +87,12 @@ export function ObjectBody({ o, locale, onGroupHover, animate, shotLabels }: Bod
           {o.skillGroups.map((g, i) => (
             <li
               key={g.title}
+              // Panel: Hover oder Tastatur-Fokus zeigt die Gruppe samt Skills im Himmel
+              tabIndex={onGroupHover ? 0 : undefined}
               onPointerEnter={onGroupHover && (() => onGroupHover(i))}
               onPointerLeave={onGroupHover && (() => onGroupHover(null))}
+              onFocus={onGroupHover && (() => onGroupHover(i))}
+              onBlur={onGroupHover && (() => onGroupHover(null))}
             >
               <h3 className="t">{g.title}</h3>
               <ul className="p-sk">

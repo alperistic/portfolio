@@ -53,6 +53,8 @@ export const de: SiteContent = {
     open: "{name} öffnen",
     enlarge: "Vergrößern",
     shrink: "Schließen",
+    play: "Clip abspielen",
+    pause: "Clip anhalten",
     commitNote: "Jeder kleine Lichtpunkt am Rand ist ein Commit: innen die ältesten, außen die neuesten.",
     ringNote:
       "Der Ring aus Lichtpunkten um die Sonne ist mein vergangenes Jahr auf GitHub: jeder Punkt ein Tag, je heller, desto mehr Beiträge.",
@@ -92,7 +94,7 @@ export const de: SiteContent = {
       stations: [
         { year: "2020", period: "2020", title: "Abitur", visible: "ja" },
         {
-          year: "2020",
+          year: "10/2020",
           period: "10/2020 – 02/2021",
           title: "Praktikum Software-/Webentwicklung",
           detail:
@@ -100,14 +102,15 @@ export const de: SiteContent = {
           visible: "ja",
         },
         {
-          year: "2026",
+          year: "04/2026",
           period: "seit 04/2026",
           title: "Gründer von Late",
           detail: "offerre, insertcoin.lol",
+          highlight: true,
           visible: "ja",
         },
         {
-          year: "2026",
+          year: "09/2026",
           period: "seit 09/2026",
           title: "Werkstudent – Fachkraft im E-Commerce",
           visible: "ja",
@@ -222,10 +225,11 @@ export const de: SiteContent = {
       tags: [{ text: "Open Source", color: "#8fb0ff" }],
       lead: "Dokumentanalyse mit KI, bei der jede Aussage ihren Beleg mitbringt.",
       media: {
-        src: "/work/pipeline-belege.webp",
-        width: 1100,
-        height: 850,
-        alt: "Ergebnisansicht der Evidence-First Pipeline mit einem Beispiel-Mietvertrag: Kennzahlen zur Belegquote, darunter Vertragsparteien, jede mit Seitenzahl und wörtlichem Zitat.",
+        src: "/work/pipeline-belege-detail.webp",
+        full: "/work/pipeline-belege.webp",
+        width: 736,
+        height: 464,
+        alt: "Ausschnitt der Ergebnisansicht der Evidence-First Pipeline mit einem Beispiel-Mietvertrag: Dokumenttyp und Vertragsparteien, unter jeder Partei Seitenzahl und wörtliches Zitat aus dem Vertrag.",
         caption: "Ergebnis für einen Beispiel-Mietvertrag.",
       },
       body: [
