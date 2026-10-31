@@ -109,14 +109,14 @@ Keine Noten, keine Schulnamen-Details darüber hinaus, keine Begründungen für 
 
 Jede Gruppe ein heller Stern im Haufen; Einträge erscheinen beim Hover/Fokus. Gruppen = Fähigkeiten, Einträge = Belege/Werkzeuge (Copy-Pass 28.09.2026). Labels kurz halten, sie schweben im Himmel.
 
-Reihenfolge der Gruppen wie unten, „Mit Coding-Agents bauen“ zuerst; gestrichen: „Agentische Workflows“ und „Von der Idee bis zum Betrieb“; kein Lead mehr (bisher: „Was ich liefere — und womit.“). (Lektorat 31.10.2026, Freigabe durch Alper offen)
+Reihenfolge der Gruppen wie unten, „Mit Coding-Agents bauen“ zuerst; gestrichen: „Agentische Workflows“ und „Von der Idee bis zum Betrieb“; kein Lead mehr (bisher: „Was ich liefere — und womit.“). Einträge am 31.10.2026 gegen die Repos geprüft und von Alper freigegeben; gestrichen: XRechnung & ZUGFeRD (nur im abgeschalteten Viewer), Vercel AI Gateway (Produktion lief auf Azure/Anthropic), Produkt-Scoping (kein Beleg). (Freigabe Alper 31.10.2026)
 
-- **Mit Coding-Agents bauen:** Claude Code, Codex, Specs & Verifikation
-- **Produkte ausliefern:** Produkt-Scoping, Review-Workflow, Automatisierte Tests, Stripe-Billing, Auth
-- **KI im Produkt:** LLM-Features in Produktion, Extraktion aus Freitext, Deterministische Logik im Code · Azure OpenAI (EU), Anthropic Claude, Vercel AI Gateway
-- **Web & Frontend:** TypeScript, React, Next.js, Vite, three.js, Tailwind CSS
-- **Backend & Daten:** Python, FastAPI, SQLAlchemy, PostgreSQL, Supabase, XRechnung & ZUGFeRD, PDF-Verarbeitung
-- **Betrieb & Datenschutz:** Hetzner, Docker, Caddy, Vercel, Cloudflare, DSGVO & EU-Datenhaltung, Datenschutzfreundliche Analytics
+- **Mit Coding-Agents bauen:** Claude Code, Codex-Review, Specs & Verifikation, GitHub Actions CI
+- **Produkte ausliefern:** Review-Workflow, pytest, Vitest, Playwright, Alembic-Migrationen, Stripe, Auth (JWT, Rollen, Einladungen)
+- **KI im Produkt:** LLM-Features in Produktion, Extraktion aus Freitext, Zitat-Prüfung gegen die Quelle, Deterministische Logik im Code, Azure OpenAI (EU), Anthropic Claude
+- **Web & Frontend:** TypeScript, React, Next.js, Vite, Tailwind CSS, three.js, TanStack Query, Radix, zod
+- **Backend & Daten:** Python, FastAPI, Pydantic, SQLAlchemy, PostgreSQL, Supabase (RLS), PDF erzeugen und lesen (WeasyPrint, pypdf)
+- **Betrieb & Datenschutz:** Hetzner, Docker Compose, Caddy, Vercel, Cloudflare Workers & R2, Sentry, PostHog (EU), restic-Backups, DSGVO & EU-Datenhaltung
 - **Sprachen:** Deutsch (Muttersprache), Englisch (C2), Türkisch
 
 ---
