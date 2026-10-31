@@ -33,7 +33,8 @@ export function ListView({ content, langs }: { content: PublicContent; langs: La
           <h1 className="lv-title" id="lv-title" tabIndex={-1}>
             {alper?.title ?? brand.name}
           </h1>
-          <p className="lv-sub">{brand.subline}</p>
+          {/* Kicker und Unterzeile nicht doppelt zeigen, wenn sie gleich lauten */}
+          {alper?.kicker !== brand.subline && <p className="lv-sub">{brand.subline}</p>}
           {alper && (
             <div className="p-body">
               <ObjectBody o={alper} locale={locale} shotLabels={ui} />

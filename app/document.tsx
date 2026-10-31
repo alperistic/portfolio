@@ -1,6 +1,7 @@
 import type { Viewport } from "next";
 import localFont from "next/font/local";
 import type { Locale } from "@/content";
+import { personJsonLd } from "@/lib/site";
 import { VIEW_SCRIPT } from "@/lib/view-script";
 import "./globals.css";
 
@@ -38,6 +39,7 @@ export function Document({ lang, children }: { lang: Locale; children: React.Rea
     <html lang={lang} className={`${sora.variable} ${plexMono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: VIEW_SCRIPT }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: personJsonLd(lang) }} />
       </head>
       <body>{children}</body>
     </html>

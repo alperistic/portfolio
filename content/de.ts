@@ -1,7 +1,7 @@
 import type { SiteContent } from "./types";
 
 /**
- * Deutsche Inhalte — 1:1 aus docs/content.md (Stand 24.09.2026).
+ * Deutsche Inhalte — 1:1 aus docs/content.md (Stand 31.10.2026).
  * Neue Station / neues Projekt = neuer Eintrag hier, kein Code-Umbau.
  * Einträge mit `visible: "nein" | "offen"` bleiben vorbereitet, werden aber
  * serverseitig herausgefiltert und landen nicht im ausgelieferten JavaScript.
@@ -11,17 +11,18 @@ export const de: SiteContent = {
   meta: {
     title: "Alper Bulat — Gründer von Late",
     description:
-      "Alper Bulat aus Karlsruhe, Gründer von Late. Ich baue funktionierende Software — von der Idee bis zum laufenden Betrieb.",
+      "Alper Bulat, Gründer von Late in Karlsruhe, baut Softwareprodukte mit Coding-Agents: offerre, insertcoin.lol und die Evidence-First Pipeline.",
   },
   brand: {
     name: "Alper Bulat",
     subline: "Gründer von Late · Karlsruhe",
+    follow: { label: "Auf X folgen", handle: "@alperistic", href: "https://x.com/alperistic" },
   },
   ui: {
     loading: "Kalibriere Himmel",
     dragHint: "Ziehen zum Umsehen",
     tourStart: "Tour starten",
-    back: "← Zurück zu Alper",
+    back: "← Übersicht",
     backFromCenter: "← Übersicht",
     next: "Nächster Stern",
     restart: "Von vorn",
@@ -38,22 +39,25 @@ export const de: SiteContent = {
     keysHint: "Tab wählt ein Objekt, Enter fliegt hin, Pfeil links/rechts folgt der Tour, Esc führt zurück.",
     contents: "Inhalt",
     fallback: {
-      webgl: "Dieses Gerät kann den 3D-Himmel nicht darstellen. Hier stehen alle Inhalte als Liste.",
-      weak: "Der 3D-Himmel würde auf diesem Gerät ruckeln. Hier stehen alle Inhalte als Liste.",
-      slow: "Der 3D-Himmel lief auf diesem Gerät nicht flüssig. Hier stehen alle Inhalte als Liste.",
-      lost: "Die Grafik ist ausgefallen. Hier stehen alle Inhalte als Liste.",
-      load: "Der Himmel konnte nicht geladen werden. Hier stehen alle Inhalte als Liste.",
+      webgl: "Dieses Gerät kann den 3D-Himmel nicht darstellen. Alles steht hier als Liste.",
+      weak: "Der 3D-Himmel würde auf diesem Gerät ruckeln. Alles steht hier als Liste.",
+      slow: "Der 3D-Himmel lief auf diesem Gerät nicht flüssig. Alles steht hier als Liste.",
+      lost: "Die Grafik ist ausgefallen. Alles steht hier als Liste.",
+      load: "Der Himmel konnte nicht geladen werden. Alles steht hier als Liste.",
     },
     tryAnyway: "Himmel trotzdem laden",
     skipIntro: "Intro überspringen",
     sound: "Ton",
     autoPlay: "Tour automatisch abspielen",
     autoPause: "Tour anhalten",
-    enlarge: "Einblick vergrößern",
-    shrink: "Vergrößerung schließen",
+    open: "{name} öffnen",
+    enlarge: "Vergrößern",
+    shrink: "Schließen",
+    play: "Clip abspielen",
+    pause: "Clip anhalten",
     commitNote: "Jeder kleine Lichtpunkt am Rand ist ein Commit: innen die ältesten, außen die neuesten.",
     ringNote:
-      "Der Ring aus Lichtpunkten um die Sonne ist mein letztes Jahr auf GitHub: jeder Punkt ein Tag, je heller, desto mehr Beiträge.",
+      "Der Ring aus Lichtpunkten um die Sonne ist mein vergangenes Jahr auf GitHub: jeder Punkt ein Tag, je heller, desto mehr Beiträge.",
   },
   tourOrder: [
     "alper",
@@ -71,16 +75,11 @@ export const de: SiteContent = {
       visible: "ja",
       label: "Alper",
       meta: "Zentrum",
-      kicker: "Der eigene Stern",
+      kicker: "Gründer von Late · Karlsruhe",
       title: "Alper Bulat",
-      tags: [
-        { text: "Gründer von Late", color: "#f1c98e" },
-        { text: "Karlsruhe" },
-      ],
-      lead: "Ich baue funktionierende Software — von der Idee bis zum laufenden Betrieb. Mit KI-gestützten Entwicklungs-Workflows, aber mit klarer Verantwortung: Architektur, Verifikation und Entscheidungen liegen bei mir.",
-      body: [
-        "Vage Produktideen in ausgelieferte Software verwandeln — schnell iterieren mit Coding-Agents, ohne die Kontrolle abzugeben.",
-      ],
+      tags: [],
+      lead: "Ich baue und betreibe Softwareprodukte mit Coding-Agents. Architektur, Prüfung und Entscheidungen bleiben bei mir.",
+      links: [{ label: "So arbeite ich", text: "Late OS auf GitHub", href: "https://github.com/alperistic/oneos" }],
     },
 
     werdegang: {
@@ -88,14 +87,14 @@ export const de: SiteContent = {
       visible: "ja",
       label: "Werdegang",
       meta: "Sternbild",
-      kicker: "Sternbild",
+      kicker: "2020 – heute",
       title: "Werdegang",
       tags: [],
-      lead: "Jede Station ein Stern.",
+      lead: "",
       stations: [
         { year: "2020", period: "2020", title: "Abitur", visible: "ja" },
         {
-          year: "2020",
+          year: "10/2020",
           period: "10/2020 – 02/2021",
           title: "Praktikum Software-/Webentwicklung",
           detail:
@@ -103,14 +102,15 @@ export const de: SiteContent = {
           visible: "ja",
         },
         {
-          year: "2026",
+          year: "04/2026",
           period: "seit 04/2026",
-          title: "Gründer von Late (selbstständig)",
-          detail: "offerre live",
+          title: "Gründer von Late",
+          detail: "offerre, insertcoin.lol",
+          highlight: true,
           visible: "ja",
         },
         {
-          year: "2026",
+          year: "09/2026",
           period: "seit 09/2026",
           title: "Werkstudent – Fachkraft im E-Commerce",
           visible: "ja",
@@ -123,16 +123,16 @@ export const de: SiteContent = {
       visible: "ja",
       label: "offerre",
       meta: "Projekt · Live",
-      kicker: "Late · 01 / 03",
+      kicker: "Late",
       title: "offerre",
-      tags: [{ text: "Live seit April 2026", color: "#6fe3c1" }],
-      lead: "KI-gestützte Angebotserstellung für deutsche KMU.",
+      tags: [{ text: "Live · Pilotphase", color: "#6fe3c1" }],
+      lead: "Macht aus Kundenanfragen kalkulierte Angebotsentwürfe, für kleine Betriebe in Deutschland.",
       media: {
         src: "/work/offerre-entwurf.webp",
         width: 505,
         height: 300,
         alt: "Angebotsentwurf in offerre: vier Positionen mit Preisen, jede mit ihrer Quelle in der Preisliste. Bei einer Position fehlt die Menge, sie ist markiert statt geschätzt.",
-        caption: "Ein Entwurf aus einer Anfrage. Jede Position nennt ihre Quelle in der Preisliste; fehlt eine Angabe, wird sie markiert statt geraten. Beispieldaten.",
+        caption: "Ein Entwurf aus einer Anfrage, mit Beispieldaten.",
       },
       body: [
         "Aus einer Kundenanfrage in Freitext und der eigenen Preisliste wird automatisch ein kalkulierter Angebotsentwurf. Die KI liest, der Code rechnet, der Betrieb entscheidet und verschickt.",
@@ -141,7 +141,7 @@ export const de: SiteContent = {
         {
           label: "Für wen",
           value:
-            "Kleine und mittlere Betriebe, vor allem Handwerk — alles vor der Rechnung, als Ergänzung zu lexoffice/sevDesk.",
+            "Kleine Dienstleister mit eigener Preisliste, zum Beispiel Reinigung, IT-Wartung oder Handel. Alles vor der Rechnung, neben lexoffice oder sevDesk.",
         },
         {
           label: "Meine Rolle",
@@ -151,10 +151,9 @@ export const de: SiteContent = {
         {
           label: "Belege",
           value: [
-            "~680 Commits seit Livegang",
-            "über 150 Pull Requests mit Review-Workflow",
-            "130+ automatisierte Tests",
-            "eigene Infrastruktur auf Hetzner (Docker, Caddy)",
+            "Live unter offerre.de seit April 2026, derzeit Pilotphase",
+            "Jede Position nennt ihre Quelle in der Preisliste; fehlt eine Angabe, wird sie markiert statt geraten",
+            "KI-Verarbeitung in der EU (Azure OpenAI), Abrechnung über Stripe, Betrieb auf Hetzner",
           ],
         },
         {
@@ -178,7 +177,7 @@ export const de: SiteContent = {
       visible: "ja",
       label: "insertcoin.lol",
       meta: "Projekt · Live",
-      kicker: "Late · 02 / 03",
+      kicker: "Late",
       title: "insertcoin.lol",
       tags: [{ text: "Live", color: "#ff7ad9" }],
       lead: "Eine Arcade, in der Startups gegeneinander antreten.",
@@ -192,7 +191,7 @@ export const de: SiteContent = {
         pixelated: true,
       },
       body: [
-        "Founder treten mit ihren Produkten 1:1 in KI-bewerteten Matches an; jeder Sieg baut einen öffentlichen Win/Loss-Rekord auf. Die Wertung ist deterministisch im Code, nicht nach Gefühl.",
+        "Founder treten mit ihren Produkten 1:1 an. Die KI bewertet die Kriterien, der Code rechnet daraus das Ergebnis; jeder Sieg baut einen öffentlichen Win/Loss-Rekord auf.",
       ],
       facts: [
         {
@@ -221,19 +220,20 @@ export const de: SiteContent = {
       visible: "ja",
       label: "Evidence-First",
       meta: "Open Source",
-      kicker: "Late · 03 / 03",
+      kicker: "Late",
       title: "Evidence-First Pipeline",
       tags: [{ text: "Open Source", color: "#8fb0ff" }],
       lead: "Dokumentanalyse mit KI, bei der jede Aussage ihren Beleg mitbringt.",
       media: {
-        src: "/work/pipeline-belege.webp",
-        width: 1100,
-        height: 850,
-        alt: "Ergebnisansicht der Evidence-First Pipeline mit einem Beispiel-Mietvertrag: Kennzahlen zur Belegquote, darunter Vertragsparteien, jede mit Seitenzahl und wörtlichem Zitat.",
-        caption: "Ergebnis für einen Beispielvertrag: Jede Angabe steht mit Seitenzahl und wörtlichem Zitat da.",
+        src: "/work/pipeline-belege-detail.webp",
+        full: "/work/pipeline-belege.webp",
+        width: 736,
+        height: 464,
+        alt: "Ausschnitt der Ergebnisansicht der Evidence-First Pipeline mit einem Beispiel-Mietvertrag: Dokumenttyp und Vertragsparteien, unter jeder Partei Seitenzahl und wörtliches Zitat aus dem Vertrag.",
+        caption: "Ergebnis für einen Beispiel-Mietvertrag.",
       },
       body: [
-        "Das Sprachmodell findet, wo in einem langen Vertrag etwas steht. Jeder extrahierte Wert kommt mit Seitenzahl und wörtlichem Zitat und wird gegen den Quelltext geprüft, bevor er erscheint. Was eine Regel entscheiden kann, entscheidet der Code. Das Ergebnis ist ein Vorschlag zur Prüfung, nie eine Entscheidung.",
+        "Das Modell findet die Stelle im Vertrag, der Code prüft das Zitat gegen die Seite und ordnet Beträge, Fristen und Parteien zu. Heraus kommt ein Vorschlag zur Prüfung, keine Entscheidung.",
       ],
       facts: [
         {
@@ -247,6 +247,7 @@ export const de: SiteContent = {
             "Zitate werden gegen die zitierte Seite geprüft, die Trefferquote steht sichtbar in der Oberfläche",
             "Beträge, Fristen und Parteien ordnet Python-Code zu, nicht das Modell",
             "Uploads bleiben im Speicher, das Audit-Log speichert Hashes statt Dokumenttext",
+            "MIT-Lizenz, läuft lokal im Demo-Modus ohne Zugangsdaten",
           ],
         },
         {
@@ -268,19 +269,19 @@ export const de: SiteContent = {
       id: "late",
       visible: "ja",
       label: "Late",
-      meta: "Dachmarke",
+      meta: "Firma",
       kicker: "Kosmisches Netz",
       title: "Late",
-      tags: [{ text: "Dachmarke", color: "#a99bff" }],
-      lead: "Das Haus, unter dem ich Software baue.",
+      tags: [],
+      lead: "Meine Firma. Darunter entstehen offerre, insertcoin.lol und die Evidence-First Pipeline.",
       body: [
-        "Late ist meine Firma: ein kleiner menschlicher Kern, KI-Agenten als operatives Team, organisiert über eine Bibliothek aus Fähigkeiten statt über Rollen. offerre, insertcoin.lol und die Evidence-First Pipeline sind darunter entstanden.",
+        "Ich bin der menschliche Kern, KI-Agenten sind das operative Team, organisiert über Skills statt Rollen. Wie das aufgebaut ist, liegt offen in Late OS.",
       ],
       links: [
         { label: "Website", text: "late-systems.vercel.app", href: "https://late-systems.vercel.app" },
         {
           label: "Late OS",
-          text: "GitHub",
+          text: "Late OS auf GitHub",
           href: "https://github.com/alperistic/oneos",
         },
       ],
@@ -294,19 +295,22 @@ export const de: SiteContent = {
       kicker: "Offener Sternhaufen",
       title: "Skills & Stack",
       tags: [],
-      lead: "Was ich liefere — und womit.",
+      lead: "",
       // Je Gruppe ein heller Stern (Fähigkeit), je Eintrag ein kleiner Stern (Beleg/Werkzeug).
       // Titel und Einträge kurz halten: sie schweben als Labels im Himmel.
       skillGroups: [
         {
+          title: "Mit Coding-Agents bauen",
+          skills: ["Claude Code", "Codex-Review", "Specs & Verifikation", "GitHub Actions CI"],
+        },
+        {
           title: "Produkte ausliefern",
           skills: [
-            "Von der Idee bis zum Betrieb",
-            "Produkt-Scoping",
             "Review-Workflow",
-            "Automatisierte Tests",
-            "Stripe-Billing",
-            "Auth",
+            "pytest, Vitest, Playwright",
+            "Alembic-Migrationen",
+            "Stripe",
+            "Auth (JWT, Rollen, Einladungen)",
           ],
         },
         {
@@ -314,47 +318,55 @@ export const de: SiteContent = {
           skills: [
             "LLM-Features in Produktion",
             "Extraktion aus Freitext",
+            "Zitat-Prüfung gegen die Quelle",
             "Deterministische Logik im Code",
             "Azure OpenAI (EU)",
             "Anthropic Claude",
-            "Vercel AI Gateway",
           ],
         },
         {
-          title: "Mit Coding-Agents bauen",
-          skills: ["Claude Code", "Codex", "Agentische Workflows", "Specs & Verifikation"],
-        },
-        {
           title: "Web & Frontend",
-          skills: ["TypeScript", "React", "Next.js", "Vite", "three.js", "Tailwind CSS"],
+          skills: [
+            "TypeScript",
+            "React",
+            "Next.js",
+            "Vite",
+            "Tailwind CSS",
+            "three.js",
+            "TanStack Query",
+            "Radix",
+            "zod",
+          ],
         },
         {
           title: "Backend & Daten",
           skills: [
             "Python",
             "FastAPI",
+            "Pydantic",
             "SQLAlchemy",
             "PostgreSQL",
-            "Supabase",
-            "XRechnung & ZUGFeRD",
-            "PDF-Verarbeitung",
+            "Supabase (RLS)",
+            "PDF erzeugen und lesen (WeasyPrint, pypdf)",
           ],
         },
         {
           title: "Betrieb & Datenschutz",
           skills: [
             "Hetzner",
-            "Docker",
+            "Docker Compose",
             "Caddy",
             "Vercel",
-            "Cloudflare",
+            "Cloudflare Workers & R2",
+            "Sentry",
+            "PostHog (EU)",
+            "restic-Backups",
             "DSGVO & EU-Datenhaltung",
-            "Datenschutzfreundliche Analytics",
           ],
         },
         {
           title: "Sprachen",
-          skills: ["Deutsch (Muttersprache)", "Englisch (C1/C2)", "Türkisch"],
+          skills: ["Deutsch (Muttersprache)", "Englisch (C2)", "Türkisch"],
         },
       ],
     },
@@ -367,10 +379,11 @@ export const de: SiteContent = {
       kicker: "Pulsar",
       title: "Kontakt",
       tags: [],
-      lead: "Du baust etwas und brauchst jemanden, der es wirklich ausliefert? Schreib mir.",
+      lead: "Was ich baue und wie, schreibe ich auf X. Für alles andere: E-Mail.",
       links: [
+        { label: "X", text: "@alperistic", href: "https://x.com/alperistic" },
         { label: "GitHub", text: "github.com/alperistic", href: "https://github.com/alperistic" },
-        { label: "E-Mail", text: "alper@offerre.de", href: "mailto:alper@offerre.de" },
+        { label: "E-Mail", text: "hello@late.systems", href: "mailto:hello@late.systems" },
       ],
     },
   },

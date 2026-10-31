@@ -41,12 +41,14 @@ export type LinkItem = {
 };
 
 export type Station = {
-  /** Kurzform für das Label am Stern, z. B. „2020“. */
+  /** Beginn für das Label am Stern, z. B. „2020“ oder „10/2020“. */
   year: string;
   /** Zeitraum wie in docs/content.md. */
   period: string;
   title: string;
   detail?: string;
+  /** Hellster Stern des Sternbilds (höchstens eine Station). */
+  highlight?: boolean;
   visible: Visibility;
 };
 
@@ -68,6 +70,11 @@ export type SkillGroup = {
 export type Media = {
   /** Bild bzw. Standbild des Clips, z. B. „/work/offerre-entwurf.webp“. */
   src: string;
+  /**
+   * Ganzes Bild für die Vergrößerung, wenn `src` nur ein Ausschnitt ist
+   * (im Panel ist der Ausschnitt lesbar, die Vollansicht zeigt alles).
+   */
+  full?: string;
   /** Clip-Quellen in Wunschreihenfolge (webm vor mp4); ohne = nur Bild. */
   video?: string[];
   width: number;
@@ -89,6 +96,7 @@ export type CelestialContent = {
   kicker: string;
   title: string;
   tags: Tag[];
+  /** Leer (`""`) = kein Lead-Absatz. */
   lead: string;
   /** Einblick direkt unter dem Lead. */
   media?: Media;
@@ -105,7 +113,12 @@ export type Locale = "de" | "en";
 export type SiteContent = {
   locale: Locale;
   meta: { title: string; description: string };
-  brand: { name: string; subline: string };
+  brand: {
+    name: string;
+    subline: string;
+    /** Folgen-Hinweis (X), z. B. für Kopfzeile und JSON-LD `sameAs`. */
+    follow: { label: string; handle: string; href: string };
+  };
   ui: {
     loading: string;
     dragHint: string;
@@ -147,9 +160,14 @@ export type SiteContent = {
     /** Tour-Autopilot starten bzw. anhalten. */
     autoPlay: string;
     autoPause: string;
+    /** Externer Link eines Projekts im Titelbild, `{name}` wird ersetzt. */
+    open: string;
     /** Einblick vergrößern bzw. Vergrößerung schließen. */
     enlarge: string;
     shrink: string;
+    /** Clip im Einblick abspielen bzw. anhalten (eigene Bedienung). */
+    play: string;
+    pause: string;
     /** Erklärt die Commit-Sterne im Panel der Projekte, die welche haben. */
     commitNote: string;
     /** Erklärt den Jahresring (GitHub-Beiträge) im Panel von Alper. */

@@ -9,6 +9,7 @@ import { getView, setView, useView, type Why } from "@/lib/view";
 import { Legend } from "./Legend";
 import { Opening } from "./Opening";
 import { Panel } from "./Panel";
+import { Title } from "./Title";
 import { LangSwitch } from "./ViewControls";
 
 /** Die Eröffnung läuft einmal je Sitzung (danach nur noch das Einblenden der UI). */
@@ -68,14 +69,15 @@ const writeHash = (id: ObjectId | null) => {
  *
  * Ablauf beim Start: Schleier („Kalibriere Himmel“) → Eröffnung (Titelkarte,
  * nur beim ersten Besuch je Sitzung) → die Bedienelemente blenden gestaffelt ein
- * (`<html data-intro>` steuert das per CSS). „Tour starten“ fliegt als Autopilot
+ * (`<html data-intro>` steuert das per CSS), das Titelbild unten links kurz danach. „Tour starten“ fliegt als Autopilot
  * von Station zu Station; Klang ist optional und standardmäßig aus.
  */
 export default function Universe({ content, langs }: { content: PublicContent; langs: LangLink[] }) {
   const { ui, tourOrder, objects } = content;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const brandRef = useRef<HTMLDivElement>(null);
+  const titleBoxRef = useRef<HTMLElement>(null);
+  const toListRef = useRef<HTMLButtonElement>(null);
   const compassRef = useRef<HTMLDivElement>(null);
   const compassCanvasRef = useRef<HTMLCanvasElement>(null);
   const compassReadRef = useRef<HTMLDivElement>(null);
@@ -105,6 +107,22 @@ export default function Universe({ content, langs }: { content: PublicContent; l
   const [hint, setHint] = useState(false);
   /** Eröffnung: läuft noch (`title`) bzw. vorbei (`done`); `null` = Himmel noch nicht bereit. */
   const [phase, setPhase] = useState<"title" | "done" | null>(null);
+  /** Titelbild eingeblendet (nach der Eröffnung). */
+  const [titleIn, setTitleIn] = useState(false);
+  /**
+   * Titelbild weg — für diesen Seitenaufruf endgültig. Es gehört nur zum Ankommen:
+   * Umsehen (Ziehen), ein Objekt wählen, Direktlink oder Listenansicht beenden es.
+   */
+  const [titleDismissed, setTitleDismissed] = useState(false);
+  // Selbst gewählte Liste (auch `?view=list` beim Laden): Titelbild gar nicht erst zeigen
+  if (view?.view === "list" && view.why === "user" && !titleDismissed) setTitleDismissed(true);
+  const titleDismissedRef = useRef(false);
+  useEffect(() => {
+    titleDismissedRef.current = titleDismissed;
+  }, [titleDismissed]);
+  const dismissTitle = useCallback(() => setTitleDismissed(true), []);
+  /** Objekt im Fokus (Anflug oder Panel offen) — `null` = freier Himmel. */
+  const [focusedId, setFocusedId] = useState<ObjectId | null>(null);
   /** Tour-Autopilot aktiv. */
   const [auto, setAuto] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
@@ -122,6 +140,8 @@ export default function Universe({ content, langs }: { content: PublicContent; l
 
   const focus = useCallback((id: ObjectId) => {
     focusedRef.current = id;
+    setFocusedId(id);
+    dismissTitle();
     setHint(false);
     // Panel-Inhalt sofort rendern, damit die Engine seine Größe messen kann.
     flushSync(() => {
@@ -131,12 +151,13 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     if (panelRef.current) panelRef.current.scrollTop = 0;
     api.current?.focus(id);
     writeHash(id);
-  }, [showPanel]);
+  }, [showPanel, dismissTitle]);
 
   /** Zurück zur Übersicht. Per Tastatur blickt die Kamera danach auf das Objekt, von dem man kam. */
   const home = useCallback((kbd = false) => {
     const from = focusedRef.current;
     focusedRef.current = null;
+    setFocusedId(null);
     setAuto(false);
     showPanel(false);
     api.current?.setSubHover(null);
@@ -185,6 +206,7 @@ export default function Universe({ content, langs }: { content: PublicContent; l
           ids: tourOrder,
           counts: {
             stations: objects.werdegang?.stations?.length ?? 0,
+            highlight: objects.werdegang?.stations?.findIndex((s) => s.highlight) ?? -1,
             skills: objects.skills?.skillGroups?.map((g) => g.skills.length) ?? [],
           },
           names: Object.fromEntries(tourOrder.map((id) => [id, objects[id]?.label ?? id])),
@@ -194,15 +216,15 @@ export default function Universe({ content, langs }: { content: PublicContent; l
           compass: compassCanvasRef.current
             ? { canvas: compassCanvasRef.current, readout: compassReadRef.current }
             : null,
-          // Feste UI, die Labels nicht überdecken sollen (Marke inkl. Listen-Knopf, Kompass, …)
+          // Feste UI, die Labels nicht überdecken sollen (Titelbild, Listen-Knopf, Kompass, …)
           obstacles: () => [
-            brandRef.current,
+            panelOpenRef.current || titleDismissedRef.current ? null : titleBoxRef.current,
+            toListRef.current,
             compassRef.current,
             langRef.current,
             // eingeklappt nur der Knopf — die unsichtbare Liste belegt sonst Platz
             legendRef.current?.querySelector(".legend-btn"),
             legendRef.current?.classList.contains("open") ? legendRef.current.querySelector(".legend-list") : null,
-            panelOpenRef.current ? null : tourRef.current,
             panelOpenRef.current ? panelRef.current : null,
           ],
           veil: cutRef.current,
@@ -295,6 +317,35 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     return () => removeEventListener("hashchange", syncHash);
   }, [syncHash]);
 
+  // Umsehen beendet das Titelbild: erst ab 12 px Weg (ein bloßer Klick zählt nicht).
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!live || !c) return;
+    let start: { x: number; y: number } | null = null;
+    const onDown = (e: PointerEvent) => {
+      start = { x: e.clientX, y: e.clientY };
+    };
+    const onMove = (e: PointerEvent) => {
+      if (start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 12) {
+        start = null;
+        dismissTitle();
+      }
+    };
+    const onUp = () => {
+      start = null;
+    };
+    c.addEventListener("pointerdown", onDown);
+    c.addEventListener("pointermove", onMove);
+    c.addEventListener("pointerup", onUp);
+    c.addEventListener("pointercancel", onUp);
+    return () => {
+      c.removeEventListener("pointerdown", onDown);
+      c.removeEventListener("pointermove", onMove);
+      c.removeEventListener("pointerup", onUp);
+      c.removeEventListener("pointercancel", onUp);
+    };
+  }, [live, dismissTitle]);
+
   // Listenansicht: Szene anhalten (GPU schonen), beim Zurückkehren weiterlaufen lassen.
   // Zurück im Himmel: Hat man in der Liste einen anderen Abschnitt angesprungen,
   // fliegt die Szene dorthin, damit Fokus und Link wieder übereinstimmen.
@@ -322,6 +373,18 @@ export default function Universe({ content, langs }: { content: PublicContent; l
   // Jahresring erst nach der Titelkarte einblenden (er liefe sonst durch den Namen).
   useEffect(() => {
     if (phase) api.current?.setOpening(phase === "title");
+  }, [phase]);
+  // Titelbild: nach der Titelkarte mit kurzer Verzögerung, sonst (übersprungen) sofort.
+  const hadTitle = useRef(false);
+  useEffect(() => {
+    if (phase === "title") hadTitle.current = true;
+    if (phase !== "done") return;
+    if (!hadTitle.current) {
+      setTitleIn(true);
+      return;
+    }
+    const t = window.setTimeout(() => setTitleIn(true), 300);
+    return () => clearTimeout(t);
   }, [phase]);
 
   // Zieh-Hinweis, sobald die UI steht (nicht, wenn man schon unterwegs ist).
@@ -352,6 +415,30 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     setAuto(true);
     focus(tourOrder[0]);
   };
+
+  // Tour-Autopilot im Sternhaufen: die Gruppen der Reihe nach samt Skills zeigen (je 1,8 s).
+  // Nicht bei reduzierter Bewegung (dann stehen nur die Gruppen-Namen) und nicht mobil (zu wenig Platz).
+  useEffect(() => {
+    const n = objects.skills?.skillGroups?.length ?? 0;
+    const on =
+      auto &&
+      panelOpen &&
+      panelId === "skills" &&
+      n > 0 &&
+      !matchMedia("(prefers-reduced-motion: reduce)").matches &&
+      !matchMedia("(max-width: 767px)").matches;
+    if (!on) {
+      api.current?.setSubAuto(null);
+      return;
+    }
+    let i = 0;
+    api.current?.setSubAuto(0);
+    const t = window.setInterval(() => api.current?.setSubAuto(++i % n), 1800);
+    return () => {
+      clearInterval(t);
+      api.current?.setSubAuto(null);
+    };
+  }, [auto, panelOpen, panelId, objects]);
 
   // Beim Öffnen landet der Fokus im Panel (auf dem Titel).
   useEffect(() => {
@@ -409,6 +496,17 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         <span className="ret-r" />
       </div>
 
+      <Title
+        ref={titleBoxRef}
+        tourRef={tourRef}
+        content={content}
+        shown={titleIn}
+        gone={titleDismissed}
+        onFocus={focus}
+        onHover={(id) => api.current?.setLabelHover(id ?? kbdLabel.current)}
+        onTour={startTour}
+      />
+
       <div className="labels">
         {tourOrder.map((id) => {
           const o = objects[id]!;
@@ -433,6 +531,8 @@ export default function Universe({ content, langs }: { content: PublicContent; l
                 if (!isKeyboardFocus(e.currentTarget)) return;
                 kbdLabel.current = id;
                 api.current?.setLabelHover(id);
+                // Die Kamera dreht sich zum Label: Umsehen per Tastatur
+                dismissTitle();
                 api.current?.reveal(id);
               }}
               onBlur={() => {
@@ -478,16 +578,12 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         )}
       </div>
 
-      <div className="brand" ref={brandRef}>
-        <p className="brand-n">{content.brand.name}</p>
-        <p className="brand-s">{content.brand.subline}</p>
-        <button type="button" className="to-list" onClick={toList}>
-          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
-            <path d="M2 3.5h10M2 7h10M2 10.5h6" />
-          </svg>
-          {ui.listView}
-        </button>
-      </div>
+      <button type="button" className="to-list" ref={toListRef} onClick={toList}>
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
+          <path d="M2 3.5h10M2 7h10M2 10.5h6" />
+        </svg>
+        {ui.listView}
+      </button>
 
       <div className="compass" ref={compassRef} aria-hidden="true">
         <canvas ref={compassCanvasRef} />
@@ -515,20 +611,24 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         </button>
       </div>
 
-      <button className="tour" type="button" ref={tourRef} onClick={startTour}>
-        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
-          <circle cx="7" cy="7" r="6.2" opacity=".5" />
-          <path d="M5.6 4.6l3.6 2.4-3.6 2.4z" fill="currentColor" stroke="none" />
-        </svg>
-        {ui.tourStart}
-      </button>
-
       <Legend
         ref={legendRef}
         content={content}
         active={panelId && panelOpen ? panelId : null}
         onFocus={focus}
         onHover={(id) => api.current?.setLabelHover(id ?? kbdLabel.current)}
+        before={
+          titleDismissed && (
+            <button
+              type="button"
+              className={`tour-mini${!focusedId && !auto ? " on" : ""}`}
+              inert={!!focusedId || auto}
+              onClick={startTour}
+            >
+              {ui.tourStart}
+            </button>
+          )
+        }
       />
 
       <Panel

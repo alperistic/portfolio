@@ -14,9 +14,12 @@ const DRAW_SEG = 0.55;
  * nach, die Linie zieht sich mit einem Funken an der Spitze von Stern zu Stern.
  * `uDraw` ist der Fortschritt in Stationen (0 = erste Station, n-1 = alles).
  * Die Anker bekommen `userData.lit`, damit die Engine die Stations-Labels im
- * selben Takt zeigt.
+ * selben Takt zeigt, und `userData.side`: Station 1, 3, … beschriftet über
+ * ihrem Stern, 2, 4, … darunter — so stehen sich benachbarte Namen nicht im Weg.
+ *
+ * `highlight` (Index) ist der hellste Stern des Sternbilds (Gründung von Late).
  */
-export function makeConstellation(ctx: SceneCtx, count: number): Celestial {
+export function makeConstellation(ctx: SceneCtx, count: number, highlight = -1): Celestial {
   const n = Math.max(1, count);
   const width = Math.max(10, (n - 1) * 6.4);
   const P: THREE.Vector3[] = [];
@@ -34,9 +37,13 @@ export function makeConstellation(ctx: SceneCtx, count: number): Celestial {
   const draw = { value: REST };
   const g = new THREE.BufferGeometry().setFromPoints(P);
   g.setAttribute("aIdx", new THREE.BufferAttribute(new Float32Array(n).map((_, i) => i), 1));
-  // jüngste Station (heute) etwas heller
-  const sizes = new Float32Array(n).map((_, i) => 1.5 + (i === n - 1 ? 0.9 : i * 0.12));
+  // Die Sterne werden zur Gegenwart hin etwas größer; die hervorgehobene Station ist
+  // der hellste Stern (gut 1,6-fach) und auch der größte.
+  const HI = 1.6;
+  const sizes = new Float32Array(n).map((_, i) => (1.5 + i * 0.12) * (i === highlight ? 1.3 : 1));
+  const bright = new Float32Array(n).map((_, i) => (i === highlight ? HI : 1));
   g.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+  g.setAttribute("aB", new THREE.BufferAttribute(bright, 1));
   group.add(
     new THREE.Points(
       g,
@@ -46,7 +53,7 @@ export function makeConstellation(ctx: SceneCtx, count: number): Celestial {
         blending: THREE.AdditiveBlending,
         uniforms: { uProj: ctx.uProj, uHover: hover, uFocus: focus, uTime: ctx.uTime, uDraw: draw },
         vertexShader: /* glsl */ `
-          attribute float aSize, aIdx; uniform float uProj, uTime, uDraw; varying float vI;
+          attribute float aSize, aIdx, aB; uniform float uProj, uTime, uDraw; varying float vI;
           void main(){ vec4 mv = modelViewMatrix*vec4(position,1.0); gl_Position = projectionMatrix*mv;
             // noch nicht gezündet: glimmt nur; beim Zünden kurz aufblitzen
             float lit = smoothstep(aIdx - 0.35, aIdx, uDraw);
@@ -54,7 +61,7 @@ export function makeConstellation(ctx: SceneCtx, count: number): Celestial {
             float flash = since >= 0.0 ? exp(-since*2.6)*1.6 : 0.0;
             float boost = mix(0.28, 1.0, lit) + flash;
             gl_PointSize = clamp(aSize*uProj/max(-mv.z,0.1), 10.0, 180.0) * (1.0 + 0.35*flash);
-            vI = (0.9 + 0.1*sin(uTime*1.7 + position.x)) * boost; }`,
+            vI = (0.9 + 0.1*sin(uTime*1.7 + position.x)) * boost * aB; }`,
         fragmentShader: /* glsl */ `
           uniform float uHover, uFocus; varying float vI;
           void main(){
@@ -103,9 +110,10 @@ export function makeConstellation(ctx: SceneCtx, count: number): Celestial {
     group.add(new THREE.LineSegments(lg, lineMat));
   }
 
-  const anchors = P.map((p) => {
+  const anchors = P.map((p, i) => {
     const a = new THREE.Object3D();
     a.position.copy(p);
+    a.userData.side = i % 2 === 0 ? "t" : "b";
     group.add(a);
     return a;
   });

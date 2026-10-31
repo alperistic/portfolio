@@ -2,7 +2,7 @@ import * as THREE from "three";
 import type { ObjectId } from "@/content/types";
 import { COMMITS } from "@/content/commits";
 import { CONTRIBUTIONS } from "@/content/contributions";
-import { ACCENT, LATE_LINKS, LATE_VIEW, LAYOUT } from "./layout";
+import { ACCENT, INTRO_VIEW, LATE_LINKS, LATE_VIEW, LAYOUT, START_VIEW } from "./layout";
 import { createCompass, type CompassMarker } from "./compass";
 import { makeBinary } from "./objects/binary";
 import { makeCluster } from "./objects/cluster";
@@ -44,8 +44,11 @@ export type UniverseOptions = {
   canvas: HTMLCanvasElement;
   /** Sichtbare Objekte in Tour-Reihenfolge. */
   ids: ObjectId[];
-  /** Anzahl der Werdegang-Stationen bzw. Skills je Gruppe (bestimmt die Sterne). */
-  counts: { stations: number; skills: number[] };
+  /**
+   * Anzahl der Werdegang-Stationen bzw. Skills je Gruppe (bestimmt die Sterne);
+   * `highlight` = Index der Station mit dem hellsten Stern (-1 = keine).
+   */
+  counts: { stations: number; highlight?: number; skills: number[] };
   /** Anzeigenamen für die Kompass-Zeile. */
   names: Partial<Record<ObjectId, string>>;
   centerName: string;
@@ -98,11 +101,15 @@ export type Universe = {
   setSubHover: (index: number | null) => void;
   /** Tippen auf ein Gruppen-Label: Gruppe dauerhaft zeigen bzw. wieder lösen. */
   toggleSub: (index: number) => void;
+  /** Tour-Autopilot im Haufen: diese Gruppe zeigen, solange nichts anderes gewählt ist (`null` = aus). */
+  setSubAuto: (index: number | null) => void;
   /** Listenansicht: Schleife anhalten, GPU schonen. */
   setPaused: (paused: boolean) => void;
   /**
    * Die Titelkarte der Eröffnung steht (true) bzw. ist weg (false). Solange sie
-   * steht, bleibt der Jahresring aus — er liefe sonst durch Namen und Sternenstaub.
+   * steht, bleibt der Jahresring aus — er liefe sonst durch Namen und Sternenstaub —
+   * und die Kamera blickt genau auf die Sonne. Geht die Karte, schwenkt sie in den
+   * Startblick (Platz fürs Titelbild), sofern man sich noch nicht selbst umgesehen hat.
    */
   setOpening: (active: boolean) => void;
   destroy: () => void;
@@ -249,7 +256,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
         },
       });
     },
-    werdegang: () => register("werdegang", makeConstellation(ctx, opts.counts.stations), true),
+    werdegang: () => register("werdegang", makeConstellation(ctx, opts.counts.stations, opts.counts.highlight ?? -1), true),
     offerre: () => register("offerre", makeGalaxy(ctx, posOf("offerre"), 22)),
     pipeline: () => register("pipeline", makeBinary(ctx, posOf("pipeline"))),
     insertcoin: () => register("insertcoin", makeNebula(ctx)),
@@ -298,10 +305,23 @@ export function createUniverse(opts: UniverseOptions): Universe {
 
   /* ---------- Kamera-Zustand ---------- */
   const tmp = new THREE.Vector3();
-  const HOME: Pose = { pos: new THREE.Vector3(), yaw: 0, pitch: 3 * D2R };
-  const basePos = HOME.pos.clone();
-  let yaw = 0;
-  let pitch = HOME.pitch;
+  /** Startblick der Übersicht — hochkant (Mobil) ein anderer als quer (siehe START_VIEW). */
+  const HOME_POS = new THREE.Vector3();
+  const homePose = (): Pose => {
+    const v = mqMobile.matches ? START_VIEW.mobile : START_VIEW.desktop;
+    return { pos: HOME_POS, yaw: v.yaw * D2R, pitch: v.pitch * D2R };
+  };
+  const INTRO_POSE: Pose = { pos: HOME_POS, yaw: INTRO_VIEW.yaw * D2R, pitch: INTRO_VIEW.pitch * D2R };
+  const basePos = HOME_POS.clone();
+  let yaw = homePose().yaw;
+  let pitch = homePose().pitch;
+  /**
+   * Eröffnung: Solange die Titelkarte steht, blickt die Kamera auf die Sonne. Danach
+   * schwenkt sie einmal in den Startblick (`settle`), außer man hat sich schon umgesehen.
+   */
+  let titleCard = false;
+  let settle = false;
+  let userMoved = false;
   let vYaw = 0;
   let vPitch = 0;
   let dragging = false;
@@ -323,14 +343,17 @@ export function createUniverse(opts: UniverseOptions): Universe {
   let hovered: ObjectId | null = null;
   let labelHover: ObjectId | null = null;
   /* Skill-Gruppe im fokussierten Haufen: über Label/Panel (subHover), per Maus
-     über einem Stern (subPick) oder angetippt/angeklickt (subPin, bleibt stehen). */
+     über einem Stern (subPick), angetippt/angeklickt (subPin, bleibt stehen) oder
+     vom Tour-Autopilot der Reihe nach (subAuto, nachrangig). */
   let subHover: number | null = null;
   let subPick: number | null = null;
   let subPin: number | null = null;
+  let subAuto: number | null = null;
   const subParent = () => (focused && OBJ.get(focused)?.childAnchors ? OBJ.get(focused)! : null);
-  const activeSub = () => (subParent() && (!travel || travel.kind === "zoom") ? (subHover ?? subPick ?? subPin) : null);
+  const activeSub = () =>
+    subParent() && (!travel || travel.kind === "zoom") ? (subHover ?? subPick ?? subPin ?? subAuto) : null;
   let warp = 0;
-  let intro: { t0: number; dur: number; p0: number } | null = null;
+  let intro: { t0: number; dur: number; p0: number; y0: number; gy: number; gp: number } | null = null;
   const mouse = new THREE.Vector2();
   const raycaster = new THREE.Raycaster();
   let needPick = false;
@@ -411,6 +434,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     lastT = t;
     yaw -= dx * k;
     pitch = clamp(pitch + dy * k, -PITCH_MAX, PITCH_MAX);
+    if (dragMoved > 6) userMoved = true;
     vYaw = lerp(vYaw, (-dx * k) / dt, 0.35);
     vPitch = lerp(vPitch, (dy * k) / dt, 0.35);
     interacted();
@@ -489,7 +513,8 @@ export function createUniverse(opts: UniverseOptions): Universe {
     const tanV = Math.tan((baseFov() * D2R) / 2);
     const aspect = innerWidth / innerHeight;
     const panel = opts.getPanelSize();
-    const sheet = Math.min(panel.height || innerHeight * 0.5, innerHeight * 0.55) / innerHeight;
+    // Mobil: das Sheet startet auf 44dvh (Peek, siehe .panel) — darüber wird eingerahmt
+    const sheet = Math.min(panel.height || innerHeight * 0.44, innerHeight * 0.44) / innerHeight;
     const pw = (panel.width || 440) / innerWidth;
     let center = o.pos;
     let dist: number;
@@ -604,7 +629,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     needPick = pointerInside;
   };
 
-  const startTravel = (to: Pose, onOpen?: () => void, kind: TravelKind = "trip") => {
+  const startTravel = (to: Pose, onOpen?: () => void, kind: TravelKind = "trip", durOverride?: number) => {
     clearHover();
     const from: Pose = { pos: basePos.clone(), yaw, pitch };
     vYaw = vPitch = 0;
@@ -623,11 +648,12 @@ export function createUniverse(opts: UniverseOptions): Universe {
     }
     const dist = from.pos.distanceTo(target.pos) + Math.abs(wrapPi(target.yaw - yaw)) * 20;
     const dur =
-      kind === "turn"
+      durOverride ??
+      (kind === "turn"
         ? 0.7 + Math.min(Math.abs(target.yaw - yaw) + Math.abs(target.pitch - pitch), Math.PI) * 0.22
         : kind === "zoom"
           ? 1.0
-          : 1.45 + Math.min(dist / 260, 0.35);
+          : 1.45 + Math.min(dist / 260, 0.35));
     travel = { t0: now, dur, from, to: target, dist, onOpen, opened: false, kind };
     canvas.classList.add("traveling");
     opts.onTravel?.(kind, dur);
@@ -647,6 +673,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     }
     focused = id;
     subPin = null;
+    userMoved = true;
     startTravel(arrivalFor(id), () => opts.onPanel(id));
   };
   const home = (face?: ObjectId) => {
@@ -654,7 +681,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     if (!focused && !travel && basePos.lengthSq() < 1e-6 && !o) return;
     focused = null;
     subPin = null;
-    startTravel(o ? facing(HOME.pos, o.pos) : HOME);
+    startTravel(o ? facing(HOME_POS, o.pos) : homePose());
   };
   const reveal = (id: ObjectId) => {
     const o = OBJ.get(id);
@@ -716,12 +743,26 @@ export function createUniverse(opts: UniverseOptions): Universe {
       const t = clamp((now - intro.t0) / intro.dur, 0, 1);
       const e = easeOutCubic(t);
       basePos.set(0, lerp(1.6, 0, e), lerp(26, 0, e));
-      pitch = lerp(intro.p0, HOME.pitch, e);
+      // Ziel: mit Titelkarte genau auf die Sonne, sonst der Startblick. Das Ziel gleitet,
+      // statt zu springen, wenn die Titelkarte mitten in der Fahrt endet (übersprungen).
+      const goal = titleCard ? INTRO_POSE : homePose();
+      const k = 1 - Math.exp(-dt * 2.5);
+      intro.gy += wrapPi(goal.yaw - intro.gy) * k;
+      intro.gp += (goal.pitch - intro.gp) * k;
+      pitch = lerp(intro.p0, intro.gp, e);
+      yaw = lerp(intro.y0, intro.gy, e);
       introFov = lerp(9, 0, e);
       if (t >= 1) {
         intro = null;
-        basePos.copy(HOME.pos);
+        basePos.copy(HOME_POS);
       }
+    }
+    // Nach der Titelkarte einmal weich in den Startblick schwenken
+    if (settle && !titleCard && !intro && !travel && !dragging) {
+      settle = false;
+      const h = homePose();
+      const off = Math.abs(wrapPi(h.yaw - yaw)) + Math.abs(h.pitch - pitch);
+      if (!userMoved && !focused && off > 0.005) startTravel(h, undefined, "turn", 2.2);
     }
 
     if (travel) {
@@ -859,7 +900,8 @@ export function createUniverse(opts: UniverseOptions): Universe {
   /* ---------- Labels: Platzierung ohne Überlappung ----------
      Jedes Frame werden alle sichtbaren Labels nach Wichtigkeit sortiert und der
      Reihe nach gesetzt: erst unter dem Objekt, sonst darüber (Unter-Labels:
-     rechts, sonst links). Kollidiert beides mit schon gesetzten Labels oder der
+     rechts, sonst links; Stationen abwechselnd über/unter ihrem Stern).
+     Unter-Labels sind Inhalt und gehen allen Objekt-Namen vor. Kollidiert beides mit schon gesetzten Labels oder der
      festen UI (Marke, Kompass, Buttons, Panel), wird das Label ausgeblendet —
      ein gehovertes Label setzt sich immer durch. Eine kleine Hysterese
      (bisherige Seite zuerst, beim Wieder-Einblenden mehr Abstand) verhindert
@@ -877,7 +919,9 @@ export function createUniverse(opts: UniverseOptions): Universe {
     return l;
   };
   let obstacles: Box[] = [];
-  let measureIn = 0;
+  /** Letzte Vermessung (s). Nach Zeit statt nach Frames — bei langsamer GPU blieben sonst
+      veraltete Hindernisse (z. B. das Titelbild nach dem Öffnen des Panels) sekundenlang stehen. */
+  let measuredAt = -1;
   const EDGE = 10;
   const measureLabels = () => {
     for (const l of labs.values()) {
@@ -914,8 +958,10 @@ export function createUniverse(opts: UniverseOptions): Universe {
         y0 = p === "b" ? c.yB + 5 : c.yB - 5 - h;
       }
     } else if (p === "b" || p === "t") {
+      // Unter-Labels sitzen am Stern selbst: Abstand für sein Leuchten
+      const g = c.kind === "sub" ? 14 : 0;
       x0 = c.x - w / 2;
-      y0 = p === "b" ? c.yB : c.yT - h;
+      y0 = p === "b" ? c.yB + g : c.yT - g - h;
     } else {
       x0 = p === "r" ? c.x + 12 : c.x - 12 - w;
       y0 = c.yB - 8;
@@ -945,11 +991,10 @@ export function createUniverse(opts: UniverseOptions): Universe {
     camera.getWorldDirection(fwd);
     // Beim bloßen Umdrehen (Tastatur) bleiben die Labels stehen, wie beim Ziehen
     const traveling = (!!travel && travel.kind === "trip") || !!intro;
-    const mobile = mqMobile.matches;
     const act = activeSub();
-    if (--measureIn <= 0) {
+    if (now - measuredAt > 0.4 || measuredAt < 0) {
       measureLabels();
-      measureIn = 30;
+      measuredAt = now;
     }
     cands.length = 0;
     for (const o of OBJ.values()) {
@@ -980,23 +1025,23 @@ export function createUniverse(opts: UniverseOptions): Universe {
       if (focused !== s.parent || traveling) continue;
       // Stationen erscheinen im Takt, in dem sich das Sternbild zeichnet
       if (s.anchor.userData.lit === false) continue;
-      // Mobil ist kein Platz für alle Skills: nur die angetippte Gruppe
-      if (skill && mobile && !mine) continue;
+      // Einzelne Skills nur für die gezeigte Gruppe (Hover, Panel, Antippen, Tour) — alle auf einmal wären zu voll
+      if (skill && !mine) continue;
       s.anchor.getWorldPosition(tmp);
       if (tmp.clone().sub(camera.position).dot(fwd) <= 1) continue;
       tmp.project(camera);
       const x = (tmp.x * 0.5 + 0.5) * W;
       const y = (-tmp.y * 0.5 + 0.5) * H;
       if (x < 0 || x > W || y < 0 || y > H) continue;
-      // Stationen/Gruppen sind Inhalt: vor den Namen anderer Objekte, in Reihenfolge.
-      // Skills dezent darunter; die aktive Gruppe setzt sich mit all ihren Skills durch.
+      // Stationen/Gruppen sind Inhalt: vor allen Objekt-Namen (auch einem gehoverten),
+      // in Reihenfolge. Die Skills der gezeigten Gruppe folgen direkt danach.
       let prio: number;
       let op: number;
       if (skill) {
-        prio = mine ? 800 - s.child! : 300 - s.index * 10 - s.child! * 0.1;
-        op = act == null ? 0.72 : mine ? 1 : 0.3;
+        prio = 1800 - s.child!;
+        op = 1;
       } else {
-        prio = mine ? 900 : 500 - s.index;
+        prio = 2000 + (mine ? 100 : 0) - s.index;
         op = act == null || mine ? 1 : 0.55;
       }
       const side = s.anchor.userData.side as Place | undefined;
@@ -1012,7 +1057,12 @@ export function createUniverse(opts: UniverseOptions): Universe {
       if (!l.w) continue;
       let pref: Place[];
       if (c.kind === "obj") pref = l.place === "t" ? ["t", "b"] : ["b", "t"];
-      else {
+      else if (c.side === "t" || c.side === "b") {
+        // Station: ihre Seite (über/unter dem Stern), sonst die andere, notfalls daneben.
+        // Die zuletzt genutzte Seite zuerst, damit nichts flackert.
+        const opp: Place = c.side === "t" ? "b" : "t";
+        pref = [...new Set<Place>([l.place ?? c.side, c.side, opp, "r", "l"])];
+      } else {
         const first: Place = l.place === "l" || l.place === "r" ? l.place : (c.side ?? "r");
         pref = c.kind === "skill" ? [first, other(first), "b", "t"] : [first, other(first)];
       }
@@ -1039,10 +1089,19 @@ export function createUniverse(opts: UniverseOptions): Universe {
       placed.push(hit.b);
       shown.add(l);
       l.el.style.transform = `translate3d(${hit.x0.toFixed(1)}px,${hit.y0.toFixed(1)}px,0)`;
-      if (c.kind === "obj") l.el.style.setProperty("--lx", `${(-hit.dx).toFixed(1)}px`);
+      // Leitlinie bzw. Marke bleibt am Objekt, auch wenn der Name in den Bildschirm geschoben wird
+      if (c.kind !== "skill") l.el.style.setProperty("--lx", `${(-hit.dx).toFixed(1)}px`);
       if (l.place !== hit.p) {
-        l.el.classList.toggle(c.kind === "obj" ? "up" : "left", hit.p === "t" || hit.p === "l");
-        if (c.kind === "skill") l.el.classList.toggle("below", hit.p === "b" || hit.p === "t");
+        const cl = l.el.classList;
+        if (c.kind === "obj") cl.toggle("up", hit.p === "t");
+        else if (c.kind === "skill") {
+          cl.toggle("left", hit.p === "t" || hit.p === "l");
+          cl.toggle("below", hit.p === "b" || hit.p === "t");
+        } else {
+          cl.toggle("left", hit.p === "l");
+          cl.toggle("above", hit.p === "t");
+          cl.toggle("below", hit.p === "b");
+        }
         l.place = hit.p;
       }
       if (l.op !== c.op) {
@@ -1134,7 +1193,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     camera.fov = baseFov();
     camera.updateProjectionMatrix();
     post.resize(w, h, mqMobile.matches);
-    measureIn = 0;
+    measuredAt = -1;
     if (focused && !travel) {
       const to = (mqMobile.matches && subPin != null && groupPose(subPin)) || arrivalFor(focused);
       basePos.copy(to.pos);
@@ -1144,7 +1203,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
   };
   addEventListener("resize", resize);
   // Labels neu vermessen, sobald die Webfonts da sind
-  document.fonts?.ready.then(() => (measureIn = 0));
+  document.fonts?.ready.then(() => (measuredAt = -1));
 
   /* Adaptive Qualität: Sind die ersten Frames deutlich zu langsam (schwache GPU,
      hohe Pixeldichte), wird die Render-Auflösung schrittweise gesenkt. */
@@ -1197,9 +1256,14 @@ export function createUniverse(opts: UniverseOptions): Universe {
   };
 
   resize();
-  camera.rotation.set(HOME.pitch, 0, 0, "YXZ");
+  camera.rotation.set(pitch, -yaw, 0, "YXZ");
   if (opts.intro !== false && !reduced && !params.has("nointro")) {
-    intro = { t0: 0, dur: 3.4, p0: HOME.pitch + 0.05 };
+    // Bis die UI meldet, ob eine Titelkarte kommt, auf die Sonne zielen
+    titleCard = true;
+    settle = true;
+    yaw = INTRO_POSE.yaw;
+    pitch = INTRO_POSE.pitch;
+    intro = { t0: 0, dur: 3.4, p0: INTRO_POSE.pitch + 0.05, y0: INTRO_POSE.yaw, gy: INTRO_POSE.yaw, gp: INTRO_POSE.pitch };
     // Mit Eröffnungsfahrt startet der Ring unsichtbar; ob eine Titelkarte kommt, meldet die UI.
     ringShow.value = 0;
     ringOn = false;
@@ -1280,6 +1344,9 @@ export function createUniverse(opts: UniverseOptions): Universe {
       labelHover = id;
     },
     reveal,
+    setSubAuto: (i) => {
+      subAuto = i;
+    },
     setSubHover: (i) => {
       subHover = i;
     },
@@ -1287,6 +1354,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     setPaused,
     setOpening: (active) => {
       ringOn = !active;
+      titleCard = active;
     },
     destroy,
   };

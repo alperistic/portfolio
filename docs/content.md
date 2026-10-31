@@ -17,8 +17,9 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 - **Name:** Alper Bulat
 - **Ort:** Karlsruhe
 - **Rolle:** Gründer von Late
-- **Intro (Vorschlag):** Ich baue funktionierende Software — von der Idee bis zum laufenden Betrieb. Mit KI-gestützten Entwicklungs-Workflows, aber mit klarer Verantwortung: Architektur, Verifikation und Entscheidungen liegen bei mir.
-- **Stärke (für Unterzeile/Tour-Intro):** Vage Produktideen in ausgelieferte Software verwandeln — schnell iterieren mit Coding-Agents, ohne die Kontrolle abzugeben.
+- **Intro:** Ich baue und betreibe Softwareprodukte mit Coding-Agents. Architektur, Prüfung und Entscheidungen bleiben bei mir. (Lektorat 31.10.2026, Freigabe durch Alper offen)
+- **Link:** So arbeite ich, Late OS auf GitHub, https://github.com/alperistic/oneos (Lektorat 31.10.2026, Freigabe durch Alper offen)
+- **Stärke:** entfällt auf der Seite (bisher: „Vage Produktideen in ausgelieferte Software verwandeln …“). (Lektorat 31.10.2026, Freigabe durch Alper offen)
 
 ---
 
@@ -26,21 +27,21 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 
 ### offerre — Spiralgalaxie · Late 01 · sichtbar: ja
 
-- **Einzeiler:** KI-gestützte Angebotserstellung für deutsche KMU.
+- **Einzeiler:** Macht aus Kundenanfragen kalkulierte Angebotsentwürfe, für kleine Betriebe in Deutschland. (Freigabe Alper 31.10.2026)
 - **Was es tut:** Aus einer Kundenanfrage in Freitext und der eigenen Preisliste wird automatisch ein kalkulierter Angebotsentwurf. Die KI liest, der Code rechnet, der Betrieb entscheidet und verschickt.
-- **Für wen:** Kleine und mittlere Betriebe, vor allem Handwerk — alles vor der Rechnung, als Ergänzung zu lexoffice/sevDesk.
-- **Status:** Live seit April 2026.
+- **Für wen:** Kleine Dienstleister mit eigener Preisliste, zum Beispiel Reinigung, IT-Wartung oder Handel. Alles vor der Rechnung, neben lexoffice oder sevDesk. (Freigabe Alper 31.10.2026)
+- **Status:** Live · Pilotphase (live seit April 2026, Freigabe Alper 31.10.2026).
 - **Meine Rolle:** Allein gebaut und betrieben — Produkt, Backend, Frontend, Infrastruktur.
-- **Belege:** ~680 Commits seit Livegang · über 150 Pull Requests mit Review-Workflow · 130+ automatisierte Tests · eigene Infrastruktur auf Hetzner (Docker, Caddy).
+- **Belege:** Live unter offerre.de seit April 2026, derzeit Pilotphase · Jede Position nennt ihre Quelle in der Preisliste; fehlt eine Angabe, wird sie markiert statt geraten · KI-Verarbeitung in der EU (Azure OpenAI), Abrechnung über Stripe, Betrieb auf Hetzner. (Freigabe Alper 31.10.2026)
 - **Stack:** Python/FastAPI, SQLAlchemy, Pydantic · React, Vite, Tailwind · PostgreSQL · Azure OpenAI (EU) · Stripe · Docker/Caddy auf Hetzner
 - **Links:** https://offerre.de
-- **Einblick:** Screenshot eines Angebotsentwurfs mit Beispieldaten (Quelle: Vorschau-Bild der offerre-Website, `public/work/offerre-entwurf.webp`). Bildunterschrift: „Ein Entwurf aus einer Anfrage. Jede Position nennt ihre Quelle in der Preisliste; fehlt eine Angabe, wird sie markiert statt geraten. Beispieldaten.“
+- **Einblick:** Screenshot eines Angebotsentwurfs mit Beispieldaten (Quelle: Vorschau-Bild der offerre-Website, `public/work/offerre-entwurf.webp`). Bildunterschrift: „Ein Entwurf aus einer Anfrage, mit Beispieldaten.“ (Lektorat 31.10.2026, Freigabe durch Alper offen)
 - **Framing-Regel:** Keine Kunden-, Nutzer- oder Umsatzzahlen behaupten (es gibt keine öffentlichen). Keine internen Vertriebsdetails.
 
 ### insertcoin.lol — Sternentstehungs-Nebel · Late 02 · sichtbar: ja
 
 - **Einzeiler:** Eine Arcade, in der Startups gegeneinander antreten.
-- **Was es tut:** Founder treten mit ihren Produkten 1:1 in KI-bewerteten Matches an; jeder Sieg baut einen öffentlichen Win/Loss-Rekord auf. Die Wertung ist deterministisch im Code, nicht nach Gefühl.
+- **Was es tut:** Founder treten mit ihren Produkten 1:1 an. Die KI bewertet die Kriterien, der Code rechnet daraus das Ergebnis; jeder Sieg baut einen öffentlichen Win/Loss-Rekord auf. (Freigabe Alper 31.10.2026)
 - **Für wen:** Indie-Founder, die Sichtbarkeit wollen statt eines weiteren Verzeichnis-Eintrags.
 - **Status:** Live (geprüft am 11.10.2026: Matches und Rangliste laufen öffentlich).
 - **Meine Rolle:** Konzept, Bau, Betrieb.
@@ -51,21 +52,22 @@ Direkt, ruhig, selbstbewusst ohne Superlative. Belegbares statt Behauptungen (�
 ### Evidence-First Pipeline — Doppelstern · Late 03 · sichtbar: ja
 
 - **Einzeiler:** Dokumentanalyse mit KI, bei der jede Aussage ihren Beleg mitbringt.
-- **Was es tut:** Das Sprachmodell findet, wo in einem langen Vertrag etwas steht. Jeder extrahierte Wert kommt mit Seitenzahl und wörtlichem Zitat und wird gegen den Quelltext geprüft, bevor er erscheint. Was eine Regel entscheiden kann, entscheidet der Code. Das Ergebnis ist ein Vorschlag zur Prüfung, nie eine Entscheidung.
+- **Was es tut:** Das Modell findet die Stelle im Vertrag, der Code prüft das Zitat gegen die Seite und ordnet Beträge, Fristen und Parteien zu. Heraus kommt ein Vorschlag zur Prüfung, keine Entscheidung. (Lektorat 31.10.2026, Freigabe durch Alper offen)
 - **Für wen:** Dokumenten-Workflows in Berufen mit Haftung: Kanzleien, Steuerberatung, Hausverwaltung.
 - **Status:** Open Source.
 - **Meine Rolle:** Konzept und Bau.
-- **Belege:** Zitate werden gegen die zitierte Seite geprüft, die Trefferquote steht sichtbar in der Oberfläche · Beträge, Fristen und Parteien ordnet Python-Code zu, nicht das Modell · Uploads bleiben im Speicher, das Audit-Log speichert Hashes statt Dokumenttext.
+- **Belege:** Zitate werden gegen die zitierte Seite geprüft, die Trefferquote steht sichtbar in der Oberfläche · Beträge, Fristen und Parteien ordnet Python-Code zu, nicht das Modell · Uploads bleiben im Speicher, das Audit-Log speichert Hashes statt Dokumenttext · MIT-Lizenz, läuft lokal im Demo-Modus ohne Zugangsdaten. (Lektorat 31.10.2026, Freigabe durch Alper offen)
 - **Stack:** Python, Azure OpenAI, Pydantic, rapidfuzz, Streamlit
 - **Links:** https://github.com/alperistic/evidence-first-doc-pipeline
-- **Einblick:** Ergebnisansicht mit Beispiel-Mietvertrag aus dem README-Screenshot (`public/work/pipeline-belege.webp`). Bildunterschrift: „Ergebnis für einen Beispielvertrag: Jede Angabe steht mit Seitenzahl und wörtlichem Zitat da.“
+- **Einblick:** Ergebnisansicht mit Beispiel-Mietvertrag aus dem README-Screenshot (`public/work/pipeline-belege.webp`). Bildunterschrift: „Ergebnis für einen Beispiel-Mietvertrag.“ (Lektorat 31.10.2026, Freigabe durch Alper offen)
 - **Quelle:** README des öffentlichen Repos.
 
 ### Late — Kosmisches Netz · Dachmarke · sichtbar: ja
 
-- **Einzeiler:** Das Haus, unter dem ich Software baue.
-- **Was es ist:** Late ist meine Firma: ein kleiner menschlicher Kern, KI-Agenten als operatives Team, organisiert über eine Bibliothek aus Fähigkeiten statt über Rollen. offerre, insertcoin.lol und die Evidence-First Pipeline sind darunter entstanden.
-- **Links:** Website, https://late-systems.vercel.app · Late OS, https://github.com/alperistic/oneos
+- **Bezeichnung im Himmel:** Firma (statt Dachmarke, kein Tag mehr). (Lektorat 31.10.2026, Freigabe durch Alper offen)
+- **Einzeiler:** Meine Firma. Darunter entstehen offerre, insertcoin.lol und die Evidence-First Pipeline. (Lektorat 31.10.2026, Freigabe durch Alper offen)
+- **Was es ist:** Ich bin der menschliche Kern, KI-Agenten sind das operative Team, organisiert über Skills statt Rollen. Wie das aufgebaut ist, liegt offen in Late OS. (Freigabe Alper 31.10.2026)
+- **Links:** Website, https://late-systems.vercel.app · Late OS, „Late OS auf GitHub“, https://github.com/alperistic/oneos (Lektorat 31.10.2026, Freigabe durch Alper offen)
 - **Framing-Regel:** Late ist die Dachmarke (Entscheidung 11.10.2026), Alper die Person dahinter. Kein Firmen-Pitch, keine internen Zahlen oder Prozessdetails. Visuell: verbindet die drei Projekte.
 
 ---
@@ -81,10 +83,10 @@ Um offerre, insertcoin.lol und die Evidence-First Pipeline sitzt je Commit ein k
 
 ## Jahresring — GitHub-Beiträge um die Sonne
 
-Um Alpers Sonne liegt sein letztes Jahr auf GitHub als Ring aus Lichtpunkten: die Wochen im Umlauf, die sieben Wochentage als Spuren, ein Punkt je Tag, die Helligkeit folgt der Zahl der Beiträge (freigegeben von Alper am 31.10.2026). Daten: nur Datum und Anzahl je Tag aus dem GitHub-Beitragskalender, private Repos nur als Anzahl, erzeugt mit `scripts/contribution-ring.mjs` nach `content/contributions.ts`. Im Alper-Panel steht nur der Erklärsatz, keine Zahl.
+Um Alpers Sonne liegt sein vergangenes Jahr auf GitHub als Ring aus Lichtpunkten: die Wochen im Umlauf, die sieben Wochentage als Spuren, ein Punkt je Tag, die Helligkeit folgt der Zahl der Beiträge (freigegeben von Alper am 31.10.2026). Daten: nur Datum und Anzahl je Tag aus dem GitHub-Beitragskalender, private Repos nur als Anzahl, erzeugt mit `scripts/contribution-ring.mjs` nach `content/contributions.ts`. Im Alper-Panel steht nur der Erklärsatz, keine Zahl. (Lektorat 31.10.2026, Freigabe durch Alper offen)
 
-- **DE:** Der Ring aus Lichtpunkten um die Sonne ist mein letztes Jahr auf GitHub: jeder Punkt ein Tag, je heller, desto mehr Beiträge.
-- **EN:** The ring of points around the sun is my last year on GitHub: one point per day, brighter means more contributions.
+- **DE:** Der Ring aus Lichtpunkten um die Sonne ist mein vergangenes Jahr auf GitHub: jeder Punkt ein Tag, je heller, desto mehr Beiträge.
+- **EN:** The ring of points around the sun is my past year on GitHub: one point per day, brighter means more contributions.
 
 ---
 
@@ -96,7 +98,7 @@ Jede Station ein Stern. Neue Stationen = neuer Eintrag in der Datenstruktur, das
 |---|---|---|
 | 2020 | Abitur | ja |
 | 10/2020 – 02/2021 | Praktikum Software-/Webentwicklung, technicsatelier GmbH, Stuttgart — Frontend-Bausteine mit HTML, CSS, JavaScript, TypeScript | ja |
-| seit 04/2026 | Gründer von Late (selbstständig) — offerre live | ja |
+| seit 04/2026 | Gründer von Late — offerre, insertcoin.lol (Lektorat 31.10.2026, Freigabe durch Alper offen) | ja |
 | seit 09/2026 | Werkstudent – Fachkraft im E-Commerce (ohne Arbeitgebernamen) | ja |
 
 Keine Noten, keine Schulnamen-Details darüber hinaus, keine Begründungen für Wechsel.
@@ -107,23 +109,25 @@ Keine Noten, keine Schulnamen-Details darüber hinaus, keine Begründungen für 
 
 Jede Gruppe ein heller Stern im Haufen; Einträge erscheinen beim Hover/Fokus. Gruppen = Fähigkeiten, Einträge = Belege/Werkzeuge (Copy-Pass 28.09.2026). Labels kurz halten, sie schweben im Himmel.
 
-- **Lead:** Was ich liefere — und womit.
-- **Produkte ausliefern:** Von der Idee bis zum Betrieb, Produkt-Scoping, Review-Workflow, Automatisierte Tests, Stripe-Billing, Auth
-- **KI im Produkt:** LLM-Features in Produktion, Extraktion aus Freitext, Deterministische Logik im Code · Azure OpenAI (EU), Anthropic Claude, Vercel AI Gateway
-- **Mit Coding-Agents bauen:** Claude Code, Codex, Agentische Workflows, Specs & Verifikation
-- **Web & Frontend:** TypeScript, React, Next.js, Vite, three.js, Tailwind CSS
-- **Backend & Daten:** Python, FastAPI, SQLAlchemy, PostgreSQL, Supabase, XRechnung & ZUGFeRD, PDF-Verarbeitung
-- **Betrieb & Datenschutz:** Hetzner, Docker, Caddy, Vercel, Cloudflare, DSGVO & EU-Datenhaltung, Datenschutzfreundliche Analytics
-- **Sprachen:** Deutsch (Muttersprache), Englisch (C1/C2), Türkisch
+Reihenfolge der Gruppen wie unten, „Mit Coding-Agents bauen“ zuerst; gestrichen: „Agentische Workflows“ und „Von der Idee bis zum Betrieb“; kein Lead mehr (bisher: „Was ich liefere — und womit.“). Einträge am 31.10.2026 gegen die Repos geprüft und von Alper freigegeben; gestrichen: XRechnung & ZUGFeRD (nur im abgeschalteten Viewer), Vercel AI Gateway (Produktion lief auf Azure/Anthropic), Produkt-Scoping (kein Beleg). (Freigabe Alper 31.10.2026)
+
+- **Mit Coding-Agents bauen:** Claude Code, Codex-Review, Specs & Verifikation, GitHub Actions CI
+- **Produkte ausliefern:** Review-Workflow, pytest, Vitest, Playwright, Alembic-Migrationen, Stripe, Auth (JWT, Rollen, Einladungen)
+- **KI im Produkt:** LLM-Features in Produktion, Extraktion aus Freitext, Zitat-Prüfung gegen die Quelle, Deterministische Logik im Code, Azure OpenAI (EU), Anthropic Claude
+- **Web & Frontend:** TypeScript, React, Next.js, Vite, Tailwind CSS, three.js, TanStack Query, Radix, zod
+- **Backend & Daten:** Python, FastAPI, Pydantic, SQLAlchemy, PostgreSQL, Supabase (RLS), PDF erzeugen und lesen (WeasyPrint, pypdf)
+- **Betrieb & Datenschutz:** Hetzner, Docker Compose, Caddy, Vercel, Cloudflare Workers & R2, Sentry, PostHog (EU), restic-Backups, DSGVO & EU-Datenhaltung
+- **Sprachen:** Deutsch (Muttersprache), Englisch (C2), Türkisch
 
 ---
 
 ## Kontakt — Pulsar
 
+- **X:** https://x.com/alperistic (Linktext „@alperistic“, steht als erster Link) (Lektorat 31.10.2026, Freigabe durch Alper offen)
 - **GitHub:** https://github.com/alperistic
-- **E-Mail:** alper@offerre.de (Übergang, bis eine Adresse auf eigener Domain steht).
+- **E-Mail:** hello@late.systems (Late-Adresse, Freigabe Alper 31.10.2026).
 - **Kein LinkedIn** (bewusste Entscheidung).
-- **CTA-Vorschlag:** „Du baust etwas und brauchst jemanden, der es wirklich ausliefert? Schreib mir."
+- **CTA:** „Was ich baue und wie, schreibe ich auf X. Für alles andere: E-Mail.“ (Freigabe Alper 31.10.2026)
 
 ---
 
