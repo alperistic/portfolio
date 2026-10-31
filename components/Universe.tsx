@@ -109,6 +109,20 @@ export default function Universe({ content, langs }: { content: PublicContent; l
   const [phase, setPhase] = useState<"title" | "done" | null>(null);
   /** Titelbild eingeblendet (nach der Eröffnung). */
   const [titleIn, setTitleIn] = useState(false);
+  /**
+   * Titelbild weg — für diesen Seitenaufruf endgültig. Es gehört nur zum Ankommen:
+   * Umsehen (Ziehen), ein Objekt wählen, Direktlink oder Listenansicht beenden es.
+   */
+  const [titleDismissed, setTitleDismissed] = useState(false);
+  // Selbst gewählte Liste (auch `?view=list` beim Laden): Titelbild gar nicht erst zeigen
+  if (view?.view === "list" && view.why === "user" && !titleDismissed) setTitleDismissed(true);
+  const titleDismissedRef = useRef(false);
+  useEffect(() => {
+    titleDismissedRef.current = titleDismissed;
+  }, [titleDismissed]);
+  const dismissTitle = useCallback(() => setTitleDismissed(true), []);
+  /** Objekt im Fokus (Anflug oder Panel offen) — `null` = freier Himmel. */
+  const [focusedId, setFocusedId] = useState<ObjectId | null>(null);
   /** Tour-Autopilot aktiv. */
   const [auto, setAuto] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
@@ -126,6 +140,8 @@ export default function Universe({ content, langs }: { content: PublicContent; l
 
   const focus = useCallback((id: ObjectId) => {
     focusedRef.current = id;
+    setFocusedId(id);
+    dismissTitle();
     setHint(false);
     // Panel-Inhalt sofort rendern, damit die Engine seine Größe messen kann.
     flushSync(() => {
@@ -135,12 +151,13 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     if (panelRef.current) panelRef.current.scrollTop = 0;
     api.current?.focus(id);
     writeHash(id);
-  }, [showPanel]);
+  }, [showPanel, dismissTitle]);
 
   /** Zurück zur Übersicht. Per Tastatur blickt die Kamera danach auf das Objekt, von dem man kam. */
   const home = useCallback((kbd = false) => {
     const from = focusedRef.current;
     focusedRef.current = null;
+    setFocusedId(null);
     setAuto(false);
     showPanel(false);
     api.current?.setSubHover(null);
@@ -201,7 +218,7 @@ export default function Universe({ content, langs }: { content: PublicContent; l
             : null,
           // Feste UI, die Labels nicht überdecken sollen (Titelbild, Listen-Knopf, Kompass, …)
           obstacles: () => [
-            panelOpenRef.current ? null : titleBoxRef.current,
+            panelOpenRef.current || titleDismissedRef.current ? null : titleBoxRef.current,
             toListRef.current,
             compassRef.current,
             langRef.current,
@@ -299,6 +316,35 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     addEventListener("hashchange", syncHash);
     return () => removeEventListener("hashchange", syncHash);
   }, [syncHash]);
+
+  // Umsehen beendet das Titelbild: erst ab 12 px Weg (ein bloßer Klick zählt nicht).
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!live || !c) return;
+    let start: { x: number; y: number } | null = null;
+    const onDown = (e: PointerEvent) => {
+      start = { x: e.clientX, y: e.clientY };
+    };
+    const onMove = (e: PointerEvent) => {
+      if (start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 12) {
+        start = null;
+        dismissTitle();
+      }
+    };
+    const onUp = () => {
+      start = null;
+    };
+    c.addEventListener("pointerdown", onDown);
+    c.addEventListener("pointermove", onMove);
+    c.addEventListener("pointerup", onUp);
+    c.addEventListener("pointercancel", onUp);
+    return () => {
+      c.removeEventListener("pointerdown", onDown);
+      c.removeEventListener("pointermove", onMove);
+      c.removeEventListener("pointerup", onUp);
+      c.removeEventListener("pointercancel", onUp);
+    };
+  }, [live, dismissTitle]);
 
   // Listenansicht: Szene anhalten (GPU schonen), beim Zurückkehren weiterlaufen lassen.
   // Zurück im Himmel: Hat man in der Liste einen anderen Abschnitt angesprungen,
@@ -455,7 +501,7 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         tourRef={tourRef}
         content={content}
         shown={titleIn}
-        hidden={panelOpen}
+        gone={titleDismissed}
         onFocus={focus}
         onHover={(id) => api.current?.setLabelHover(id ?? kbdLabel.current)}
         onTour={startTour}
@@ -485,6 +531,8 @@ export default function Universe({ content, langs }: { content: PublicContent; l
                 if (!isKeyboardFocus(e.currentTarget)) return;
                 kbdLabel.current = id;
                 api.current?.setLabelHover(id);
+                // Die Kamera dreht sich zum Label: Umsehen per Tastatur
+                dismissTitle();
                 api.current?.reveal(id);
               }}
               onBlur={() => {
@@ -569,6 +617,18 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         active={panelId && panelOpen ? panelId : null}
         onFocus={focus}
         onHover={(id) => api.current?.setLabelHover(id ?? kbdLabel.current)}
+        before={
+          titleDismissed && (
+            <button
+              type="button"
+              className={`tour-mini${!focusedId && !auto ? " on" : ""}`}
+              inert={!!focusedId || auto}
+              onClick={startTour}
+            >
+              {ui.tourStart}
+            </button>
+          )
+        }
       />
 
       <Panel

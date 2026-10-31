@@ -422,19 +422,10 @@ a {
 .title.in :is(a, button) {
   pointer-events: auto;
 }
-/* Beim Lesen (Panel offen) weg, beim Umsehen (Ziehen) zurückgenommen */
-.sky:not(.panel-open):has(.gl.dragging) .title.in {
-  opacity: 0.35;
-  transition: opacity 0.3s ease 0.12s;
-}
-.panel-open .title,
-.panel-open .title.in {
-  opacity: 0;
-  translate: 0 8px;
-  transition-duration: 0.35s;
-}
-.panel-open .title :is(a, button) {
-  pointer-events: none;
+/* Nur fürs Ankommen: Nach der ersten Interaktion fällt `.in` weg (350 ms Ausblenden,
+   8 px nach unten — die Einblendung rückwärts), danach ist es ganz aus dem Baum. */
+.title[hidden] {
+  display: none;
 }
 .t-name {
   margin: 0;
@@ -663,11 +654,48 @@ a {
   pointer-events: none;
 }
 .legend-btn,
-.legend-list {
+.legend-list,
+.tour-mini.on {
   pointer-events: auto;
 }
-html[data-intro="title"] .legend :is(.legend-btn, .legend-list),
-.panel-open .legend :is(.legend-btn, .legend-list) {
+/* Untere Leiste rechts: [Tour starten] [Legende 08] */
+.legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+/* Tour vom freien Himmel aus (das Titelbild ist dann weg): leise wie „Legende“,
+   nur ein kleiner Gold-Punkt als Akzent — kein Rahmen, keine Fläche */
+.tour-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 4px;
+  font: 400 var(--t-meta) / 1 var(--sans);
+  letter-spacing: 0.02em;
+  color: var(--chrome-c);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.5s ease,
+    color 0.2s;
+}
+.tour-mini::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.85;
+}
+.tour-mini.on {
+  opacity: 1;
+}
+.tour-mini:hover {
+  color: var(--fg);
+}
+html[data-intro="title"] .legend :is(.legend-btn, .legend-list, .tour-mini),
+.panel-open .legend :is(.legend-btn, .legend-list, .tour-mini) {
   pointer-events: none;
 }
 .legend-btn {
@@ -770,6 +798,8 @@ html[data-intro="title"] .legend :is(.legend-btn, .legend-list),
    weichem Schatten zur Szene hin. Sora für alles Lesbare, Plex Mono nur für Daten. */
 .panel {
   --pad-x: clamp(32px, 3vw, 56px);
+  /* Höhe des Verlaufs über der Navigation (.p-nav::before) */
+  --nav-fade: 40px;
   --panel-bg: rgba(6, 8, 14, 0.94);
   position: fixed;
   top: 0;
@@ -850,8 +880,12 @@ html[data-intro="title"] .legend :is(.legend-btn, .legend-list),
   font: 400 var(--t-meta) / 1.55 var(--sans);
   color: var(--fg-3);
 }
+/* Unten Platz für den Verlauf der klebenden Navigation plus 24 px Luft: Sonst endet
+   der letzte Block (Commit- bzw. Ring-Hinweis) beim Scrollen direkt an der
+   Navigation und liegt unter dem Verlauf, also halb ausgeblendet. */
 .p-body {
   margin-top: 26px;
+  padding-bottom: calc(var(--nav-fade) + 24px);
 }
 .p-body p {
   margin: 0 0 16px;
@@ -1312,7 +1346,7 @@ html[data-intro="title"] .legend :is(.legend-btn, .legend-list),
   left: 0;
   right: 0;
   bottom: 100%;
-  height: 40px;
+  height: var(--nav-fade);
   background: linear-gradient(rgba(6, 8, 14, 0), rgb(6, 8, 14));
   pointer-events: none;
 }
@@ -2160,6 +2194,12 @@ html[data-intro="done"] .legend {
   .legend-btn {
     padding: 12px 6px 12px 8px;
   }
+  .legend-bar {
+    gap: 6px;
+  }
+  .tour-mini {
+    padding: 12px 6px;
+  }
   .legend-list {
     min-width: 250px;
     border: 1px solid var(--line);
@@ -2299,8 +2339,8 @@ html[data-intro="done"] .legend {
   .p-nav {
     padding: 34px var(--pad-x) calc(16px + env(safe-area-inset-bottom));
   }
-  .p-nav::before {
-    height: 32px;
+  .panel {
+    --nav-fade: 32px;
   }
   /* Kontakt: im kleinen Sheet nicht künstlich mittig */
   .panel[data-id="kontakt"] .p-head {

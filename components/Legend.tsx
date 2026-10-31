@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type Ref } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from "react";
 import type { ObjectId, PublicContent } from "@/content";
 import { Glyph } from "./Glyph";
 
@@ -12,13 +12,15 @@ type Props = {
   onFocus: (id: ObjectId) => void;
   /** Hover über einem Eintrag hebt das Objekt im Himmel hervor. */
   onHover: (id: ObjectId | null) => void;
+  /** Steht in der Leiste links neben dem Legende-Knopf (z. B. „Tour starten“ im freien Himmel). */
+  before?: ReactNode;
 };
 
 /**
  * Legende (Idee aus Prototyp A): alle Objekte zum Direktanspringen.
  * Eingeklappt ist sie nur ein kleiner Knopf, damit der Himmel ruhig bleibt.
  */
-export function Legend({ ref, content, active, onFocus, onHover }: Props) {
+export function Legend({ ref, content, active, onFocus, onHover, before }: Props) {
   const { ui, tourOrder, objects } = content;
   const [open, setOpen] = useState(false);
   const listId = useId();
@@ -76,22 +78,25 @@ export function Legend({ ref, content, active, onFocus, onHover }: Props) {
           );
         })}
       </ul>
-      <button
-        type="button"
-        className="legend-btn"
-        aria-expanded={open}
-        aria-controls={listId}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
-          <circle cx="3" cy="3.5" r="1.2" fill="currentColor" stroke="none" />
-          <circle cx="3" cy="7" r="1.2" fill="currentColor" stroke="none" />
-          <circle cx="3" cy="10.5" r="1.2" fill="currentColor" stroke="none" />
-          <path d="M6.5 3.5h6M6.5 7h6M6.5 10.5h6" opacity=".6" />
-        </svg>
-        <span className="legend-l">{ui.legend}</span>
-        <span className="legend-n">{String(tourOrder.length).padStart(2, "0")}</span>
-      </button>
+      <div className="legend-bar">
+        {before}
+        <button
+          type="button"
+          className="legend-btn"
+          aria-expanded={open}
+          aria-controls={listId}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
+            <circle cx="3" cy="3.5" r="1.2" fill="currentColor" stroke="none" />
+            <circle cx="3" cy="7" r="1.2" fill="currentColor" stroke="none" />
+            <circle cx="3" cy="10.5" r="1.2" fill="currentColor" stroke="none" />
+            <path d="M6.5 3.5h6M6.5 7h6M6.5 10.5h6" opacity=".6" />
+          </svg>
+          <span className="legend-l">{ui.legend}</span>
+          <span className="legend-n">{String(tourOrder.length).padStart(2, "0")}</span>
+        </button>
+      </div>
     </nav>
   );
 }
