@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import type { CelestialContent, Fact, Locale } from "@/content";
 import { Shot } from "./Shot";
 
@@ -36,7 +36,7 @@ type BodyProps = {
   locale: Locale;
   /** Hover über einer Skill-Gruppe (Panel): hebt ihren Stern im Himmel hervor. */
   onGroupHover?: (index: number | null) => void;
-  /** Panel geöffnet: Zahlen in Belegen zählen hoch (Listenansicht: nie). */
+  /** Panel geöffnet: Einblick (Clip) läuft (Listenansicht: nie). */
   animate?: boolean;
   /** Beschriftungen für den Einblick (vergrößern/schließen). */
   shotLabels: { enlarge: string; shrink: string };
@@ -46,7 +46,7 @@ export function ObjectBody({ o, locale, onGroupHover, animate, shotLabels }: Bod
   const [qo, qc] = QUOTES[locale];
   return (
     <>
-      <p className="lead">{o.lead}</p>
+      {o.lead && <p className="lead">{o.lead}</p>}
       {o.media && <Shot m={o.media} labels={shotLabels} active={animate} />}
       {o.body?.map((p) => <p key={p}>{p}</p>)}
       {o.quote && (
@@ -65,7 +65,7 @@ export function ObjectBody({ o, locale, onGroupHover, animate, shotLabels }: Bod
             <div key={f.label}>
               <dt>{f.label}</dt>
               <dd>
-                <FactValue f={f} animate={animate} />
+                <FactValue f={f} />
               </dd>
             </div>
           ))}
@@ -135,72 +135,13 @@ export function ObjectBody({ o, locale, onGroupHover, animate, shotLabels }: Bod
   );
 }
 
-function FactValue({ f, animate }: { f: Fact; animate?: boolean }) {
+function FactValue({ f }: { f: Fact }) {
   if (!Array.isArray(f.value)) return <>{f.value}</>;
-  const chips = f.display === "chips";
   return (
-    <ul className={chips ? "chips" : "items"}>
-      {f.value.map((v, i) => (
-        <li key={v}>{animate !== undefined && !chips && /\d\d/.test(v) ? <CountText text={v} run={animate} delay={750 + i * 120} /> : v}</li>
+    <ul className={f.display === "chips" ? "chips" : "items"}>
+      {f.value.map((v) => (
+        <li key={v}>{v}</li>
       ))}
     </ul>
-  );
-}
-
-/**
- * Text mit hochzählenden Zahlen („~680 Commits“ zählt von 0 auf 680), sobald
- * `run` wahr wird. Nur mehrstellige Zahlen zählen; Breite je Zahl ist fest
- * (Ziffern mit fester Breite), damit nichts springt. Screenreader lesen den
- * fertigen Text, die Animation ist für sie ausgeblendet.
- */
-function CountText({ text, run, delay }: { text: string; run: boolean; delay: number }) {
-  const parts = text.split(/(\d+)/);
-  const nums = useRef<(HTMLSpanElement | null)[]>([]);
-  useEffect(() => {
-    if (!run || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const els = nums.current;
-    const target = parts.map((p, i) => (i % 2 && p.length > 1 ? Number(p) : NaN));
-    const put = (k: number) =>
-      els.forEach((el, i) => {
-        if (el && !Number.isNaN(target[i])) el.textContent = String(Math.round(target[i] * k));
-      });
-    put(0);
-    const t0 = performance.now() + delay;
-    let raf = 0;
-    const tick = (t: number) => {
-      const k = Math.min(Math.max((t - t0) / 1400, 0), 1);
-      put(1 - Math.pow(1 - k, 4));
-      if (k < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => {
-      cancelAnimationFrame(raf);
-      put(1);
-    };
-    // parts hängt nur an text
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [run, text, delay]);
-  return (
-    <>
-      <span className="sr">{text}</span>
-      <span aria-hidden="true">
-        {parts.map((p, i) =>
-          i % 2 ? (
-            <span
-              key={i}
-              className="num"
-              ref={(el) => {
-                nums.current[i] = el;
-              }}
-              style={{ minWidth: `${p.length}ch` }}
-            >
-              {p}
-            </span>
-          ) : (
-            p
-          ),
-        )}
-      </span>
-    </>
   );
 }

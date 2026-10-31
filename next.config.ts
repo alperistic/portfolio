@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  // Eigene 404 (app/global-not-found.tsx): nötig, weil es zwei Root-Layouts gibt.
+  experimental: {
+    globalNotFound: true,
+  },
 };
 
 export default nextConfig;

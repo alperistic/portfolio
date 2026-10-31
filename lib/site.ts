@@ -46,3 +46,29 @@ export function metadataFor(locale: Locale): Metadata {
     },
   };
 }
+
+/**
+ * Strukturierte Daten (schema.org `Person`) für eine Sprache, als JSON-String
+ * für `<script type="application/ld+json">`. Nur Name, Rolle, Firma, Ort und
+ * öffentliche Profile — alles aus dem Content, nichts darüber hinaus.
+ */
+export function personJsonLd(locale: Locale): string {
+  const { brand, objects } = getPublicContent(locale);
+  const href = (links: { label: string; href?: string }[] | undefined, label: string) =>
+    links?.find((l) => l.label === label)?.href;
+  const github = href(objects.kontakt?.links, "GitHub");
+  const late = href(objects.late?.links, "Website");
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: brand.name,
+    url: new URL(pathOf(locale), siteUrl()).href,
+    // „Gründer von Late · Karlsruhe“ → „Gründer von Late“
+    jobTitle: brand.subline.split("·")[0].trim(),
+    worksFor: { "@type": "Organization", name: "Late", ...(late && { url: late }) },
+    sameAs: [github, brand.follow.href].filter(Boolean),
+    address: { "@type": "PostalAddress", addressLocality: "Karlsruhe", addressCountry: "DE" },
+  };
+  // `<` maskieren: der String steht roh in einem <script>-Tag
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}

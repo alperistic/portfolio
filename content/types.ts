@@ -89,6 +89,7 @@ export type CelestialContent = {
   kicker: string;
   title: string;
   tags: Tag[];
+  /** Leer (`""`) = kein Lead-Absatz. */
   lead: string;
   /** Einblick direkt unter dem Lead. */
   media?: Media;
@@ -105,7 +106,12 @@ export type Locale = "de" | "en";
 export type SiteContent = {
   locale: Locale;
   meta: { title: string; description: string };
-  brand: { name: string; subline: string };
+  brand: {
+    name: string;
+    subline: string;
+    /** Folgen-Hinweis (X), z. B. für Kopfzeile und JSON-LD `sameAs`. */
+    follow: { label: string; handle: string; href: string };
+  };
   ui: {
     loading: string;
     dragHint: string;

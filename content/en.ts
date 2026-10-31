@@ -1,7 +1,7 @@
 import type { SiteContent } from "./types";
 
 /**
- * English content — translated from docs/content.md (as of 24.09.2026).
+ * English content — translated from docs/content.md (as of 31.10.2026).
  * Same structure and the same `visible` flags as de.ts. Same tone: direct,
  * calm, no superlatives, nothing added.
  * Status: translation still to be approved by Alper.
@@ -11,17 +11,18 @@ export const en: SiteContent = {
   meta: {
     title: "Alper Bulat — Founder of Late",
     description:
-      "Alper Bulat, founder of Late, based in Karlsruhe. I build working software — from the idea to running it in production.",
+      "Alper Bulat, founder of Late in Karlsruhe, builds software products with coding agents: offerre, insertcoin.lol and the open-source Evidence-First Pipeline.",
   },
   brand: {
     name: "Alper Bulat",
     subline: "Founder of Late · Karlsruhe",
+    follow: { label: "Follow on X", handle: "@alperistic", href: "https://x.com/alperistic" },
   },
   ui: {
     loading: "Calibrating sky",
     dragHint: "Drag to look around",
     tourStart: "Start tour",
-    back: "← Back to Alper",
+    back: "← Overview",
     backFromCenter: "← Overview",
     next: "Next star",
     restart: "Start over",
@@ -29,31 +30,31 @@ export const en: SiteContent = {
     center: "Center",
     lookAt: "View {name}",
     legend: "Legend",
-    tourStep: "Stop",
+    tourStep: "Step",
     canvasLabel: "Sky, drag to look around",
     langGroup: "Language",
     langName: "English",
     listView: "List view",
     skyView: "Back to the sky",
-    keysHint: "Tab selects an object, Enter flies there, left/right arrow follows the tour, Esc takes you back.",
+    keysHint: "Tab selects an object, Enter flies there, ←/→ move through the tour, Esc takes you back.",
     contents: "Contents",
     fallback: {
-      webgl: "This device can't display the 3D sky. Here is all the content as a list.",
-      weak: "The 3D sky would stutter on this device. Here is all the content as a list.",
-      slow: "The 3D sky didn't run smoothly on this device. Here is all the content as a list.",
-      lost: "The graphics stopped working. Here is all the content as a list.",
-      load: "The sky couldn't be loaded. Here is all the content as a list.",
+      webgl: "This device can't display the 3D sky. Everything is here as a list.",
+      weak: "The 3D sky would stutter on this device. Everything is here as a list.",
+      slow: "The 3D sky didn't run smoothly on this device. Everything is here as a list.",
+      lost: "The graphics stopped working. Everything is here as a list.",
+      load: "The sky couldn't be loaded. Everything is here as a list.",
     },
     tryAnyway: "Load the sky anyway",
     skipIntro: "Skip intro",
     sound: "Sound",
     autoPlay: "Play tour automatically",
     autoPause: "Pause tour",
-    enlarge: "Enlarge preview",
-    shrink: "Close preview",
+    enlarge: "Enlarge",
+    shrink: "Close",
     commitNote: "Every small point of light around it is a commit: oldest inside, newest outside.",
     ringNote:
-      "The ring of points around the sun is my last year on GitHub: one point per day, brighter means more contributions.",
+      "The ring of points around the sun is my past year on GitHub: one point per day, brighter means more contributions.",
   },
   tourOrder: [
     "alper",
@@ -71,16 +72,11 @@ export const en: SiteContent = {
       visible: "ja",
       label: "Alper",
       meta: "Center",
-      kicker: "The central star",
+      kicker: "Founder of Late · Karlsruhe",
       title: "Alper Bulat",
-      tags: [
-        { text: "Founder of Late", color: "#f1c98e" },
-        { text: "Karlsruhe" },
-      ],
-      lead: "I build working software — from the idea to running it in production. With AI-assisted development workflows, but with clear accountability: architecture, verification and decisions stay with me.",
-      body: [
-        "Turning vague product ideas into shipped software — iterating fast with coding agents without giving up control.",
-      ],
+      tags: [],
+      lead: "I build and run software products with coding agents. Architecture, review and decisions stay with me.",
+      links: [{ label: "How I work", text: "Late OS on GitHub", href: "https://github.com/alperistic/oneos" }],
     },
 
     werdegang: {
@@ -88,10 +84,10 @@ export const en: SiteContent = {
       visible: "ja",
       label: "Timeline",
       meta: "Constellation",
-      kicker: "Constellation",
+      kicker: "2020 – today",
       title: "Timeline",
       tags: [],
-      lead: "Each stop a star.",
+      lead: "",
       stations: [
         {
           year: "2020",
@@ -110,14 +106,14 @@ export const en: SiteContent = {
         {
           year: "2026",
           period: "since 04/2026",
-          title: "Founder of Late (self-employed)",
-          detail: "offerre live",
+          title: "Founder of Late",
+          detail: "offerre, insertcoin.lol",
           visible: "ja",
         },
         {
           year: "2026",
           period: "since 09/2026",
-          title: "Working student – e-commerce specialist",
+          title: "E-commerce specialist, part-time (working student)",
           visible: "ja",
         },
       ],
@@ -128,16 +124,16 @@ export const en: SiteContent = {
       visible: "ja",
       label: "offerre",
       meta: "Project · Live",
-      kicker: "Late · 01 / 03",
+      kicker: "Late",
       title: "offerre",
       tags: [{ text: "Live since April 2026", color: "#6fe3c1" }],
-      lead: "AI-assisted quote creation for German SMEs.",
+      lead: "Turns customer inquiries into priced draft quotes, for small businesses in Germany.",
       media: {
         src: "/work/offerre-entwurf.webp",
         width: 505,
         height: 300,
         alt: "Quote draft in offerre: four line items with prices, each citing its source in the price list. One item is missing a quantity and is flagged instead of estimated.",
-        caption: "A draft from an inquiry. Every line item names its source in the price list; anything missing is flagged, not guessed. Sample data.",
+        caption: "A draft from an inquiry, with sample data.",
       },
       body: [
         "A customer request in free text plus the company's own price list automatically becomes a calculated draft quote. The AI reads, the code calculates, the business decides and sends.",
@@ -146,19 +142,18 @@ export const en: SiteContent = {
         {
           label: "Who it's for",
           value:
-            "Small and medium-sized businesses, especially trades — everything before the invoice, as a complement to lexoffice/sevDesk.",
+            "Small service businesses with their own price list, such as cleaning, IT maintenance or retail. Everything before the invoice, alongside invoicing tools like lexoffice or sevDesk.",
         },
         {
           label: "My role",
-          value: "Built and run alone — product, backend, frontend, infrastructure.",
+          value: "Built and run solo — product, backend, frontend, infrastructure.",
         },
         {
           label: "Evidence",
           value: [
-            "~680 commits since launch",
-            "more than 150 pull requests with a review workflow",
-            "130+ automated tests",
-            "own infrastructure on Hetzner (Docker, Caddy)",
+            "Live at offerre.de since April 2026",
+            "Every line item names its source in the price list; anything missing is flagged, not guessed",
+            "AI processing in the EU (Azure OpenAI), billing via Stripe, hosted on Hetzner",
           ],
         },
         {
@@ -182,7 +177,7 @@ export const en: SiteContent = {
       visible: "ja",
       label: "insertcoin.lol",
       meta: "Project · Live",
-      kicker: "Late · 02 / 03",
+      kicker: "Late",
       title: "insertcoin.lol",
       tags: [{ text: "Live", color: "#ff7ad9" }],
       lead: "An arcade where startups compete against each other.",
@@ -196,7 +191,7 @@ export const en: SiteContent = {
         pixelated: true,
       },
       body: [
-        "Founders put their products up against each other in 1:1 AI-judged matches; every win builds a public win/loss record. The scoring is deterministic, in code — not based on gut feeling.",
+        "Founders enter their products in 1:1 AI-judged matches; every win builds a public win/loss record. Scoring runs deterministically in code.",
       ],
       facts: [
         {
@@ -218,32 +213,33 @@ export const en: SiteContent = {
       visible: "ja",
       label: "Evidence-First",
       meta: "Open source",
-      kicker: "Late · 03 / 03",
+      kicker: "Late",
       title: "Evidence-First Pipeline",
       tags: [{ text: "Open source", color: "#8fb0ff" }],
-      lead: "AI document analysis where every claim brings its evidence.",
+      lead: "AI document analysis where every claim comes with its source.",
       media: {
         src: "/work/pipeline-belege.webp",
         width: 1100,
         height: 850,
         alt: "Result view of the Evidence-First Pipeline for a sample lease: citation metrics, then the contract parties, each with page number and verbatim quote.",
-        caption: "Result for a sample contract: every value comes with page number and verbatim quote.",
+        caption: "Result for a sample rental contract.",
       },
       body: [
-        "The language model finds where something is written in a long contract. Every extracted value comes with a page number and a verbatim quote and is checked against the source text before it is shown. Whatever a rule can decide is decided in code. The result is a proposal for review, never a decision.",
+        "The model finds the passage in the contract, the code checks the quote against the page and assigns amounts, deadlines and parties. The result is a proposal for review, not a decision.",
       ],
       facts: [
         {
           label: "Who it's for",
-          value: "Document workflows in liable professions: law firms, tax advisors, property management.",
+          value: "Document workflows in professions where errors carry liability: law firms, tax advisors, property management.",
         },
         { label: "My role", value: "Concept and build." },
         {
           label: "Evidence",
           value: [
-            "Quotes are verified against the cited page, and the match rate is shown in the interface",
-            "Amounts, deadlines and parties are assigned by Python code, not by the model",
-            "Uploads stay in memory; the audit log stores hashes, not document text",
+            "Quotes are checked against the cited page; the match rate is visible in the UI",
+            "Amounts, deadlines and parties are assigned by Python code, not the model",
+            "Uploads stay in memory; the audit log stores hashes instead of document text",
+            "MIT license, runs locally in demo mode without credentials",
           ],
         },
         {
@@ -265,19 +261,19 @@ export const en: SiteContent = {
       id: "late",
       visible: "ja",
       label: "Late",
-      meta: "Umbrella brand",
+      meta: "Company",
       kicker: "Cosmic web",
       title: "Late",
-      tags: [{ text: "Umbrella brand", color: "#a99bff" }],
-      lead: "The house I build software under.",
+      tags: [],
+      lead: "My company. offerre, insertcoin.lol and the Evidence-First Pipeline are built under it.",
       body: [
-        "Late is my company: a small human core with AI agents as the operating team, organized around a library of capabilities rather than roles. offerre, insertcoin.lol and the Evidence-First Pipeline were built under it.",
+        "A small human core with AI agents as the operating team, organized by skills rather than roles. How it is set up is public in Late OS.",
       ],
       links: [
         { label: "Website", text: "late-systems.vercel.app", href: "https://late-systems.vercel.app" },
         {
           label: "Late OS",
-          text: "GitHub",
+          text: "Late OS on GitHub",
           href: "https://github.com/alperistic/oneos",
         },
       ],
@@ -291,12 +287,15 @@ export const en: SiteContent = {
       kicker: "Open star cluster",
       title: "Skills & Stack",
       tags: [],
-      lead: "What I deliver — and what with.",
+      lead: "",
       skillGroups: [
+        {
+          title: "Building with coding agents",
+          skills: ["Claude Code", "Codex", "Specs & verification"],
+        },
         {
           title: "Shipping products",
           skills: [
-            "From idea to production",
             "Product scoping",
             "Review workflow",
             "Automated tests",
@@ -314,10 +313,6 @@ export const en: SiteContent = {
             "Anthropic Claude",
             "Vercel AI Gateway",
           ],
-        },
-        {
-          title: "Building with coding agents",
-          skills: ["Claude Code", "Codex", "Agentic workflows", "Specs & verification"],
         },
         {
           title: "Web & frontend",
@@ -362,8 +357,9 @@ export const en: SiteContent = {
       kicker: "Pulsar",
       title: "Contact",
       tags: [],
-      lead: "Building something and need someone who actually ships it? Write to me.",
+      lead: "I post what I build and how on X. For everything else: email.",
       links: [
+        { label: "X", text: "@alperistic", href: "https://x.com/alperistic" },
         { label: "GitHub", text: "github.com/alperistic", href: "https://github.com/alperistic" },
         { label: "Email", text: "alper@offerre.de", href: "mailto:alper@offerre.de" },
       ],
