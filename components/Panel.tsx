@@ -4,6 +4,7 @@ import { useRef, useState, type CSSProperties, type PointerEvent as RPointerEven
 import type { CelestialContent, ObjectId, PublicContent } from "@/content";
 import { coordsOf } from "@/lib/scene/layout";
 import { COMMITS } from "@/content/commits";
+import { CONTRIBUTIONS } from "@/content/contributions";
 import { ObjectBody, Tags } from "./ObjectContent";
 
 type Props = {
@@ -141,6 +142,7 @@ export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onG
             </h2>
             <Tags o={o} coord={coordsOf(o.id)} />
             {COMMITS.days[o.id] && <p className="p-commits">{ui.commitNote}</p>}
+            {o.id === "alper" && CONTRIBUTIONS.counts.length > 0 && <p className="p-commits">{ui.ringNote}</p>}
           </header>
 
           <div className="p-body">

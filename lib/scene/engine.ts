@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import type { ObjectId } from "@/content/types";
 import { COMMITS } from "@/content/commits";
+import { CONTRIBUTIONS } from "@/content/contributions";
 import { ACCENT, LATE_LINKS, LATE_VIEW, LAYOUT } from "./layout";
 import { createCompass, type CompassMarker } from "./compass";
 import { makeBinary } from "./objects/binary";
@@ -13,6 +14,7 @@ import { makeSun } from "./objects/sun";
 import { makeWeb } from "./objects/web";
 import { createBaker } from "./bake";
 import { makeCommitStars } from "./commits";
+import { makeContributionRing } from "./ring";
 import { makeBlackHole } from "./blackhole";
 import { makeComet, makeMeteors } from "./deco";
 import { applyDim } from "./dim";
@@ -98,6 +100,11 @@ export type Universe = {
   toggleSub: (index: number) => void;
   /** Listenansicht: Schleife anhalten, GPU schonen. */
   setPaused: (paused: boolean) => void;
+  /**
+   * Die Titelkarte der Eröffnung steht (true) bzw. ist weg (false). Solange sie
+   * steht, bleibt der Jahresring aus — er liefe sonst durch Namen und Sternenstaub.
+   */
+  setOpening: (active: boolean) => void;
   destroy: () => void;
 };
 
@@ -190,6 +197,10 @@ export function createUniverse(opts: UniverseOptions): Universe {
     return dirFrom(l.yaw, l.pitch).multiplyScalar(l.dist);
   };
 
+  /* Jahresring: aus, solange die Eröffnung läuft, danach weich eingeblendet (siehe setOpening). */
+  const ringShow = { value: 1 };
+  let ringOn = true;
+
   const register = (id: ObjectId, c: Celestial, faceCenter = false) => {
     const pos = posOf(id);
     c.root.position.copy(pos);
@@ -207,6 +218,9 @@ export function createUniverse(opts: UniverseOptions): Universe {
       const host = c.commitHost ?? { obj: c.root, shape: "halo" as const, r: c.visR };
       makeCommitStars(ctx, host, days, COMMITS.asOf, new THREE.Color(ACCENT[id]), c.hover);
     }
+    // Jahresring (GitHub-Beiträge) um die Sonne — dimmt und hellt mit ihr
+    if (id === "alper")
+      makeContributionRing(ctx, c.root, CONTRIBUTIONS, new THREE.Color(ACCENT.alper), c.hover, ringShow);
     const dim = { value: 1 };
     applyDim(c.root, dim);
     OBJ.set(id, { ...c, id, pos, hoverT: 0, labelOp: -1, dim });
@@ -813,6 +827,8 @@ export function createUniverse(opts: UniverseOptions): Universe {
       o.update?.(fs);
     }
     decoDim.value = restDim;
+    // Jahresring nach der Eröffnung weich einblenden (~2 s)
+    ringShow.value = lerp(ringShow.value, ringOn ? 1 : 0, 1 - Math.exp(-dt * 1.4));
     stars.uniforms.uDim.value = lerp(0.62, 1, restDim);
     scene.backgroundIntensity = lerp(0.6, 1, restDim);
     blackHole.update(fs, scene.backgroundIntensity, restDim);
@@ -1184,6 +1200,9 @@ export function createUniverse(opts: UniverseOptions): Universe {
   camera.rotation.set(HOME.pitch, 0, 0, "YXZ");
   if (opts.intro !== false && !reduced && !params.has("nointro")) {
     intro = { t0: 0, dur: 3.4, p0: HOME.pitch + 0.05 };
+    // Mit Eröffnungsfahrt startet der Ring unsichtbar; ob eine Titelkarte kommt, meldet die UI.
+    ringShow.value = 0;
+    ringOn = false;
   }
   update(0);
   // Shader parallel kompilieren (KHR_parallel_shader_compile), statt beim ersten
@@ -1266,6 +1285,9 @@ export function createUniverse(opts: UniverseOptions): Universe {
     },
     toggleSub: togglePin,
     setPaused,
+    setOpening: (active) => {
+      ringOn = !active;
+    },
     destroy,
   };
 }

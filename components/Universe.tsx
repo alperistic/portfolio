@@ -253,6 +253,8 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         const target = hashId(tourOrder);
         const skip = !!target || reduced || introSeen() || new URLSearchParams(location.search).has("nointro");
         markIntroSeen();
+        // Jahresring je neuer Szene abgleichen — nach einem Neuaufbau bleibt `phase` gleich, der Effekt liefe nicht
+        api.current?.setOpening(!skip);
         setPhase(skip ? "done" : "title");
         if (target) focus(target);
       });
@@ -317,6 +319,10 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     },
     [],
   );
+  // Jahresring erst nach der Titelkarte einblenden (er liefe sonst durch den Namen).
+  useEffect(() => {
+    if (phase) api.current?.setOpening(phase === "title");
+  }, [phase]);
 
   // Zieh-Hinweis, sobald die UI steht (nicht, wenn man schon unterwegs ist).
   useEffect(() => {

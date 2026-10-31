@@ -52,6 +52,8 @@ export const en: SiteContent = {
     enlarge: "Enlarge preview",
     shrink: "Close preview",
     commitNote: "Every small point of light around it is a commit: oldest inside, newest outside.",
+    ringNote:
+      "The ring of points around the sun is my last year on GitHub: one point per day, brighter means more contributions.",
   },
   tourOrder: [
     "alper",

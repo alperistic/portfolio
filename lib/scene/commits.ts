@@ -84,28 +84,49 @@ export function makeCommitStars(
     fresh[i] = recent > 0 ? 0.5 + rand() * 0.5 : 0;
   }
 
+  const pts = makeStarPoints(ctx, { pos, col, size, fresh }, hover);
+  host.obj.add(pts);
+  return pts;
+}
+
+/** Je Punkt: Lage (xyz), Farbe (rgb, linear, schon mit Helligkeit), Größe (Welteinheiten), Flackern (0 = ruhig). */
+export type StarPointData = { pos: Float32Array; col: Float32Array; size: Float32Array; fresh: Float32Array };
+
+/**
+ * Kleine Lichtpunkte mit weichem Rand, größenrichtig (in Welteinheiten) und additiv —
+ * gemeinsam für Commit-Sterne und Jahresring. Zu kleine Punkte werden nicht kleiner
+ * als ~1 px gezeichnet, sondern schwächer (sonst flimmern sie). Punkte mit `fresh`
+ * flackern leise, jeder in eigenem Takt; `hover` hellt alle auf, `show` (0…1) blendet
+ * alle zusammen ein bzw. aus.
+ */
+export function makeStarPoints(
+  ctx: SceneCtx,
+  d: StarPointData,
+  hover: Uniform<number>,
+  show: Uniform<number> = { value: 1 },
+) {
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
-  g.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
-  g.setAttribute("aFresh", new THREE.BufferAttribute(fresh, 1));
+  g.setAttribute("position", new THREE.BufferAttribute(d.pos, 3));
+  g.setAttribute("aColor", new THREE.BufferAttribute(d.col, 3));
+  g.setAttribute("aSize", new THREE.BufferAttribute(d.size, 1));
+  g.setAttribute("aFresh", new THREE.BufferAttribute(d.fresh, 1));
   const pts = new THREE.Points(
     g,
     new THREE.ShaderMaterial({
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      uniforms: { uProj: ctx.uProj, uHover: hover, uTime: ctx.uTime },
+      uniforms: { uProj: ctx.uProj, uHover: hover, uTime: ctx.uTime, uShow: show },
       vertexShader: /* glsl */ `
-        attribute vec3 aColor; attribute float aSize, aFresh; uniform float uProj, uHover, uTime; varying vec3 vColor;
+        attribute vec3 aColor; attribute float aSize, aFresh; uniform float uProj, uHover, uTime, uShow; varying vec3 vColor;
         void main(){
           vec4 mv = modelViewMatrix*vec4(position,1.0); gl_Position = projectionMatrix*mv;
           float s = aSize*uProj/max(-mv.z, 0.1);
           float k = 1.0; if (s < 1.2) { k = (s*s)/(1.2*1.2); s = 1.2; }
           gl_PointSize = min(s, 18.0);
-          // frische Commits flackern leise, jeder in eigenem Takt
+          // frische Punkte flackern leise, jeder in eigenem Takt
           float fl = 1.0 + aFresh*0.45*sin(uTime*(1.3 + aFresh) + position.x*3.1 + position.z*1.7);
-          vColor = aColor*k*fl*(1.0 + 0.6*uHover);
+          vColor = aColor*k*fl*(1.0 + 0.6*uHover)*uShow;
         }`,
       fragmentShader: /* glsl */ `
         varying vec3 vColor;
@@ -114,6 +135,5 @@ export function makeCommitStars(
   );
   pts.renderOrder = 1;
   pts.frustumCulled = false;
-  host.obj.add(pts);
   return pts;
 }

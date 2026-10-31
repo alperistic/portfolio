@@ -52,6 +52,8 @@ export const de: SiteContent = {
     enlarge: "Einblick vergrößern",
     shrink: "Vergrößerung schließen",
     commitNote: "Jeder kleine Lichtpunkt am Rand ist ein Commit: innen die ältesten, außen die neuesten.",
+    ringNote:
+      "Der Ring aus Lichtpunkten um die Sonne ist mein letztes Jahr auf GitHub: jeder Punkt ein Tag, je heller, desto mehr Beiträge.",
   },
   tourOrder: [
     "alper",
