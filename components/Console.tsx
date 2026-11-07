@@ -191,8 +191,9 @@ export function Console({ content, focused, pulse, langs, actions }: Props) {
       case ":q":
         return "exit";
       default: {
-        const egg = term.eggs[c];
-        return out(egg ?? fill(term.unknown, cmd));
+        // nur eigene Einträge — sonst liefert z. B. `__proto__` oder `constructor` ein Objekt/eine Funktion
+        const egg = Object.hasOwn(term.eggs, c) ? term.eggs[c] : undefined;
+        return out(typeof egg === "string" ? egg : fill(term.unknown, cmd));
       }
     }
   };
