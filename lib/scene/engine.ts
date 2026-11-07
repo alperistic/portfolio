@@ -148,7 +148,13 @@ export function createUniverse(opts: UniverseOptions): Universe {
   mqReduce.addEventListener("change", onReduce);
 
   const params = new URLSearchParams(location.search);
-  const SMALL = Math.min(innerWidth, innerHeight) < 768;
+  /* Fenstergröße, nie 0: Startet die Szene in einem (noch) unsichtbaren oder
+     0×0 großen Viewport (verstecktes Panel, Iframe, Tab im Hintergrund), wären
+     Canvas und Render-Targets sonst 0×0 („Framebuffer is incomplete: Attachment
+     has zero size"). Die echte Größe zieht resize() nach, sobald es eine gibt. */
+  const viewW = () => Math.max(1, innerWidth);
+  const viewH = () => Math.max(1, innerHeight);
+  const SMALL = Math.min(innerWidth || screen.width, innerHeight || screen.height) < 768;
   const PR = Math.min(window.devicePixelRatio || 1, 2);
   const Q: Quality = {
     small: SMALL,
@@ -163,14 +169,14 @@ export function createUniverse(opts: UniverseOptions): Universe {
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
   renderer.setPixelRatio(PR);
-  renderer.setSize(innerWidth, innerHeight, false);
+  renderer.setSize(viewW(), viewH(), false);
   // Tone-Mapping macht der Kino-Pass selbst (farberhaltend, siehe post.ts);
   // der OutputPass wandelt danach nur noch nach sRGB.
   renderer.toneMapping = THREE.NoToneMapping;
 
   const scene = new THREE.Scene();
   const baseFov = () => (mqMobile.matches ? 72 : 55);
-  const camera = new THREE.PerspectiveCamera(baseFov(), innerWidth / innerHeight, 0.1, 4000);
+  const camera = new THREE.PerspectiveCamera(baseFov(), viewW() / viewH(), 0.1, 4000);
   camera.rotation.order = "YXZ";
 
   const baker = createBaker(renderer);
@@ -291,7 +297,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
   let restDim = 1;
 
   /* ---------- Postprocessing ---------- */
-  const post = createPost(renderer, scene, camera, { pr: PR, msaa: Q.msaa, width: innerWidth, height: innerHeight });
+  const post = createPost(renderer, scene, camera, { pr: PR, msaa: Q.msaa, width: viewW(), height: viewH() });
 
   /* ---------- Unter-Labels (Stationen, Skill-Gruppen, einzelne Skills) ---------- */
   const subs = opts.subLabels
@@ -1185,9 +1191,16 @@ export function createUniverse(opts: UniverseOptions): Universe {
   };
 
   /* ---------- Resize & Loop ---------- */
+  // Zuletzt angewandte Größe; der Loop gleicht sie jedes Frame ab, weil das
+  // resize-Event nicht überall kommt (z. B. wenn ein verstecktes Iframe/Panel
+  // erst nach dem Start eine Größe bekommt).
+  let sizeW = 0;
+  let sizeH = 0;
   const resize = () => {
-    const w = innerWidth;
-    const h = innerHeight;
+    const w = viewW();
+    const h = viewH();
+    sizeW = w;
+    sizeH = h;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.fov = baseFov();
@@ -1228,7 +1241,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     if (avg > 1 / 36 && prNow > 1) {
       prNow = Math.max(1, Math.round(prNow * 0.7 * 100) / 100);
       renderer.setPixelRatio(prNow);
-      post.setPixelRatio(prNow, innerWidth, innerHeight, mqMobile.matches);
+      post.setPixelRatio(prNow, viewW(), viewH(), mqMobile.matches);
       stars.uniforms.uPR.value = prNow;
       motes.uniforms.uPR.value = prNow;
     } else {
@@ -1249,6 +1262,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     // Shader-Zeit (Flimmern, Pulse, Nebel-Schlieren) läuft bei reduzierter Bewegung langsamer
     ctx.uTime.value += dt * (reduced ? 0.3 : 1);
     post.grain.uniforms.uTime.value = now;
+    if (viewW() !== sizeW || viewH() !== sizeH) resize();
     hoverPick();
     update(dt);
     post.composer.render(dt);
