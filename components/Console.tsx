@@ -213,6 +213,9 @@ export function Console({ content, focused, pulse, langs, actions }: Props) {
       return close(res === "nav");
     }
     setLines((l) => [...l, echo, ...res].slice(-80));
+    // Die Konsole bleibt offen: Fokus im Eingabefeld halten — `last` fährt z. B. erst
+    // nach Hause, und dabei springt der Fokus sonst aufs Label des verlassenen Objekts
+    inputRef.current?.focus({ preventScroll: true });
   };
 
   /** Tab: erst Befehl, dann Ort vervollständigen (eindeutiger Präfix). */
