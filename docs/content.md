@@ -90,6 +90,30 @@ Um Alpers Sonne liegt sein vergangenes Jahr auf GitHub als Ring aus Lichtpunkten
 
 ---
 
+## Lebenszeichen — woran zuletzt gearbeitet wurde
+
+Im Titelbild steht, an welchem Projekt zuletzt gearbeitet wurde und wie lange das her ist; beim Ankommen fliegt ein goldener Funke von der Sonne dorthin. Quelle: der jüngste Tag in den Commit-Sternen (`content/commits.ts`), also nur Datum und Projekt. „Wie lange her“ rechnet der Browser. Ist der letzte Commit älter als 45 Tage, verschwindet die Zeile, statt Stillstand anzuzeigen. (08.11.2026, Freigabe durch Alper offen)
+
+- **DE:** Zuletzt dran: {Projekt} · gestern
+- **EN:** Last worked on: {project} · yesterday
+
+## Jahresring anhören
+
+Unter dem Erklärsatz zum Jahresring steht ein Knopf, der das Jahr hörbar macht: Jeder Tag mit Beiträgen wird zu einem kurzen Ton, Tonhöhe und Lautstärke folgen der Aktivität, ein Lauflicht zieht über den Ring (etwa 18 Sekunden). Der Klick schaltet den Ton an. (08.11.2026, Freigabe durch Alper offen)
+
+- **DE:** Mein Jahr anhören · Anhalten
+- **EN:** Listen to my year · Stop
+
+## Konsole
+
+Die Taste `/` öffnet im Himmel eine kleine Kommandozeile (nur mit Tastatur). Sie kann nichts, was die normale Bedienung nicht auch kann, plus ein Blick zum versteckten schwarzen Loch (`ls -a`, `cd .schwarzes-loch`). Die Antworten sind in Alpers Ton: kurz, klein geschrieben, trocken. Alle Texte stehen in `content/de.ts` bzw. `content/en.ts` unter `term`. Wer in die Entwickler-Konsole des Browsers schaut, findet dort den Hinweis auf `/`. (08.11.2026, Freigabe durch Alper offen)
+
+- **Befehle:** help, ls, cd, open, last, play, tour, whoami, sound, list, lang, follow, mail, clear, exit
+- **Antworten, Auswahl DE:** „kenn ich nicht: foo · help hilft“, „du? keine ahnung. ich: alper bulat, gründer von late · karlsruhe“, „netter versuch“ (sudo), „lieber nicht“ (rm), „hmu, hast keine chance“ (1v1), „gg wp“, „nicht zu nah ran“ (schwarzes Loch)
+- **EN:** sinngemäß, gleicher Ton („command not found: foo · try help“, „nice try“, „hmu u got no chance“)
+
+---
+
 ## Werdegang — Sternbild
 
 Jede Station ein Stern. Neue Stationen = neuer Eintrag in der Datenstruktur, das Sternbild wächst automatisch.

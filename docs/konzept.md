@@ -116,6 +116,16 @@ Alpers GitHub-Beitragskalender als Sternenfeld, ohne Zahlen (Idee vom 30.10., Pl
 - **Browser:** Chromium und WebKit (Safari-Engine) geprüft, keine Fehler, 60 fps. Firefox konnte lokal nicht automatisiert getestet werden (Playwright-Firefox startet auf diesem macOS nicht) → einmal von Hand prüfen.
 - **Performance:** Szene wird nachgeladen; JS komprimiert ca. 300 KB (davon three.js ca. 130 KB). PixelRatio auf 2 gedeckelt.
 
+## Seele (08.11.2026)
+
+Anstoß von Alper: „sehr basic gut, aber noch ohne Seele“. An Effekten fehlt es der Szene nicht. Es fehlten Spuren von Leben, eigene Stimme und Verspieltheit. Ausgewählt aus zehn Ideen:
+
+- **Lebenszeichen:** Zeile im Titelbild „Zuletzt dran: {Projekt} · {wann}“, dazu fliegt nach dem Ankommen einmal ein goldener Funke in einem Bogen von der Sonne zum Projekt, das danach kurz aufleuchtet (Label zeigt kurz dieselbe Angabe). Hover über die Zeile schickt den Funken erneut. Daten aus den Commit-Sternen; älter als 45 Tage → keine Zeile. Kein Funke bei reduced-motion.
+- **Konsole:** Taste `/`, fällt oben herein wie die Entwickler-Konsole alter Shooter. Deckendes Schwarz, Mono, Prompt `alper@late ~ %` (Pfad folgt dem Fokus). Antworten in Alpers Ton. Navigationsbefehle schließen sie, weil der Himmel dann den Fokus übernimmt. Mobil gibt es sie nicht (keine Taste).
+- **Jahresring anhören:** Knopf im Alper-Panel und `play` in der Konsole. Jeder aktive Tag ein Ton der A-Moll-Pentatonik (Tonhöhe und Lautstärke nach Aktivität, kleiner Wochentags-Versatz als Melodie, Echo), leere Tage still. Ein Lauflicht mit kurzem Schweif zieht im Takt über den Ring. Der Klick gilt als Zustimmung zum Ton.
+- **Als Nächstes (eigener PR):** ferne Galaxie weit abseits als Reiseziel mit persönlichen Einblicken („Goldene Platte“). Inhalt kommt von Alper; die Konsole kann sie über `ls -a` verraten.
+- **Bewusst nicht:** Gästebuch-Sterne (bräuchte Backend, Moderation, Datenschutz), Cursor-Spuren, mehr Partikel.
+
 ## Offene Punkte (Alper entscheidet)
 
 - **Eigene Domain + E-Mail** (entschieden: eigene Domain-Adresse statt Gmail; Domain noch zu kaufen). Danach Domain in Vercel verbinden, Adresse in `docs/content.md`/`content/` eintragen.
