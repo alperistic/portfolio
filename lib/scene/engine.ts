@@ -16,7 +16,7 @@ import { createBaker } from "./bake";
 import { makeCommitStars } from "./commits";
 import { makeContributionRing } from "./ring";
 import { makeBlackHole } from "./blackhole";
-import { makeComet, makeMeteors } from "./deco";
+import { makeComet, makeMeteors, makeSpark } from "./deco";
 import { applyDim } from "./dim";
 import { createPost } from "./post";
 import { bakeSky, makeMotes, makeStars } from "./sky";
@@ -97,6 +97,16 @@ export type Universe = {
   setLabelHover: (id: ObjectId | null) => void;
   /** Tastatur-Fokus auf einem Label: Kamera dreht sich (ohne Reise) zum Objekt, falls es nicht im Bild ist. */
   reveal: (id: ObjectId) => void;
+  /**
+   * Lebenszeichen: Funke von der Sonne zu `id`; bei Ankunft leuchtet das Objekt auf
+   * und es kommt ein `spark`-Ereignis. Nur in der Übersicht und ohne reduzierte
+   * Bewegung — sonst `false`.
+   */
+  spark: (id: ObjectId) => boolean;
+  /** Lauflicht über den Jahresring: liefert je Bild die Position (0…1) oder `null` (aus). */
+  setRingSweep: (get: (() => number | null) | null) => void;
+  /** Easter Egg: zurück ins Zentrum und zum schwarzen Loch schauen. */
+  lookAtHole: () => void;
   /** Hover über einer Skill-Gruppe (Unter-Label oder Panel), `null` = keine. */
   setSubHover: (index: number | null) => void;
   /** Tippen auf ein Gruppen-Label: Gruppe dauerhaft zeigen bzw. wieder lösen. */
@@ -212,6 +222,9 @@ export function createUniverse(opts: UniverseOptions): Universe {
 
   /* Jahresring: aus, solange die Eröffnung läuft, danach weich eingeblendet (siehe setOpening). */
   const ringShow = { value: 1 };
+  /** Lauflicht über den Ring beim Anhören; die UI liefert die Position (Takt kommt vom Klang). */
+  const ringSweep = { value: -1 };
+  let sweepOf: (() => number | null) | null = null;
   let ringOn = true;
 
   const register = (id: ObjectId, c: Celestial, faceCenter = false) => {
@@ -233,7 +246,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
     }
     // Jahresring (GitHub-Beiträge) um die Sonne — dimmt und hellt mit ihr
     if (id === "alper")
-      makeContributionRing(ctx, c.root, CONTRIBUTIONS, new THREE.Color(ACCENT.alper), c.hover, ringShow);
+      makeContributionRing(ctx, c.root, CONTRIBUTIONS, new THREE.Color(ACCENT.alper), c.hover, ringShow, ringSweep);
     const dim = { value: 1 };
     applyDim(c.root, dim);
     OBJ.set(id, { ...c, id, pos, hoverT: 0, labelOp: -1, dim });
@@ -291,6 +304,11 @@ export function createUniverse(opts: UniverseOptions): Universe {
   }
   // Easter Egg: schwarzes Loch weit abseits (Linse sampelt die Himmels-Cubemap)
   const blackHole = makeBlackHole(ctx, skyRT.texture);
+  // Lebenszeichen: Funke von der Sonne zum zuletzt bearbeiteten Projekt (nicht gedimmt — nur in der Übersicht)
+  const spark = makeSpark();
+  scene.add(spark.root);
+  /** Ziel des Funkens leuchtet nach der Ankunft kurz auf (wie beim Hovern). */
+  let flare: { id: ObjectId; until: number } | null = null;
   applyDim(blackHole.disk, decoDim);
   scene.add(blackHole.root);
   const linked = new Set<ObjectId>(LATE_LINKS);
@@ -852,7 +870,8 @@ export function createUniverse(opts: UniverseOptions): Universe {
     // Reduzierte Bewegung: Objekt-Animationen (Rotation, Komet, Pulsar) fast still
     const fs: FrameState = { now, dt, rs: reduced ? 0.2 : 1, camera, focused, level, sub: activeSub(), emit };
     for (const o of OBJ.values()) {
-      const target = hovered === o.id || labelHover === o.id || focused === o.id ? 1 : 0;
+      const flaring = flare?.id === o.id && now < flare.until;
+      const target = hovered === o.id || labelHover === o.id || focused === o.id || flaring ? 1 : 0;
       o.hoverT = lerp(o.hoverT, target, 1 - Math.exp(-dt * 6));
       o.hover.value = o.hoverT;
     }
@@ -876,11 +895,13 @@ export function createUniverse(opts: UniverseOptions): Universe {
     decoDim.value = restDim;
     // Jahresring nach der Eröffnung weich einblenden (~2 s)
     ringShow.value = lerp(ringShow.value, ringOn ? 1 : 0, 1 - Math.exp(-dt * 1.4));
+    ringSweep.value = sweepOf?.() ?? -1;
     stars.uniforms.uDim.value = lerp(0.62, 1, restDim);
     scene.backgroundIntensity = lerp(0.6, 1, restDim);
     blackHole.update(fs, scene.backgroundIntensity, restDim);
     comet.update(fs);
     meteors.update(fs, !travel && !intro && !reduced);
+    spark.update(fs);
 
     updateLabels();
     updateReticle(dt);
@@ -1358,6 +1379,27 @@ export function createUniverse(opts: UniverseOptions): Universe {
       labelHover = id;
     },
     reveal,
+    setRingSweep: (get) => {
+      sweepOf = get;
+    },
+    lookAtHole: () => {
+      const trip = !!focused || basePos.lengthSq() > 1e-6;
+      interacted();
+      focused = null;
+      subPin = null;
+      userMoved = true;
+      startTravel(facing(HOME_POS, blackHole.root.position), undefined, trip ? "trip" : "turn");
+    },
+    spark: (id) => {
+      const o = OBJ.get(id);
+      const sun = OBJ.get("alper");
+      if (!o || !sun || id === "alper" || reduced || focused || travel || intro || spark.active) return false;
+      spark.fire(sun.pos, o.pos, () => {
+        flare = { id, until: now + 2.4 };
+        emit({ type: "spark", id });
+      });
+      return true;
+    },
     setSubAuto: (i) => {
       subAuto = i;
     },

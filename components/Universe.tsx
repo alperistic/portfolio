@@ -1,11 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { fill, type LangLink, type ObjectId, type PublicContent } from "@/content";
 import type { SubLabel, Universe as UniverseApi } from "@/lib/scene/engine";
+import { ago, lastWork } from "@/lib/pulse";
 import { createSound, type Sound } from "@/lib/sound";
 import { getView, setView, useView, type Why } from "@/lib/view";
+import { CONTRIBUTIONS } from "@/content/contributions";
+import { Console } from "./Console";
 import { Legend } from "./Legend";
 import { Opening } from "./Opening";
 import { Panel } from "./Panel";
@@ -126,6 +129,18 @@ export default function Universe({ content, langs }: { content: PublicContent; l
   /** Tour-Autopilot aktiv. */
   const [auto, setAuto] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
+  /* Lebenszeichen: zuletzt bearbeitetes Projekt (aus den Commit-Daten, fest zur Build-Zeit).
+     „Wie lange her“ rechnet erst der Browser — mit dem Datum der Besucherin, nicht dem des Builds. */
+  const last = useMemo(() => lastWork(tourOrder), [tourOrder]);
+  const [lastAgo, setLastAgo] = useState<string | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Datum gibt es erst im Browser
+    if (last) setLastAgo(ago(last.date, content.locale));
+  }, [last, content.locale]);
+  const pulse = useMemo(() => (last && lastAgo ? { id: last.id, ago: lastAgo } : null), [last, lastAgo]);
+  /** Label, an dem der Funke gerade angekommen ist (zeigt kurz „Zuletzt dran · …“). */
+  const [sparkAt, setSparkAt] = useState<ObjectId | null>(null);
+  const sparkTimer = useRef(0);
   const focusedRef = useRef<ObjectId | null>(null);
   const panelOpenRef = useRef(false);
   const showPanel = useCallback((open: boolean) => {
@@ -234,6 +249,12 @@ export default function Universe({ content, langs }: { content: PublicContent; l
           onEvent: (e) => {
             // Pulsar-Signal nur hörbar, solange man bei ihm ist
             if (e.type === "pulse" && focusedRef.current === "kontakt" && panelOpenRef.current) sound.current?.pulse();
+            if (e.type === "spark") {
+              sound.current?.hover(e.id);
+              setSparkAt(e.id);
+              clearTimeout(sparkTimer.current);
+              sparkTimer.current = window.setTimeout(() => setSparkAt(null), 6000);
+            }
           },
           getPanelSize: () => ({
             width: panelRef.current?.offsetWidth ?? 0,
@@ -387,6 +408,18 @@ export default function Universe({ content, langs }: { content: PublicContent; l
     return () => clearTimeout(t);
   }, [phase]);
 
+  // Lebenszeichen: kurz nach dem Titelbild fliegt der Funke einmal los (nicht, wenn man schon unterwegs ist)
+  const sparked = useRef(false);
+  useEffect(() => {
+    if (!titleIn || !pulse || sparked.current) return;
+    const t = window.setTimeout(() => {
+      sparked.current = true;
+      if (!focusedRef.current) api.current?.spark(pulse.id);
+    }, 1400);
+    return () => clearTimeout(t);
+  }, [titleIn, pulse]);
+  useEffect(() => () => clearTimeout(sparkTimer.current), []);
+
   // Zieh-Hinweis, sobald die UI steht (nicht, wenn man schon unterwegs ist).
   useEffect(() => {
     if (phase !== "done") return;
@@ -405,11 +438,43 @@ export default function Universe({ content, langs }: { content: PublicContent; l
 
   useEffect(() => () => sound.current?.dispose(), []);
 
+  /** Jahresring anhören läuft (Lauflicht + Töne). */
+  const [ringPlaying, setRingPlaying] = useState(false);
+  const ringTimer = useRef(0);
+  const endRing = useCallback(() => {
+    clearTimeout(ringTimer.current);
+    sound.current?.stopRing();
+    api.current?.setRingSweep(null);
+    setRingPlaying(false);
+  }, []);
+
   const toggleSound = () => {
     sound.current ??= createSound();
-    setSoundOn(sound.current.toggle());
+    const on = sound.current.toggle();
+    setSoundOn(on);
     sound.current.suspend(getView().view !== "sky");
+    if (!on) endRing();
+    return on;
   };
+
+  /** Jahr anhören bzw. anhalten. Schaltet den Ton an (der Klick ist die Zustimmung). */
+  const playRing = () => {
+    if (ringPlaying) {
+      endRing();
+      return false;
+    }
+    sound.current ??= createSound();
+    if (!sound.current.on) setSoundOn(sound.current.toggle());
+    sound.current.suspend(getView().view !== "sky");
+    const p = sound.current.playRing(CONTRIBUTIONS.counts);
+    if (!p) return false;
+    api.current?.setRingSweep(p.progress);
+    setRingPlaying(true);
+    clearTimeout(ringTimer.current);
+    ringTimer.current = window.setTimeout(endRing, p.dur * 1000 + 1500);
+    return true;
+  };
+  useEffect(() => () => clearTimeout(ringTimer.current), []);
 
   const startTour = () => {
     setAuto(true);
@@ -505,6 +570,8 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         onFocus={focus}
         onHover={(id) => api.current?.setLabelHover(id ?? kbdLabel.current)}
         onTour={startTour}
+        pulse={pulse}
+        onPulse={(id) => api.current?.spark(id)}
       />
 
       <div className="labels">
@@ -545,6 +612,11 @@ export default function Universe({ content, langs }: { content: PublicContent; l
               <span className="lbl-txt">
                 <span className="lbl-t">{o.label}</span>
                 <span className="lbl-m">{o.meta}</span>
+                {pulse?.id === id && (
+                  <span className={`lbl-pulse${sparkAt === id ? " on" : ""}`} aria-hidden="true">
+                    {ui.lastWork} · {pulse.ago}
+                  </span>
+                )}
               </span>
             </button>
           );
@@ -644,6 +716,38 @@ export default function Universe({ content, langs }: { content: PublicContent; l
         onGroupHover={(i) => api.current?.setSubHover(i)}
         auto={auto}
         onAuto={setAuto}
+        ringPlaying={ringPlaying}
+        onRing={playRing}
+      />
+
+      <Console
+        content={content}
+        focused={focusedId}
+        pulse={pulse}
+        langs={langs}
+        actions={{
+          focus,
+          home: () => home(),
+          lookAtHole: () => {
+            focusedRef.current = null;
+            setFocusedId(null);
+            setAuto(false);
+            showPanel(false);
+            dismissTitle();
+            writeHash(null);
+            api.current?.lookAtHole();
+          },
+          tour: startTour,
+          toList,
+          toggleSound,
+          playRing,
+          spark: (id) => {
+            const away = !!focusedRef.current;
+            if (away) home();
+            // erst nach der Rückfahrt (der Funke fliegt nur in der Übersicht)
+            window.setTimeout(() => api.current?.spark(id), away ? 1900 : 0);
+          },
+        }}
       />
 
       {phase === "title" && (

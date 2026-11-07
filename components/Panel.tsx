@@ -23,6 +23,9 @@ type Props = {
   /** Tour-Autopilot: fliegt nach der Lesezeit selbst weiter. */
   auto: boolean;
   onAuto: (on: boolean) => void;
+  /** Jahresring wird gerade angehört. */
+  ringPlaying: boolean;
+  onRing: () => void;
 };
 
 const MOBILE = "(max-width: 767px)";
@@ -57,7 +60,7 @@ function dwellOf(o: CelestialContent) {
  * am Griff hochziehen = mehr Platz zum Lesen, runterziehen = kleiner bzw. schließen.
  * Tippen auf den Griff schaltet eine Stufe weiter.
  */
-export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onGroupHover, titleRef, auto, onAuto }: Props) {
+export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onGroupHover, titleRef, auto, onAuto, ringPlaying, onRing }: Props) {
   const { ui, objects, tourOrder } = content;
   const o = id ? objects[id] : undefined;
   const n = next ? objects[next] : undefined;
@@ -172,7 +175,17 @@ export function Panel({ ref, content, id, open, next, step, onHome, onFocus, onG
           <div className="p-body">
             <ObjectBody o={o} locale={content.locale} onGroupHover={onGroupHover} animate={open} shotLabels={ui} />
             {COMMITS.days[o.id] && <p className="p-commits">{ui.commitNote}</p>}
-            {o.id === "alper" && CONTRIBUTIONS.counts.length > 0 && <p className="p-commits">{ui.ringNote}</p>}
+            {o.id === "alper" && CONTRIBUTIONS.counts.length > 0 && (
+              <>
+                <p className="p-commits">{ui.ringNote}</p>
+                <button type="button" className={`p-ring${ringPlaying ? " on" : ""}`} aria-pressed={ringPlaying} onClick={onRing}>
+                  <svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+                    {ringPlaying ? <path d="M3 2.5h2v7H3zM7 2.5h2v7H7z" /> : <path d="M3.4 2.1l6.2 3.9-6.2 3.9z" />}
+                  </svg>
+                  {ringPlaying ? ui.ringStop : ui.ringPlay}
+                </button>
+              </>
+            )}
           </div>
 
           <nav className="p-nav">

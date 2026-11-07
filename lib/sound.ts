@@ -11,6 +11,8 @@ import type { ObjectId } from "@/content/types";
  * - Hover: jedes Objekt hat einen eigenen leisen Ton (A-Moll-Pentatonik).
  * - Ankunft: derselbe Ton als weiche Glocke mit Quinte.
  * - Pulsar: ein kurzes Signal bei jedem Strahl-Blitz, solange man bei „Kontakt“ ist.
+ * - Jahresring anhören: jeder Tag mit Beiträgen ein kurzer Ton, Tonhöhe und Lautstärke
+ *   nach Aktivität (Pentatonik, mit Echo). Leere Tage bleiben still — ruhige Wochen hört man.
  *
  * Alles bewusst leise und weich (keine harten Einschwingvorgänge, Kompressor am Ende).
  */
@@ -37,8 +39,19 @@ export type Sound = {
   hover: (id: ObjectId | null) => void;
   arrive: (id: ObjectId) => void;
   pulse: () => void;
+  /**
+   * Spielt das Jahr (Beiträge je Tag) ab. Liefert Dauer und eine Abfrage der
+   * Position (0…1, `null` = vorbei) — oder `null`, wenn der Ton nicht an ist.
+   */
+  playRing: (counts: number[]) => { dur: number; progress: () => number | null } | null;
+  stopRing: () => void;
   dispose: () => void;
 };
+
+/** A-Moll-Pentatonik über gut zwei Oktaven, für den Jahresring. */
+const RING_SCALE = [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880, 1046.5];
+/** Sekunden je Tag beim Anhören (365 Tage ≈ 18 s). */
+const RING_STEP = 0.05;
 
 export function createSound(): Sound {
   let ac: AudioContext | null = null;
@@ -130,8 +143,8 @@ export function createSound(): Sound {
   };
 
   /** Weicher Ton: Sinus + leise Oktave, schnelles aber rundes Einschwingen, langes Ausklingen. */
-  const bell = (freq: number, gain: number, decay: number, delay = 0) => {
-    if (!ready()) return;
+  const bell = (freq: number, gain: number, decay: number, delay = 0, out: AudioNode | null = master) => {
+    if (!ready() || !out) return;
     const t = ac!.currentTime + delay;
     const g = ac!.createGain();
     g.gain.setValueAtTime(0, t);
@@ -140,7 +153,7 @@ export function createSound(): Sound {
     const lp = ac!.createBiquadFilter();
     lp.type = "lowpass";
     lp.frequency.value = freq * 3;
-    g.connect(lp).connect(master!);
+    g.connect(lp).connect(out);
     for (const [mul, amp, type] of [
       [1, 1, "sine"],
       [2, 0.18, "sine"],
@@ -190,6 +203,16 @@ export function createSound(): Sound {
     o.stop(t + dur + 0.25);
   };
 
+  /** Laufender Jahresring: eigener Bus (zum Abbrechen samt aller geplanten Töne) + Startzeit. */
+  let ring: { bus: GainNode; t0: number; dur: number } | null = null;
+  const stopRing = () => {
+    if (!ring || !ac) return;
+    const { bus } = ring;
+    ring = null;
+    bus.gain.setTargetAtTime(0, ac.currentTime, 0.08);
+    setTimeout(() => bus.disconnect(), 600);
+  };
+
   const apply = () => {
     if (!ac || !on) return;
     if (blocked()) setMaster(0, 0.3);
@@ -211,6 +234,7 @@ export function createSound(): Sound {
     toggle: () => {
       if (!ac && !build()) return false;
       on = !on;
+      if (!on) stopRing();
       if (on) {
         void ac!.resume();
         setMaster(blocked() ? 0 : 0.9, 2.4);
@@ -237,6 +261,47 @@ export function createSound(): Sound {
       bell(NOTE[id] / 2, 0.05, 2.8);
       bell((NOTE[id] / 2) * 1.5, 0.028, 2.4, 0.09);
     },
+    playRing: (counts) => {
+      stopRing();
+      if (!ready()) return null;
+      const bus = ac!.createGain();
+      bus.gain.value = 1;
+      // Echo: gibt den schnellen Tönen Raum, ohne sie zu verwischen
+      const echo = ac!.createDelay(1);
+      echo.delayTime.value = 0.32;
+      const fb = ac!.createGain();
+      fb.gain.value = 0.3;
+      const wet = ac!.createGain();
+      wet.gain.value = 0.35;
+      bus.connect(master!);
+      bus.connect(echo).connect(fb).connect(echo);
+      echo.connect(wet).connect(master!);
+      const active = counts.filter((n) => n > 0).sort((a, b) => a - b);
+      const p95 = active.length ? active[Math.floor(0.95 * (active.length - 1))] : 1;
+      const norm = Math.log1p(Math.max(p95, 1));
+      const lead = 0.25;
+      counts.forEach((n, i) => {
+        if (n <= 0) return;
+        const v = Math.min(1, Math.log1p(n) / norm);
+        // Tonhöhe nach Aktivität, dazu ein kleiner Wochentags-Versatz als Melodie
+        const k = Math.min(RING_SCALE.length - 1, Math.round(v * 8) + [0, 1, 0, 2, 1, 0, 1][i % 7]);
+        bell(RING_SCALE[k], 0.012 + 0.03 * v, 0.45 + 0.8 * v, lead + i * RING_STEP, bus);
+      });
+      const dur = counts.length * RING_STEP;
+      const t0 = ac!.currentTime + lead;
+      const me = { bus, t0, dur };
+      ring = me;
+      return {
+        dur: dur + lead,
+        progress: () => {
+          if (ring !== me || !ac) return null;
+          const p = (ac.currentTime - t0) / dur;
+          if (p > 1.08) return null;
+          return Math.max(0, Math.min(1, p));
+        },
+      };
+    },
+    stopRing,
     pulse: () => {
       if (!ready()) return;
       bell(NOTE.kontakt * 2, 0.012, 0.35);

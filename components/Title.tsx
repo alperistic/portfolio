@@ -21,6 +21,10 @@ type Props = {
   /** Hover über einem Produkt hebt sein Objekt im Himmel hervor. */
   onHover: (id: ObjectId | null) => void;
   onTour: () => void;
+  /** Lebenszeichen: zuletzt bearbeitetes Projekt und wie lange das her ist. */
+  pulse: { id: ObjectId; ago: string } | null;
+  /** Hover über dem Lebenszeichen schickt den Funken noch einmal los. */
+  onPulse: (id: ObjectId) => void;
 };
 
 /**
@@ -32,7 +36,7 @@ type Props = {
  * Nur für den Moment des Ankommens: Sobald man sich umsieht oder ein Objekt
  * wählt, blendet es aus (350 ms) und kommt in diesem Seitenaufruf nicht zurück.
  */
-export function Title({ ref, tourRef, content, shown, gone, onFocus, onHover, onTour }: Props) {
+export function Title({ ref, tourRef, content, shown, gone, onFocus, onHover, onTour, pulse, onPulse }: Props) {
   const { brand, ui, objects } = content;
   // Nach dem Ausblenden ganz raus (display: none): nichts mehr fokussier- oder klickbar.
   const [removed, setRemoved] = useState(false);
@@ -94,6 +98,27 @@ export function Title({ ref, tourRef, content, shown, gone, onFocus, onHover, on
           );
         })}
       </ul>
+
+      {pulse && objects[pulse.id] && (
+        <p className="t-pulse">
+          <i aria-hidden="true" />
+          {ui.lastWork}:{" "}
+          <button
+            type="button"
+            className="t-pulse-to"
+            aria-label={fill(ui.lookAt, objects[pulse.id]!.label)}
+            onClick={() => onFocus(pulse.id)}
+            onPointerEnter={() => {
+              onHover(pulse.id);
+              onPulse(pulse.id);
+            }}
+            onPointerLeave={() => onHover(null)}
+          >
+            {objects[pulse.id]!.label}
+          </button>
+          <span className="t-pulse-ago"> · {pulse.ago}</span>
+        </p>
+      )}
 
       <div className="t-actions">
         <button className="tour" type="button" ref={tourRef} onClick={onTour}>

@@ -172,6 +172,40 @@ export type SiteContent = {
     commitNote: string;
     /** Erklärt den Jahresring (GitHub-Beiträge) im Panel von Alper. */
     ringNote: string;
+    /** Lebenszeichen im Titelbild und am Label: „Zuletzt dran · gestern“. */
+    lastWork: string;
+    /** Jahresring anhören bzw. anhalten (Knopf im Panel von Alper; schaltet den Ton an). */
+    ringPlay: string;
+    ringStop: string;
+  };
+  /**
+   * Konsole (Taste „/“ im Himmel): kleine Kommandozeile für Neugierige. Antworten
+   * bewusst kurz, klein geschrieben, in Alpers Ton. `{name}` wird jeweils ersetzt.
+   */
+  term: {
+    /** Name der Region für Screenreader. */
+    label: string;
+    /** Erste Zeile beim Öffnen. */
+    hello: string;
+    /** Hinweis in der Browser-Konsole (DevTools) für die, die da reinschauen. */
+    devtools: string;
+    /** Befehle mit Kurzbeschreibung für `help`. */
+    help: [string, string][];
+    unknown: string;
+    noPlace: string;
+    noLink: string;
+    /** `whoami` — `{name}` ist Name und Unterzeile. */
+    whoami: string;
+    lastNone: string;
+    soundOn: string;
+    soundOff: string;
+    play: string;
+    stop: string;
+    /** Name des versteckten schwarzen Lochs in `ls -a` und Antwort beim Hinsehen. */
+    hole: string;
+    holeSay: string;
+    /** Kleine Antworten auf Dinge, die man halt mal eintippt. */
+    eggs: Record<string, string>;
   };
   tourOrder: ObjectId[];
   objects: Record<ObjectId, CelestialContent>;

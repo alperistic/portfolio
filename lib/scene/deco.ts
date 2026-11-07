@@ -225,3 +225,101 @@ export function makeMeteors() {
     },
   };
 }
+
+/**
+ * Lebenszeichen: ein goldener Funke löst sich aus der Sonne und zieht in einem
+ * flachen Bogen über den Himmel zu dem Projekt, an dem zuletzt gearbeitet wurde.
+ * Die Bahn läuft in Blickwinkeln um die Kamera (Azimut/Höhe interpoliert, dazu ein
+ * Bogen nach oben) — so bleibt sie am Himmel, statt quer durch die Szene zu schneiden,
+ * und führt den Blick auch zu Objekten hinter dem Rücken.
+ */
+export function makeSpark() {
+  const root = new THREE.Group();
+  const mat = new THREE.ShaderMaterial({
+    ...additive,
+    side: THREE.DoubleSide,
+    uniforms: { uFade: { value: 0 } },
+    vertexShader: UV_VERT,
+    fragmentShader: /* glsl */ `
+      uniform float uFade; varying vec2 vUv;
+      void main(){
+        float y = (vUv.y - 0.5)*2.0; float x = vUv.x;
+        float a = pow(max(x, 0.0), 1.8) * exp(-y*y*5.0) * 0.75;
+        float hk = (1.0 - x)*16.0;
+        float head = exp(-hk*hk) * exp(-y*y*2.5);
+        vec3 col = mix(vec3(1.0, 0.62, 0.28), vec3(1.0, 0.9, 0.72), head);
+        gl_FragColor = vec4(col*(a + head*1.6)*uFade*1.5, 1.0);
+      }`,
+  });
+  const strip = new THREE.Mesh(stripGeo(1), mat);
+  strip.matrixAutoUpdate = false;
+  strip.frustumCulled = false;
+  strip.visible = false;
+  root.add(strip);
+
+  type Arc = { y0: number; p0: number; d0: number; dy: number; dp: number; dd: number; lift: number };
+  let arc: Arc | null = null;
+  let t = 0;
+  let dur = 1;
+  let onArrive: (() => void) | null = null;
+  let arrived = false;
+  const H = new THREE.Vector3();
+  const T = new THREE.Vector3();
+  const TRAIL = 0.13;
+  const at = (out: THREE.Vector3, e: number) => {
+    const a = arc!;
+    const yaw = a.y0 + a.dy * e;
+    const pitch = a.p0 + a.dp * e + a.lift * Math.sin(Math.PI * e);
+    const d = a.d0 + a.dd * e;
+    const cp = Math.cos(pitch);
+    return out.set(Math.sin(yaw) * cp * d, Math.sin(pitch) * d, -Math.cos(yaw) * cp * d);
+  };
+  const angles = (v: THREE.Vector3) => {
+    const d = v.length();
+    return { yaw: Math.atan2(v.x, -v.z), pitch: Math.asin(THREE.MathUtils.clamp(v.y / d, -1, 1)), d };
+  };
+
+  return {
+    root,
+    get active() {
+      return !!arc;
+    },
+    /** Startet den Funken von `from` nach `to` (Weltpositionen, Kamera im Ursprung). */
+    fire: (from: THREE.Vector3, to: THREE.Vector3, arrive: () => void) => {
+      const a = angles(from);
+      const b = angles(to);
+      const dy = Math.atan2(Math.sin(b.yaw - a.yaw), Math.cos(b.yaw - a.yaw));
+      arc = { y0: a.yaw, p0: a.pitch, d0: a.d, dy, dp: b.pitch - a.pitch, dd: b.d - a.d, lift: Math.min(0.42, Math.abs(dy) * 0.16) };
+      dur = 1.5 + Math.abs(dy) * 0.6;
+      t = 0;
+      arrived = false;
+      onArrive = arrive;
+      strip.visible = true;
+    },
+    update: ({ dt, camera }: FrameState) => {
+      if (!arc) return;
+      t += dt / dur;
+      // Weich anfahren, zügig ziehen, am Ziel ausrollen; die Spur läuft danach noch ein
+      // Stück nach und verglimmt (t bis 1 + TRAIL)
+      const k = Math.min(t, 1);
+      const e = k * k * (3 - 2 * k);
+      if (t >= 1 && !arrived) {
+        arrived = true;
+        onArrive?.();
+      }
+      if (t >= 1 + TRAIL * 2.2) {
+        arc = null;
+        strip.visible = false;
+        return;
+      }
+      at(H, e);
+      at(T, Math.max(0, e - TRAIL + Math.max(0, t - 1) * 0.45));
+      const fadeIn = Math.min(1, t * 6);
+      const fadeOut = t > 1 ? Math.max(0, 1 - (t - 1) / (TRAIL * 2.2)) : 1;
+      mat.uniforms.uFade.value = fadeIn * fadeOut;
+      const len = T.distanceTo(H);
+      if (len < 1e-3) return;
+      orientStrip(strip, T, H.clone().sub(T), len, H.distanceTo(camera.position) * 0.0085, camera.position);
+    },
+  };
+}
