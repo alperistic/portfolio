@@ -28,15 +28,19 @@ export function lastWork(visible: ObjectId[]): LastWork | null {
 
 /**
  * „heute“, „gestern“, „vor 3 Tagen“, „vor 2 Wochen“ — gerechnet in Kalendertagen
- * der Besucherin. `null`, wenn es länger her ist als `MAX_DAYS` (oder in der Zukunft
- * liegt, z. B. bei falsch gehender Uhr).
+ * der Besucherin. `null`, wenn es länger her ist als `MAX_DAYS` (oder mehr als einen
+ * Tag in der Zukunft liegt, z. B. bei falsch gehender Uhr).
+ *
+ * Das Commit-Datum ist ein Kalendertag in Alpers Zeitzone (`git log --format=%cs`).
+ * Westlich davon ist es dort oft noch „gestern“ — ein Tag Vorsprung zählt deshalb als „heute“.
  */
 export function ago(date: string, locale: Locale, now = new Date()): string | null {
   const [y, m, d] = date.split("-").map(Number);
   const then = new Date(y, m - 1, d);
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const days = Math.round((today.getTime() - then.getTime()) / DAY);
-  if (days < 0 || days > MAX_DAYS) return null;
+  let days = Math.round((today.getTime() - then.getTime()) / DAY);
+  if (days < -1 || days > MAX_DAYS) return null;
+  days = Math.max(0, days);
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   return days < 14 ? rtf.format(-days, "day") : rtf.format(-Math.round(days / 7), "week");
 }

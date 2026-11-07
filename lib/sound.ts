@@ -204,13 +204,20 @@ export function createSound(): Sound {
   };
 
   /** Laufender Jahresring: eigener Bus (zum Abbrechen samt aller geplanten Töne) + Startzeit. */
-  let ring: { bus: GainNode; t0: number; dur: number } | null = null;
+  let ring: { bus: GainNode; echo: DelayNode; wet: GainNode; t0: number; dur: number } | null = null;
   const stopRing = () => {
     if (!ring || !ac) return;
-    const { bus } = ring;
+    const { bus, echo, wet } = ring;
     ring = null;
     bus.gain.setTargetAtTime(0, ac.currentTime, 0.08);
-    setTimeout(() => bus.disconnect(), 600);
+    // Echo weich ausklingen lassen, dann die ganze Kette lösen — die Rückkopplungsschleife
+    // hinge sonst je Anhören für immer am Master
+    wet.gain.setTargetAtTime(0, ac.currentTime, 0.25);
+    setTimeout(() => {
+      bus.disconnect();
+      echo.disconnect();
+      wet.disconnect();
+    }, 2000);
   };
 
   const apply = () => {
@@ -289,7 +296,7 @@ export function createSound(): Sound {
       });
       const dur = counts.length * RING_STEP;
       const t0 = ac!.currentTime + lead;
-      const me = { bus, t0, dur };
+      const me = { bus, echo, wet, t0, dur };
       ring = me;
       return {
         dur: dur + lead,

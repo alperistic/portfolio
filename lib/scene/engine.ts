@@ -901,6 +901,9 @@ export function createUniverse(opts: UniverseOptions): Universe {
     blackHole.update(fs, scene.backgroundIntensity, restDim);
     comet.update(fs);
     meteors.update(fs, !travel && !intro && !reduced);
+    // Der Funke gehört zur Übersicht: Fährt die Kamera los oder ist ein Objekt im Fokus,
+    // bricht er ab (seine Bahn liegt um den Startpunkt, und die Ankunft käme zur Unzeit)
+    if (spark.active && (focused || (travel && travel.kind !== "turn"))) spark.cancel();
     spark.update(fs);
 
     updateLabels();

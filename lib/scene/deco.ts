@@ -296,6 +296,12 @@ export function makeSpark() {
       onArrive = arrive;
       strip.visible = true;
     },
+    /** Abbrechen ohne Ankunft (z. B. weil die Kamera losfährt). */
+    cancel: () => {
+      arc = null;
+      onArrive = null;
+      strip.visible = false;
+    },
     update: ({ dt, camera }: FrameState) => {
       if (!arc) return;
       t += dt / dur;

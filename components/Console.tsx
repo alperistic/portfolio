@@ -101,6 +101,8 @@ export function Console({ content, focused, pulse, langs, actions }: Props) {
 
   const findPlace = (q: string) => {
     const s = slug(q);
+    // Nur Sonderzeichen (`cd ???`) ergibt einen leeren Namen — der passt sonst als Präfix auf alles
+    if (!s) return null;
     return (
       places.find((p) => p.name === s || p.id === s) ??
       places.find((p) => p.name.startsWith(s) || p.id.startsWith(s)) ??
