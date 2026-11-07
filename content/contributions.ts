@@ -6,11 +6,9 @@
  * `counts[i]` ist der Tag `from + i`: Wochentag `i % 7` (0 = Sonntag), Woche `floor(i / 7)`.
  */
 export const CONTRIBUTIONS: { asOf: string; from: string; counts: number[] } = {
-  asOf: "2026-10-31",
-  from: "2025-10-26",
+  asOf: "2026-11-08",
+  from: "2025-11-09",
   counts: [
-    0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0,
@@ -61,6 +59,8 @@ export const CONTRIBUTIONS: { asOf: string; from: string; counts: number[] } = {
     23, 56, 55, 20, 13, 0, 0,
     28, 30, 14, 10, 0, 6, 25,
     9, 5, 2, 15, 79, 59, 104,
-    30, 7, 0, 0, 0, 28, 10,
+    30, 7, 0, 0, 0, 28, 101,
+    8, 13, 0, 5, 5, 19, 87,
+    0,
   ],
 };
