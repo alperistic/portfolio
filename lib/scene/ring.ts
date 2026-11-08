@@ -50,6 +50,8 @@ export function makeContributionRing(
   hover: Uniform<number>,
   /** 0…1: Einblenden nach der Eröffnung (die Engine steuert das). */
   show: Uniform<number>,
+  /** Lauflicht beim Anhören (0…1 über das Jahr, negativ = aus). */
+  sweep: Uniform<number>,
 ) {
   const { counts } = data;
   const N = counts.length;
@@ -72,6 +74,7 @@ export function makeContributionRing(
   const col = new Float32Array(N * 3);
   const size = new Float32Array(N);
   const fresh = new Float32Array(N);
+  const tl = new Float32Array(N);
   const white = new THREE.Color(1.0, 0.93, 0.82);
   const amber = new THREE.Color(1.0, 0.6, 0.3);
   const c = new THREE.Color();
@@ -101,9 +104,10 @@ export function makeContributionRing(
     c.lerp(amber, recent * 0.35);
     col.set([c.r * b, c.g * b, c.b * b], i * 3);
     fresh[i] = recent > 0 ? 0.5 + rand() * 0.5 : 0;
+    tl[i] = i / N;
   }
 
-  const pts = makeStarPoints(ctx, { pos, col, size, fresh }, hover, show);
+  const pts = makeStarPoints(ctx, { pos, col, size, fresh, t: tl }, hover, show, sweep);
   pts.rotation.set(TILT, 0, ROLL, "ZXY");
   parent.add(pts);
   return pts;

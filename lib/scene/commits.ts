@@ -89,8 +89,11 @@ export function makeCommitStars(
   return pts;
 }
 
-/** Je Punkt: Lage (xyz), Farbe (rgb, linear, schon mit Helligkeit), Größe (Welteinheiten), Flackern (0 = ruhig). */
-export type StarPointData = { pos: Float32Array; col: Float32Array; size: Float32Array; fresh: Float32Array };
+/**
+ * Je Punkt: Lage (xyz), Farbe (rgb, linear, schon mit Helligkeit), Größe (Welteinheiten), Flackern (0 = ruhig).
+ * Optional `t` (0…1, Zeitlage des Punkts): Dann kann ein Lauflicht (`sweep`) darüber ziehen.
+ */
+export type StarPointData = { pos: Float32Array; col: Float32Array; size: Float32Array; fresh: Float32Array; t?: Float32Array };
 
 /**
  * Kleine Lichtpunkte mit weichem Rand, größenrichtig (in Welteinheiten) und additiv —
@@ -104,29 +107,35 @@ export function makeStarPoints(
   d: StarPointData,
   hover: Uniform<number>,
   show: Uniform<number> = { value: 1 },
+  /** Lauflicht: Position 0…1 auf der Zeitachse `t`, negativ = aus. */
+  sweep: Uniform<number> = { value: -1 },
 ) {
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(d.pos, 3));
   g.setAttribute("aColor", new THREE.BufferAttribute(d.col, 3));
   g.setAttribute("aSize", new THREE.BufferAttribute(d.size, 1));
   g.setAttribute("aFresh", new THREE.BufferAttribute(d.fresh, 1));
+  g.setAttribute("aT", new THREE.BufferAttribute(d.t ?? new Float32Array(d.size.length).fill(-1), 1));
   const pts = new THREE.Points(
     g,
     new THREE.ShaderMaterial({
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      uniforms: { uProj: ctx.uProj, uHover: hover, uTime: ctx.uTime, uShow: show },
+      uniforms: { uProj: ctx.uProj, uHover: hover, uTime: ctx.uTime, uShow: show, uSweep: sweep },
       vertexShader: /* glsl */ `
-        attribute vec3 aColor; attribute float aSize, aFresh; uniform float uProj, uHover, uTime, uShow; varying vec3 vColor;
+        attribute vec3 aColor; attribute float aSize, aFresh, aT; uniform float uProj, uHover, uTime, uShow, uSweep; varying vec3 vColor;
         void main(){
           vec4 mv = modelViewMatrix*vec4(position,1.0); gl_Position = projectionMatrix*mv;
-          float s = aSize*uProj/max(-mv.z, 0.1);
+          // Lauflicht: heller Kopf am aktuellen Tag, dahinter ein kurzer, verglimmender Schweif
+          float d = uSweep - aT;
+          float sw = (uSweep >= 0.0 && aT >= 0.0 && d > -0.004) ? exp(-max(d, 0.0)*32.0) : 0.0;
+          float s = aSize*(1.0 + 1.6*sw)*uProj/max(-mv.z, 0.1);
           float k = 1.0; if (s < 1.2) { k = (s*s)/(1.2*1.2); s = 1.2; }
           gl_PointSize = min(s, 18.0);
           // frische Punkte flackern leise, jeder in eigenem Takt
           float fl = 1.0 + aFresh*0.45*sin(uTime*(1.3 + aFresh) + position.x*3.1 + position.z*1.7);
-          vColor = aColor*k*fl*(1.0 + 0.6*uHover)*uShow;
+          vColor = mix(aColor, vec3(1.0, 0.86, 0.66)*0.5, sw*0.5)*k*fl*(1.0 + 0.6*uHover + 4.5*sw)*uShow;
         }`,
       fragmentShader: /* glsl */ `
         varying vec3 vColor;

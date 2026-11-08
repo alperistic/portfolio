@@ -1,6 +1,7 @@
 import type * as THREE from "three";
 import type { CommitHost } from "./commits";
 import type { Rng } from "./util";
+import type { ObjectId } from "@/content/types";
 
 export type Uniform<T> = { value: T };
 
@@ -57,7 +58,7 @@ export type FrameState = {
 };
 
 /** Ereignisse, die Objekte melden können. */
-export type SceneEvent = { type: "pulse"; id: string };
+export type SceneEvent = { type: "pulse"; id: string } | { type: "spark"; id: ObjectId };
 
 /** Ein Himmelsobjekt, wie die Engine es kennt. */
 export type Celestial = {
