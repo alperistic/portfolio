@@ -507,7 +507,10 @@ export default function Universe({ content, langs }: { content: PublicContent; l
 
   // Beim Öffnen landet der Fokus im Panel (auf dem Titel).
   useEffect(() => {
-    if (panelOpen && panelId) titleRef.current?.focus({ preventScroll: true });
+    if (!panelOpen || !panelId) return;
+    // Wer während des Flugs die Konsole aufgemacht hat, tippt dort weiter — Fokus nicht wegnehmen
+    if ((document.activeElement as HTMLElement | null)?.closest?.(".con")) return;
+    titleRef.current?.focus({ preventScroll: true });
   }, [panelOpen, panelId]);
 
   // Tastatur: Esc = zurück, Pfeil links/rechts = Tour (vorheriges/nächstes Objekt)
