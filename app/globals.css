@@ -12,7 +12,7 @@
   /* Typo-Skala. Kein Text unter 12 px. Mono nur für Daten (Zeiträume, Jahre,
      Kompass, Reticle, Tour-Zähler); gesperrte Versalien nur für die Objekt-Labels
      im Himmel und die Zeile unter dem Kompass. */
-  --t-display: clamp(44px, 5.4vw, 104px); /* nur Titelbild-H1 */
+  --t-display: clamp(46px, 6vw, 96px); /* nur Titelbild-H1 */
   --t-title: clamp(40px, 3.6vw, 72px); /* Panel-Titel, Sora 300, -0.03em, lh .98 */
   --t-lead: clamp(19px, 1.3vw, 24px); /* Lead, Sora 300, lh 1.38 */
   --t-body: clamp(16px, 1.02vw, 18px); /* Fließtext, Sora 300, lh 1.6 */
@@ -45,6 +45,11 @@ html[data-view="sky"] body {
 html[data-view="sky"] .listview,
 html:not([data-view="sky"]) .sky {
   display: none;
+}
+
+::selection {
+  background: rgba(241, 201, 142, 0.3);
+  color: #fff;
 }
 
 /* Sichtbare Fokus-Ringe für alles, was per Tastatur erreichbar ist */
@@ -447,10 +452,20 @@ a {
 .title[hidden] {
   display: none;
 }
+/* Weicher dunkler Hof hinter dem Text: hält ihn über hellen Sternen und der
+   Milchstraße lesbar, ohne eine Fläche oder Kante zu zeichnen. */
+.title::before {
+  content: "";
+  position: absolute;
+  inset: -100px -160px -140px -80px;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(2, 3, 8, 0.6), rgba(2, 3, 8, 0.36) 55%, rgba(2, 3, 8, 0));
+  pointer-events: none;
+}
 .t-name {
   margin: 0;
-  font: 300 var(--t-display) / 0.95 var(--sans);
-  letter-spacing: -0.03em;
+  font: 250 var(--t-display) / 0.95 var(--sans);
+  letter-spacing: -0.035em;
   color: #f4f5f9;
   text-shadow: 0 2px 30px rgba(2, 3, 8, 0.6);
 }
@@ -897,6 +912,25 @@ html[data-intro="title"] .legend :is(.legend-btn, .legend-list, .tour-mini),
 @media (min-width: 768px) and (max-width: 1100px) {
   .panel {
     width: 46vw;
+  }
+}
+/* Kante zur Szene: Die Fläche läuft nach links weich in den Himmel aus, statt ihn
+   mit einer harten Linie abzuschneiden (Maske statt Glas/Blur — die Sterne dahinter
+   bleiben scharf). `--edge` ist die Breite des Auslaufs; Text, Einblick und
+   Navigation beginnen erst dahinter, wo die Fläche wieder voll deckt. */
+@media (min-width: 768px) {
+  .panel {
+    --edge: clamp(56px, 6vw, 120px);
+    width: calc(clamp(440px, 36vw, 640px) + var(--edge));
+    padding-left: calc(var(--pad-x) + var(--edge));
+    box-shadow: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.5) 42%, #000 var(--edge));
+    mask-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.5) 42%, #000 var(--edge));
+  }
+}
+@media (min-width: 768px) and (max-width: 1100px) {
+  .panel {
+    width: calc(46vw + var(--edge));
   }
 }
 .p-grip {
