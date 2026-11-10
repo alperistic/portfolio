@@ -1,6 +1,6 @@
 import { de } from "./de";
 import { en } from "./en";
-import type { CelestialContent, Locale, ObjectId, SiteContent } from "./types";
+import type { CelestialContent, Locale, ObjectId, SiteContent, Visibility } from "./types";
 
 export type * from "./types";
 
@@ -29,13 +29,19 @@ export const langLinks = (): LangLink[] =>
  */
 export function getPublicContent(locale: Locale = "de"): PublicContent {
   const src = byLocale[locale];
+  // Vorschau nur lokal: `PORTFOLIO_PREVIEW=1 npm run dev` zeigt auch Einträge mit
+  // `visible: "offen"` (z. B. die Goldene Platte, solange ihr Inhalt fehlt). Die
+  // Variable ist nicht `NEXT_PUBLIC_…` und auf Vercel nicht gesetzt.
+  const preview = process.env.PORTFOLIO_PREVIEW === "1";
+  const shown = (v: Visibility) => v === "ja" || (preview && v === "offen");
   const objects: PublicContent["objects"] = {};
   for (const id of src.tourOrder) {
     const o = src.objects[id];
-    if (o.visible !== "ja") continue;
+    if (!shown(o.visible)) continue;
     objects[id] = {
       ...o,
-      stations: o.stations?.filter((s) => s.visible === "ja"),
+      stations: o.stations?.filter((s) => shown(s.visible)),
+      tracks: o.tracks?.filter((t) => shown(t.visible)),
     };
   }
   return {

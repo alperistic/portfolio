@@ -10,6 +10,7 @@ import { makeConstellation } from "./objects/constellation";
 import { makeGalaxy } from "./objects/galaxy";
 import { makeNebula } from "./objects/nebula";
 import { makePulsar } from "./objects/pulsar";
+import { makeRecordGalaxy } from "./objects/record";
 import { makeSun } from "./objects/sun";
 import { makeWeb } from "./objects/web";
 import { createBaker } from "./bake";
@@ -288,6 +289,7 @@ export function createUniverse(opts: UniverseOptions): Universe {
       register("late", makeWeb(ctx, posOf("late"), targets, dirFrom(LATE_VIEW.yaw, LATE_VIEW.pitch)));
     },
     skills: () => register("skills", makeCluster(ctx, opts.counts.skills), true),
+    fern: () => register("fern", makeRecordGalaxy(ctx, posOf("fern"), 30)),
     kontakt: () => register("kontakt", makePulsar(ctx)),
   };
   // Late zuletzt bauen: braucht die Positionen der verbundenen Projekte.

@@ -15,6 +15,7 @@ export type ObjectId =
   | "insertcoin"
   | "late"
   | "skills"
+  | "fern"
   | "kontakt";
 
 export type Tag = {
@@ -85,6 +86,19 @@ export type Media = {
   pixelated?: boolean;
 };
 
+/**
+ * Ein Eintrag der „Goldenen Platte“ (ferne Galaxie): ein persönlicher Einblick.
+ * Nur `title` ist Pflicht; Notiz, Bild/Clip und Link sind optional. Neue Spur =
+ * neuer Eintrag in `tracks`, die Nummer ergibt sich aus der Reihenfolge.
+ */
+export type Track = {
+  title: string;
+  note?: string;
+  media?: Media;
+  link?: { text: string; href: string };
+  visible: Visibility;
+};
+
 export type CelestialContent = {
   id: ObjectId;
   visible: Visibility;
@@ -105,6 +119,8 @@ export type CelestialContent = {
   facts?: Fact[];
   stations?: Station[];
   skillGroups?: SkillGroup[];
+  /** Spuren der Goldenen Platte, in Reihenfolge. */
+  tracks?: Track[];
   links?: LinkItem[];
 };
 

@@ -924,8 +924,8 @@ html[data-intro="title"] .legend :is(.legend-btn, .legend-list, .tour-mini),
     width: calc(clamp(440px, 36vw, 640px) + var(--edge));
     padding-left: calc(var(--pad-x) + var(--edge));
     box-shadow: none;
-    -webkit-mask-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.5) 42%, #000 var(--edge));
-    mask-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.5) 42%, #000 var(--edge));
+    -webkit-mask-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.5) calc(var(--edge) * 0.45), #000 var(--edge));
+    mask-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.5) calc(var(--edge) * 0.45), #000 var(--edge));
   }
 }
 @media (min-width: 768px) and (max-width: 1100px) {
@@ -1314,6 +1314,65 @@ html[data-intro="title"] .legend :is(.legend-btn, .legend-list, .tour-mini),
   margin-top: 4px;
   font: 300 var(--t-meta) / 1.55 var(--sans);
   color: var(--fg-2);
+}
+
+/* Goldene Platte: Spuren wie auf einer Plattenhülle — Nummer in Mono (die
+   Reihenfolge ist hier Inhalt), daneben Titel, Notiz, optional Bild und Link. */
+.p-tracks {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+}
+.p-tracks > li {
+  display: grid;
+  grid-template-columns: 2.6em 1fr;
+  align-items: baseline;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.p-tracks > li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.p-tracks .n {
+  font: 400 var(--t-data) / 1.2 var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--gold);
+}
+.p-tracks .b {
+  min-width: 0;
+}
+.p-tracks .t {
+  margin: 0;
+  font: 400 var(--t-body) / 1.4 var(--sans);
+  color: var(--fg);
+}
+.p-body .p-tracks p {
+  margin: 6px 0 0;
+  font: 300 var(--t-meta) / 1.6 var(--sans);
+  color: var(--fg-2);
+}
+.panel .p-tracks .p-shot {
+  margin: 14px 0 0;
+}
+.panel .p-tracks .p-shot figcaption {
+  padding-inline: 0;
+}
+.p-tracks .l {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 6px;
+  padding: 6px 0;
+  font: 400 var(--t-meta) / 1 var(--sans);
+  color: var(--gold);
+  text-decoration: none;
+}
+.p-tracks .l svg {
+  width: 9px;
+  height: 9px;
+}
+.p-tracks .l:hover {
+  color: #f4d4a4;
 }
 
 /* Skills: je Gruppe ein Block — Titel, darunter die Skills als eine Fließzeile.

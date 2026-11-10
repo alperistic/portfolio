@@ -105,6 +105,31 @@ export function ObjectBody({ o, locale, onGroupHover, animate, shotLabels }: Bod
         </ul>
       )}
 
+      {o.tracks && o.tracks.length > 0 && (
+        <ol className="p-tracks">
+          {o.tracks.map((t, i) => (
+            <li key={t.title}>
+              <span className="n" aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className="b">
+                <h3 className="t">{t.title}</h3>
+                {t.note && <p>{t.note}</p>}
+                {t.media && <Shot key={t.media.src} m={t.media} labels={shotLabels} active={animate} />}
+                {t.link && (
+                  <a className="l" href={t.link.href} target="_blank" rel="noopener noreferrer">
+                    {t.link.text}
+                    <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
+                      <path d="M2.5 7.5l5-5M3.5 2.5h4v4" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+
       {o.links && (
         <ul className="p-links">
           {o.links.map((l) => (
