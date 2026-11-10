@@ -31,6 +31,7 @@ Vorschlag für die Zuordnung (Metapher soll zum Inhalt passen, darf in der Umset
 | **Sternbild** (Punkte + Linien) | Werdegang | Jede Station ein Stern; das Sternbild wächst, wenn neue Stationen dazukommen. |
 | **Offener Sternhaufen** (Plejaden-artig, blauer Reflexionsnebel) | Skills/Stack | Jeder helle Stern eine Skill-Gruppe, beim Hovern beschriftet. |
 | **Pulsar** mit rotierenden Strahlen | Kontakt | Sendet ein Signal — „melde dich". |
+| **Ferne Galaxie, fast von der Kante** (goldene Scheibe mit Staubband und feinen Rillen) | Goldene Platte: persönliche Einblicke | Weit abseits, ein Reiseziel statt Pflichtstation. Die Rillen lassen die Scheibe aus der Nähe wie eine Schallplatte lesen. Noch nicht öffentlich. |
 
 **Deko ohne Inhalt** („weitere Elemente", sparsam, damit es lebt): gelegentliche Sternschnuppen, ein langsam ziehender Komet, ferne Hintergrundgalaxien, Milchstraßenband, Staub, der bei Reisen vorbeizieht. Optional ein Easter Egg (z. B. ein schwarzes Loch mit Gravitationslinse weit abseits).
 
@@ -123,7 +124,7 @@ Anstoß von Alper: „sehr basic gut, aber noch ohne Seele“. An Effekten fehlt
 - **Lebenszeichen:** Zeile im Titelbild „Zuletzt dran: {Projekt} · {wann}“, dazu fliegt nach dem Ankommen einmal ein goldener Funke in einem Bogen von der Sonne zum Projekt, das danach kurz aufleuchtet (Label zeigt kurz dieselbe Angabe). Hover über die Zeile schickt den Funken erneut. Daten aus den Commit-Sternen; älter als 45 Tage → keine Zeile. Kein Funke bei reduced-motion.
 - **Konsole:** Taste `/`, fällt oben herein wie die Entwickler-Konsole alter Shooter. Deckendes Schwarz, Mono, Prompt `alper@late ~ %` (Pfad folgt dem Fokus). Antworten in Alpers Ton. Navigationsbefehle schließen sie, weil der Himmel dann den Fokus übernimmt. Mobil gibt es sie nicht (keine Taste).
 - **Jahresring anhören:** Knopf im Alper-Panel und `play` in der Konsole. Jeder aktive Tag ein Ton der A-Moll-Pentatonik (Tonhöhe und Lautstärke nach Aktivität, kleiner Wochentags-Versatz als Melodie, Echo), leere Tage still. Ein Lauflicht mit kurzem Schweif zieht im Takt über den Ring. Der Klick gilt als Zustimmung zum Ton.
-- **Als Nächstes (eigener PR):** ferne Galaxie weit abseits als Reiseziel mit persönlichen Einblicken („Goldene Platte“). Inhalt kommt von Alper; die Konsole kann sie über `ls -a` verraten.
+- **Ferne Galaxie „Goldene Platte“ (10.11.2026, vorbereitet):** Objekt `fern` steht weit abseits (dreimal so weit wie die Projekte) als Reiseziel mit persönlichen Einblicken. Szene und Panel sind fertig, der Inhalt kommt von Alper. Bis dahin `visible: "offen"`: Der Eintrag wird beim Build herausgefiltert, die öffentliche Seite kennt ihn nicht. Lokal ansehen mit `PORTFOLIO_PREVIEW=1 npm run dev`. Format der Spuren in `docs/content.md`. Offen: Verrat über `ls -a` in der Konsole, sobald Inhalt da ist.
 - **Bewusst nicht:** Gästebuch-Sterne (bräuchte Backend, Moderation, Datenschutz), Cursor-Spuren, mehr Partikel.
 
 ## Offene Punkte (Alper entscheidet)

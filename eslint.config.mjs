@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // lokale Werkzeug-Dateien (nicht im Repo)
     ".remember/**",
+    ".claude/**",
   ]),
 ]);
 

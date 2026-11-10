@@ -14,7 +14,7 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 
-const ids = ["alper", "werdegang", "offerre", "pipeline", "insertcoin", "late", "skills", "kontakt"];
+const ids = ["alper", "werdegang", "offerre", "pipeline", "insertcoin", "late", "skills", "fern", "kontakt"];
 const days = {};
 for (const arg of process.argv.slice(2)) {
   const [id, raw] = arg.split("=");

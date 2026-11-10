@@ -36,25 +36,27 @@ export function bakeSky(renderer: THREE.WebGLRenderer, size: number) {
         float r = ridged(pw*1.7 + 7.0);
         float dens = pow(smoothstep(-0.05, 0.7, n), 2.2);
         float fil = pow(r, 5.0);
-        float m1 = smoothstep(0.52, 0.98, dot(d,uZ1) + 0.30*w.x);
-        float m2 = smoothstep(0.45, 0.97, dot(d,uZ2) + 0.30*w.y);
-        float m3 = smoothstep(0.50, 0.98, dot(d,uZ3) + 0.30*w.z);
+        float m1 = smoothstep(0.30, 1.0, dot(d,uZ1) + 0.30*w.x);
+        float m2 = smoothstep(0.28, 1.0, dot(d,uZ2) + 0.30*w.y);
+        float m3 = smoothstep(0.30, 1.0, dot(d,uZ3) + 0.30*w.z);
         float m4 = smoothstep(0.55, 0.98, dot(d,uZ4) + 0.30*w.x);
-        vec3 violet = vec3(0.26,0.09,0.48), magenta = vec3(0.52,0.10,0.30);
+        vec3 violet = vec3(0.17,0.10,0.44), magenta = vec3(0.46,0.12,0.30);
         vec3 teal = vec3(0.03,0.30,0.34), cyan = vec3(0.10,0.42,0.52);
         vec3 rust = vec3(0.50,0.17,0.05), amber = vec3(0.85,0.46,0.16);
         vec3 neb = vec3(0.0);
         vec3 deep = vec3(0.05,0.05,0.20);
         float hi = smoothstep(0.35, 0.9, dens);
-        neb += m1 * mix(mix(deep, violet, smoothstep(0.0,0.4,dens)), magenta, hi*smoothstep(-0.2,0.5,w.y)) * (dens*0.95 + fil*0.35);
-        neb += m2 * mix(mix(deep*0.8, teal, smoothstep(0.0,0.4,dens)), cyan, hi) * (dens*0.9 + fil*0.35);
-        neb += m3 * mix(mix(vec3(0.16,0.05,0.04), rust, smoothstep(0.0,0.4,dens)), amber, hi*0.8) * (dens*0.95 + fil*0.4);
+        // weicher Grundschleier: trägt die Fläche, Filamente zeichnen darin die Struktur
+        float hz = smoothstep(-0.5, 0.75, n);
+        neb += m1 * mix(mix(deep, violet, smoothstep(0.0,0.4,dens)), magenta, hi*smoothstep(-0.2,0.5,w.y)) * (dens*0.42 + hz*0.30 + fil*0.55);
+        neb += m2 * mix(mix(deep*0.8, teal, smoothstep(0.0,0.4,dens)), cyan, hi) * (dens*0.42 + hz*0.28 + fil*0.55);
+        neb += m3 * mix(mix(vec3(0.16,0.05,0.04), rust, smoothstep(0.0,0.4,dens)), amber, hi*0.8) * (dens*0.45 + hz*0.28 + fil*0.6);
         neb += m4 * vec3(0.12,0.16,0.42) * (dens*0.6 + fil*0.2);
         float haze = smoothstep(-0.35, 0.6, n);
         neb += (m1*violet*0.9 + m2*teal*0.7 + m3*rust*0.8) * haze * 0.16;
         float dust = smoothstep(-0.1, 0.4, fbm(d*3.3 + w*2.2 + 11.0));
         float globs = smoothstep(0.2, 0.55, fbm(d*9.0 + w*1.5 + 17.0));
-        neb *= (1.0 - 0.85*dust) * (1.0 - 0.6*globs);
+        neb *= (1.0 - 0.5*dust) * (1.0 - 0.22*globs);
         vec3 col = vec3(0.0014,0.0018,0.0042) + neb*0.17;
 
         // Milchstraße

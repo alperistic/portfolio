@@ -155,6 +155,21 @@ Reihenfolge der Gruppen wie unten, „Mit Coding-Agents bauen“ zuerst; gestric
 
 ---
 
+## Goldene Platte — Ferne Galaxie · sichtbar: offen
+
+Persönliche Einblicke abseits der Arbeit. **Inhalt fehlt noch, kommt von Alper.** Nichts erfinden.
+
+So wird sie gefüllt (`content/de.ts` und `content/en.ts`, Objekt `fern`):
+
+- `lead`: ein Satz, was hier liegt.
+- `tracks`: je Einblick eine Spur. Pflicht ist nur `title`. Optional `note` (ein, zwei Sätze), `media` (Bild oder Clip unter `public/`, gleiche Form wie bei den Projekten) und `link` (`text`, `href`). Jede Spur braucht `visible: "ja"`, sonst erscheint sie nicht. Die Nummer ergibt sich aus der Reihenfolge.
+- Zum Schluss `visible: "ja"` am Objekt. Erst dann taucht die Galaxie auf der öffentlichen Seite, in der Tour und in der Legende auf.
+- Vorher ansehen: `PORTFOLIO_PREVIEW=1 npm run dev` zeigt auch Einträge mit `offen`.
+
+Es gilt „Niemals auf die Seite“ weiter unten, auch hier.
+
+---
+
 ## Niemals auf die Seite
 
 Alter/Geburtsdatum, Adresse, Telefonnummer, private Lebensumstände, Finanzen, Namen von Kunden/Leads, interne Strategie- und Entscheidungsnotizen, Inhalte aus Bewerbungen.

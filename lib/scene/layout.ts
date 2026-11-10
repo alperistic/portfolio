@@ -14,6 +14,8 @@ export const LAYOUT: Record<ObjectId, { yaw: number; pitch: number; dist: number
   late: { yaw: 96, pitch: 36, dist: 150 },
   skills: { yaw: -158, pitch: 12, dist: 96 },
   kontakt: { yaw: -108, pitch: -6, dist: 78 },
+  // weit abseits, hoch über Werdegang und Kontakt: man findet sie beim Umsehen oder über die Legende
+  fern: { yaw: -80, pitch: 43, dist: 300 },
 };
 
 /**
@@ -39,6 +41,7 @@ export const ACCENT: Record<ObjectId, string> = {
   late: "#a99bff",
   skills: "#8fc1ff",
   kontakt: "#8fe3ff",
+  fern: "#f0c27a",
 };
 
 /** Die Projekte, die Lates Filamente verbinden. */

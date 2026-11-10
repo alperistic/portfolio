@@ -27,6 +27,7 @@ const NOTE: Record<ObjectId, number> = {
   late: 392, // G4
   skills: 880, // A5
   kontakt: 1046.5, // C6
+  fern: 329.63, // E4
 };
 
 export type Sound = {

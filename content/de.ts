@@ -113,6 +113,7 @@ export const de: SiteContent = {
     "pipeline",
     "werdegang",
     "skills",
+    "fern",
     "kontakt",
   ],
   objects: {
@@ -415,6 +416,22 @@ export const de: SiteContent = {
           skills: ["Deutsch (Muttersprache)", "Englisch (C2)", "Türkisch"],
         },
       ],
+    },
+
+    // Vorbereitet, noch nicht öffentlich (`visible: "offen"`): Inhalt kommt von Alper.
+    // Ausfüllen: `lead` (ein Satz), dann je Einblick eine Spur in `tracks`
+    // (`title` Pflicht; `note`, `media`, `link` optional). Danach `visible: "ja"`.
+    // Lokal ansehen: `PORTFOLIO_PREVIEW=1 npm run dev`.
+    fern: {
+      id: "fern",
+      visible: "offen",
+      label: "Goldene Platte",
+      meta: "Ferne Galaxie",
+      kicker: "Ferne Galaxie",
+      title: "Goldene Platte",
+      tags: [],
+      lead: "",
+      tracks: [],
     },
 
     kontakt: {

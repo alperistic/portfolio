@@ -70,6 +70,13 @@ export function Glyph({ id }: { id: ObjectId }) {
           </g>
         </svg>
       );
+    case "fern":
+      return (
+        <svg {...common}>
+          <ellipse cx="9" cy="7" rx="7.5" ry="2" fill="none" stroke={c} strokeOpacity=".6" transform="rotate(-18 9 7)" />
+          <circle cx="9" cy="7" r="2" fill={c} />
+        </svg>
+      );
     case "kontakt":
       return (
         <svg {...common}>
