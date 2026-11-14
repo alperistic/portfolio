@@ -17,7 +17,8 @@ const sora = localFont({
   display: "swap",
 });
 
-export const metadata: Metadata = { title: "Hier ist nichts." };
+// noindex: eine leere 404 soll nie als Treffer in Suchmaschinen landen
+export const metadata: Metadata = { title: "Hier ist nichts.", robots: { index: false, follow: true } };
 
 export default function GlobalNotFound() {
   return (
