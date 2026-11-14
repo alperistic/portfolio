@@ -45,7 +45,17 @@ export default function VarianteB() {
               </li>
             ))}
           </ul>
-          {d.late && <p className={s.bNote}>{d.late.lead}</p>}
+          {d.late && (
+            <p className={s.bNote}>
+              <strong>Late</strong> · {d.late.lead}
+              {d.late.link && (
+                <>
+                  {" "}
+                  <a href={d.late.link.href}>{d.late.link.text} ↗</a>
+                </>
+              )}
+            </p>
+          )}
         </section>
 
         <div className={s.bCols}>
