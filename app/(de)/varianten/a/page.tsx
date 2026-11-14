@@ -8,7 +8,7 @@ import s from "../varianten.module.css";
  */
 export default function VarianteA() {
   const d = variantData();
-  const angles = [-38, 152, 62];
+  const angles = [55, 205, -50];
   return (
     <div className={s.a}>
       <main className={s.aMain}>
